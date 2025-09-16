@@ -1,6 +1,7 @@
 package chess;
 
 import javax.swing.text.TabExpander;
+import java.util.ArrayList;
 import java.util.Collection;
 
 /**
@@ -10,8 +11,8 @@ import java.util.Collection;
  * signature of the existing methods.
  */
 public class ChessPiece {
-    private ChessGame.TeamColor color;
-    private ChessPiece.PieceType type;
+    private final ChessGame.TeamColor color;
+    private final ChessPiece.PieceType type;
 
     public ChessPiece(ChessGame.TeamColor pieceColor, ChessPiece.PieceType type) {
         this.color = pieceColor;
@@ -52,6 +53,48 @@ public class ChessPiece {
      * @return Collection of valid moves
      */
     public Collection<ChessMove> pieceMoves(ChessBoard board, ChessPosition myPosition) {
-        throw new RuntimeException("Not implemented");
+        ArrayList<ChessMove> moves = new ArrayList<>();
+        switch (type) {
+            case KING:
+                break;
+            case QUEEN:
+                break;
+            case BISHOP:
+
+                break;
+            case KNIGHT:
+                break;
+            case ROOK:
+                break;
+            case PAWN:
+                break;
+            default:
+                System.out.println("Unknown piece type: " + type);
+        }
+        return moves;
+    }
+
+//    Collection<ChessMove>
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        ChessPiece that = (ChessPiece) o;
+        if (color != that.color) return false;
+        if (type != that.type) return false;
+        return true;
+    }
+
+    @Override
+    public int hashCode() {
+        int result = color.hashCode();
+        result = 31 * result + type.hashCode();
+        return result;
+    }
+
+    @Override
+    public String toString() {
+        return String.format("ChessPiece{color=%s, type=%s}", color, type);
     }
 }

@@ -15,6 +15,25 @@ public class ChessPosition {
         this.col = col;
     }
 
+    @Override
+    public String toString() {
+        return String.format("%d, %d", row, col);
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        ChessPosition that = (ChessPosition) o;
+        return row == that.row && col == that.col;
+    }
+
+    @Override
+    public int hashCode() {
+        int result = row * 7 + col * 31;
+        return result;
+    }
+
     /**
      * @return which row this position is in
      * 1 codes for the bottom row

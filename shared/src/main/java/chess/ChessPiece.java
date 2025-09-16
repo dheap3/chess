@@ -3,6 +3,7 @@ package chess;
 import javax.swing.text.TabExpander;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Locale;
 
 /**
  * Represents a single chess piece
@@ -54,7 +55,9 @@ public class ChessPiece {
      */
     public Collection<ChessMove> pieceMoves(ChessBoard board, ChessPosition myPosition) {
         ArrayList<ChessMove> moves = new ArrayList<>();
-        switch (type) {
+//        moves.add(new ChessMove(new ChessPosition(1,1), new ChessPosition(2,2), null));
+        ChessPiece piece = board.getPiece(myPosition);
+        switch (piece.getPieceType()) {
             case KING:
                 break;
             case QUEEN:
@@ -71,7 +74,9 @@ public class ChessPiece {
             default:
                 System.out.println("Unknown piece type: " + type);
         }
+        System.out.println(moves.toString());
         return moves;
+//        throw new RuntimeException("Not implemented");
     }
 
 //    Collection<ChessMove>
@@ -95,6 +100,28 @@ public class ChessPiece {
 
     @Override
     public String toString() {
-        return String.format("ChessPiece{color=%s, type=%s}", color, type);
+//        return String.format("%s %s}", color, type);
+        String letter = "a";
+        if (type == ChessPiece.PieceType.KING) {
+            letter = "k";
+        } else if (type == ChessPiece.PieceType.QUEEN) {
+            letter = "q";
+        } else if (type == ChessPiece.PieceType.BISHOP) {
+            letter = "b";
+        } else if (type == ChessPiece.PieceType.KNIGHT) {
+            letter = "n";
+        } else if (type == ChessPiece.PieceType.ROOK) {
+            letter = "r";
+        } else if (type == ChessPiece.PieceType.PAWN) {
+            letter = "p";
+        } else {
+            letter = "z";
+        }
+        if (color == ChessGame.TeamColor.BLACK) {
+            return letter.toUpperCase();
+        } else {
+            return letter.toLowerCase();
+        }
     }
+
 }

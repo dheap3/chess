@@ -53,17 +53,56 @@ public class ChessPiece {
      *
      * @return Collection of valid moves
      */
+
+    public enum direction {
+        UP,
+        DOWN,
+        LEFT,
+        RIGHT
+    }
+
+    public ChessMove calculateMoveCoords(ChessPosition myPosition, direction myDirection) {
+        if (myDirection == direction.UP ) {
+            return new ChessMove(new ChessPosition(myPosition.getRow(), myPosition.getColumn()), new ChessPosition(myPosition.getRow() + 1, myPosition.getColumn()), null);
+        } else if (myDirection == direction.DOWN ) {
+            return new ChessMove(new ChessPosition(myPosition.getRow(), myPosition.getColumn()), new ChessPosition(myPosition.getRow() - 1, myPosition.getColumn()), null);
+        } else if (myDirection == direction.LEFT) {
+            return new ChessMove(new ChessPosition(myPosition.getRow(), myPosition.getColumn()), new ChessPosition(myPosition.getRow(), myPosition.getColumn() - 1), null);
+        } else if (myDirection == direction.RIGHT) {
+            return new ChessMove(new ChessPosition(myPosition.getRow(), myPosition.getColumn()), new ChessPosition(myPosition.getRow(), myPosition.getColumn() + 1), null);
+        } else {
+            return null;
+        }
+    }
+
     public Collection<ChessMove> pieceMoves(ChessBoard board, ChessPosition myPosition) {
         ArrayList<ChessMove> moves = new ArrayList<>();
 //        moves.add(new ChessMove(new ChessPosition(1,1), new ChessPosition(2,2), null));
         ChessPiece piece = board.getPiece(myPosition);
         switch (piece.getPieceType()) {
             case KING:
+//                myPosition = position on the board - NOT INDEXES, ROWS AND COLUMNS
+                //edge of board check, then open square check
+                //up
+                if (myPosition.getRow() != 8) {
+                    moves.add(calculateMoveCoords(myPosition, direction.UP));
+                }
+                //down
+                if (myPosition.getRow() != 1) {
+                    moves.add(calculateMoveCoords(myPosition, direction.DOWN));
+                }
+                //left
+                if (myPosition.getColumn() != 1) {
+                    moves.add(calculateMoveCoords(myPosition, direction.LEFT));
+                }
+                //right
+                if (myPosition.getColumn() != 8) {
+                    moves.add(calculateMoveCoords(myPosition, direction.RIGHT));
+                }
                 break;
             case QUEEN:
                 break;
             case BISHOP:
-
                 break;
             case KNIGHT:
                 break;

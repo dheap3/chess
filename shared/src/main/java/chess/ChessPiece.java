@@ -101,15 +101,11 @@ public class ChessPiece {
                 //+ directions
                 //up
                 if (myPosition.getRow() != 8) {
-                    System.out.println("checking for piece\n");
                     //if there's a piece there
                     if (board.getPiece(calculateMoveCoords(myPosition, direction.UP).getEndPosition()) != null) {
-                        System.out.println("Checking the piece color\n");
                         //check the piece color
                         if (board.getPiece(calculateMoveCoords(myPosition, direction.UP).getEndPosition()).getTeamColor() != myTeamColor) {
                             moves.add(calculateMoveCoords(myPosition, direction.UP));
-                            System.out.println("move added\n");
-//                            System.out.println(calculateMoveCoords(myPosition, direction.UP).getEndPosition().toString());
                         }
                     } else {
                         //no piece there, so we can add it
@@ -118,15 +114,11 @@ public class ChessPiece {
                 }
                 //down
                 if (myPosition.getRow() != 1) {
-                    System.out.println("checking for piece\n");
                     //if there's a piece there
                     if (board.getPiece(calculateMoveCoords(myPosition, direction.DOWN).getEndPosition()) != null) {
-                        System.out.println("Checking the piece color\n");
                         //check the piece color
                         if (board.getPiece(calculateMoveCoords(myPosition, direction.DOWN).getEndPosition()).getTeamColor() != myTeamColor) {
                             moves.add(calculateMoveCoords(myPosition, direction.DOWN));
-                            System.out.println("move added\n");
-//                            System.out.println(calculateMoveCoords(myPosition, direction.DOWN).getEndPosition().toString());
                         }
                     } else {
                         //no piece there, so we can add it
@@ -135,15 +127,11 @@ public class ChessPiece {
                 }
                 //left
                 if (myPosition.getColumn() != 1) {
-                    System.out.println("checking for piece\n");
                     //if there's a piece there
                     if (board.getPiece(calculateMoveCoords(myPosition, direction.LEFT).getEndPosition()) != null) {
-                        System.out.println("Checking the piece color\n");
                         //check the piece color
                         if (board.getPiece(calculateMoveCoords(myPosition, direction.LEFT).getEndPosition()).getTeamColor() != myTeamColor) {
                             moves.add(calculateMoveCoords(myPosition, direction.LEFT));
-                            System.out.println("move added\n");
-//                            System.out.println(calculateMoveCoords(myPosition, direction.LEFT).getEndPosition().toString());
                         }
                     } else {
                         //no piece there, so we can add it
@@ -152,15 +140,11 @@ public class ChessPiece {
                 }
                 //right
                 if (myPosition.getColumn() != 8) {
-                    System.out.println("checking for piece\n");
                     //if there's a piece there
                     if (board.getPiece(calculateMoveCoords(myPosition, direction.RIGHT).getEndPosition()) != null) {
-                        System.out.println("Checking the piece color\n");
                         //check the piece color
                         if (board.getPiece(calculateMoveCoords(myPosition, direction.RIGHT).getEndPosition()).getTeamColor() != myTeamColor) {
                             moves.add(calculateMoveCoords(myPosition, direction.RIGHT));
-                            System.out.println("move added\n");
-//                            System.out.println(calculateMoveCoords(myPosition, direction.RIGHT).getEndPosition().toString());
                         }
                     } else {
                         //no piece there, so we can add it

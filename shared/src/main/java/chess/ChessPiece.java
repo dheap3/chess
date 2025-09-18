@@ -65,6 +65,34 @@ public class ChessPiece {
         UPLEFT
     }
 
+    //a recursive helper function to simplify each direction and also apply recursive ability for moving multiple spaces
+    ArrayList<ChessMove> getMoves(ChessBoard board, ChessPosition position, direction dir, Boolean recursive) {
+        ChessPosition tempPos = position;
+        ArrayList<ChessMove> tempMoves = new ArrayList<>();
+//        moves.add(new ChessMove(new ChessPosition(1,1), new ChessPosition(2,2), null));
+        ChessPiece myPiece = board.getPiece(position);
+        ChessGame.TeamColor myTeamColor = myPiece.getTeamColor();
+
+        while (tempPos.getRow() != 8) {
+            //if there's a piece there
+            if (board.getPiece(calculateMoveCoords(position, dir).getEndPosition()) != null) {
+                //check the piece color
+                if (board.getPiece(calculateMoveCoords(position, dir).getEndPosition()).getTeamColor() != myTeamColor) {
+                    tempMoves.add(calculateMoveCoords(position, dir));
+                }
+            } else {
+                //no piece there, so we can add it
+                tempMoves.add(calculateMoveCoords(position, dir));
+            }
+            if (!recursive) {
+                break;
+            }
+            //it's recursive
+            tempPos = new ChessPosition(tempPos.getRow() + 1, tempPos.getColumn());
+        }
+        return tempMoves;
+    }
+
     public ChessMove calculateMoveCoords(ChessPosition myPosition, direction myDirection) {
         if (myDirection == direction.UP ) {
             return new ChessMove(new ChessPosition(myPosition.getRow(), myPosition.getColumn()), new ChessPosition(myPosition.getRow() + 1, myPosition.getColumn()), null);
@@ -207,7 +235,106 @@ public class ChessPiece {
                 }
                 break;
             case QUEEN:
+                //myPosition = position on the board - NOT INDEXES, ROWS AND COLUMNS
+                //edge of board check, then open square check
 
+                //+ directions
+                //up
+                moves.addAll(getMoves(board, myPosition, direction.UP, true));
+
+                //down
+                while (myPosition.getRow() != 1) {
+                    //if there's a piece there
+                    if (board.getPiece(calculateMoveCoords(myPosition, direction.DOWN).getEndPosition()) != null) {
+                        //check the piece color
+                        if (board.getPiece(calculateMoveCoords(myPosition, direction.DOWN).getEndPosition()).getTeamColor() != myTeamColor) {
+                            moves.add(calculateMoveCoords(myPosition, direction.DOWN));
+                        }
+                    } else {
+                        //no piece there, so we can add it
+                        moves.add(calculateMoveCoords(myPosition, direction.DOWN));
+                    }
+                }
+                //left
+                while (myPosition.getColumn() != 1) {
+                    //if there's a piece there
+                    if (board.getPiece(calculateMoveCoords(myPosition, direction.LEFT).getEndPosition()) != null) {
+                        //check the piece color
+                        if (board.getPiece(calculateMoveCoords(myPosition, direction.LEFT).getEndPosition()).getTeamColor() != myTeamColor) {
+                            moves.add(calculateMoveCoords(myPosition, direction.LEFT));
+                        }
+                    } else {
+                        //no piece there, so we can add it
+                        moves.add(calculateMoveCoords(myPosition, direction.LEFT));
+                    }
+                }
+                //right
+                while (myPosition.getColumn() != 8) {
+                    //if there's a piece there
+                    if (board.getPiece(calculateMoveCoords(myPosition, direction.RIGHT).getEndPosition()) != null) {
+                        //check the piece color
+                        if (board.getPiece(calculateMoveCoords(myPosition, direction.RIGHT).getEndPosition()).getTeamColor() != myTeamColor) {
+                            moves.add(calculateMoveCoords(myPosition, direction.RIGHT));
+                        }
+                    } else {
+                        //no piece there, so we can add it
+                        moves.add(calculateMoveCoords(myPosition, direction.RIGHT));
+                    }
+                }
+
+                //x directions
+                //upright
+                while ((myPosition.getRow() != 8) && (myPosition.getColumn() != 8)) {
+                    //if there's a piece there
+                    if (board.getPiece(calculateMoveCoords(myPosition, direction.UPRIGHT).getEndPosition()) != null) {
+                        //check the piece color
+                        if (board.getPiece(calculateMoveCoords(myPosition, direction.UPRIGHT).getEndPosition()).getTeamColor() != myTeamColor) {
+                            moves.add(calculateMoveCoords(myPosition, direction.UPRIGHT));
+                        }
+                    } else {
+                        //no piece there, so we can add it
+                        moves.add(calculateMoveCoords(myPosition, direction.UPRIGHT));
+                    }
+                }
+                //downright
+                while ((myPosition.getRow() != 1) && (myPosition.getColumn() != 8)) {
+                    //if there's a piece there
+                    if (board.getPiece(calculateMoveCoords(myPosition, direction.DOWNRIGHT).getEndPosition()) != null) {
+                        //check the piece color
+                        if (board.getPiece(calculateMoveCoords(myPosition, direction.DOWNRIGHT).getEndPosition()).getTeamColor() != myTeamColor) {
+                            moves.add(calculateMoveCoords(myPosition, direction.DOWNRIGHT));
+                        }
+                    } else {
+                        //no piece there, so we can add it
+                        moves.add(calculateMoveCoords(myPosition, direction.DOWNRIGHT));
+                    }
+                }
+                //downleft
+                while ((myPosition.getRow() != 1) && (myPosition.getColumn() != 1)) {
+                    //if there's a piece there
+                    if (board.getPiece(calculateMoveCoords(myPosition, direction.DOWNLEFT).getEndPosition()) != null) {
+                        //check the piece color
+                        if (board.getPiece(calculateMoveCoords(myPosition, direction.DOWNLEFT).getEndPosition()).getTeamColor() != myTeamColor) {
+                            moves.add(calculateMoveCoords(myPosition, direction.DOWNLEFT));
+                        }
+                    } else {
+                        //no piece there, so we can add it
+                        moves.add(calculateMoveCoords(myPosition, direction.DOWNLEFT));
+                    }
+                }
+                //upleft
+                while ((myPosition.getRow() != 8) && (myPosition.getColumn() != 1)) {
+                    //if there's a piece there
+                    if (board.getPiece(calculateMoveCoords(myPosition, direction.UPLEFT).getEndPosition()) != null) {
+                        //check the piece color
+                        if (board.getPiece(calculateMoveCoords(myPosition, direction.UPLEFT).getEndPosition()).getTeamColor() != myTeamColor) {
+                            moves.add(calculateMoveCoords(myPosition, direction.UPLEFT));
+                        }
+                    } else {
+                        //no piece there, so we can add it
+                        moves.add(calculateMoveCoords(myPosition, direction.UPLEFT));
+                    }
+                }
                 break;
             case BISHOP:
                 break;

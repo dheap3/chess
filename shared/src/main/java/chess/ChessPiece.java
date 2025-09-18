@@ -65,13 +65,38 @@ public class ChessPiece {
         UPLEFT
     }
 
+    private Boolean onBoard(ChessPosition position, ChessPiece.direction direction) {
+        switch (direction) {
+            case UP:
+                return position.getRow() != 8;
+            case DOWN:
+                return position.getRow() != 1;
+            case LEFT:
+                return position.getColumn() != 1;
+            case RIGHT:
+                return position.getColumn() != 8;
+            case UPRIGHT:
+                return (position.getRow() != 8) && (position.getColumn() != 8);
+            case DOWNRIGHT:
+                return (position.getRow() != 1) && (position.getColumn() != 8);
+            case DOWNLEFT:
+                return (position.getRow() != 1) && (position.getColumn() != 1);
+            case UPLEFT:
+                return (position.getRow() != 8) && (position.getColumn() != 1);
+            default:
+                return false;
+}
+    }
+
     //a recursive helper function to simplify each direction and also apply recursive ability for moving multiple spaces
     ArrayList<ChessMove> getMoves(ChessBoard board, ChessPosition position, direction dir, Boolean recursive) {
         ChessPosition tempPos = position;
         ArrayList<ChessMove> tempMoves = new ArrayList<>();
-//        moves.add(new ChessMove(new ChessPosition(1,1), new ChessPosition(2,2), null));
-        ChessPiece myPiece = board.getPiece(position);
-        ChessGame.TeamColor myTeamColor = myPiece.getTeamColor();
+        ChessPiece myTempPiece = board.getPiece(position);
+        ChessGame.TeamColor myTeamColor = myTempPiece.getTeamColor();
+        Boolean upCheck = tempPos.getRow() != 8;
+
+
 
         while (tempPos.getRow() != 8) {
             //if there's a piece there

@@ -152,119 +152,28 @@ public class ChessPiece {
         switch (myPiece.getPieceType()) {
             case KING:
                 //myPosition = position on the board - NOT INDEXES, ROWS AND COLUMNS
-                //edge of board check, then open square check
-
                 //+ directions
                 //up
-                if (myPosition.getRow() != 8) {
-                    //if there's a piece there
-                    if (board.getPiece(calculateMoveCoords(null, myPosition, direction.UP).getEndPosition()) != null) {
-                        //check the piece color
-                        if (board.getPiece(calculateMoveCoords(null, myPosition, direction.UP).getEndPosition()).getTeamColor() != myTeamColor) {
-                            moves.add(calculateMoveCoords(null, myPosition, direction.UP));
-                        }
-                    } else {
-                        //no piece there, so we can add it
-                        moves.add(calculateMoveCoords(null, myPosition, direction.UP));
-                    }
-                }
+                moves.addAll(getMoves(board, myPosition, direction.UP, false));
                 //down
-                if (myPosition.getRow() != 1) {
-                    //if there's a piece there
-                    if (board.getPiece(calculateMoveCoords(null, myPosition, direction.DOWN).getEndPosition()) != null) {
-                        //check the piece color
-                        if (board.getPiece(calculateMoveCoords(null, myPosition, direction.DOWN).getEndPosition()).getTeamColor() != myTeamColor) {
-                            moves.add(calculateMoveCoords(null, myPosition, direction.DOWN));
-                        }
-                    } else {
-                        //no piece there, so we can add it
-                        moves.add(calculateMoveCoords(null, myPosition, direction.DOWN));
-                    }
-                }
+                moves.addAll(getMoves(board, myPosition, direction.DOWN, false));
                 //left
-                if (myPosition.getColumn() != 1) {
-                    //if there's a piece there
-                    if (board.getPiece(calculateMoveCoords(null, myPosition, direction.LEFT).getEndPosition()) != null) {
-                        //check the piece color
-                        if (board.getPiece(calculateMoveCoords(null, myPosition, direction.LEFT).getEndPosition()).getTeamColor() != myTeamColor) {
-                            moves.add(calculateMoveCoords(null, myPosition, direction.LEFT));
-                        }
-                    } else {
-                        //no piece there, so we can add it
-                        moves.add(calculateMoveCoords(null, myPosition, direction.LEFT));
-                    }
-                }
+                moves.addAll(getMoves(board, myPosition, direction.LEFT, false));
                 //right
-                if (myPosition.getColumn() != 8) {
-                    //if there's a piece there
-                    if (board.getPiece(calculateMoveCoords(null, myPosition, direction.RIGHT).getEndPosition()) != null) {
-                        //check the piece color
-                        if (board.getPiece(calculateMoveCoords(null, myPosition, direction.RIGHT).getEndPosition()).getTeamColor() != myTeamColor) {
-                            moves.add(calculateMoveCoords(null, myPosition, direction.RIGHT));
-                        }
-                    } else {
-                        //no piece there, so we can add it
-                        moves.add(calculateMoveCoords(null, myPosition, direction.RIGHT));
-                    }
-                }
+                moves.addAll(getMoves(board, myPosition, direction.RIGHT, false));
 
                 //x directions
                 //upright
-                if ((myPosition.getRow() != 8) && (myPosition.getColumn() != 8)) {
-                    //if there's a piece there
-                    if (board.getPiece(calculateMoveCoords(null, myPosition, direction.UPRIGHT).getEndPosition()) != null) {
-                        //check the piece color
-                        if (board.getPiece(calculateMoveCoords(null, myPosition, direction.UPRIGHT).getEndPosition()).getTeamColor() != myTeamColor) {
-                            moves.add(calculateMoveCoords(null, myPosition, direction.UPRIGHT));
-                        }
-                    } else {
-                        //no piece there, so we can add it
-                        moves.add(calculateMoveCoords(null, myPosition, direction.UPRIGHT));
-                    }
-                }
+                moves.addAll(getMoves(board, myPosition, direction.UPRIGHT, false));
                 //downright
-                if ((myPosition.getRow() != 1) && (myPosition.getColumn() != 8)) {
-                    //if there's a piece there
-                    if (board.getPiece(calculateMoveCoords(null, myPosition, direction.DOWNRIGHT).getEndPosition()) != null) {
-                        //check the piece color
-                        if (board.getPiece(calculateMoveCoords(null, myPosition, direction.DOWNRIGHT).getEndPosition()).getTeamColor() != myTeamColor) {
-                            moves.add(calculateMoveCoords(null, myPosition, direction.DOWNRIGHT));
-                        }
-                    } else {
-                        //no piece there, so we can add it
-                        moves.add(calculateMoveCoords(null, myPosition, direction.DOWNRIGHT));
-                    }
-                }
+                moves.addAll(getMoves(board, myPosition, direction.DOWNRIGHT, false));
                 //downleft
-                if ((myPosition.getRow() != 1) && (myPosition.getColumn() != 1)) {
-                    //if there's a piece there
-                    if (board.getPiece(calculateMoveCoords(null, myPosition, direction.DOWNLEFT).getEndPosition()) != null) {
-                        //check the piece color
-                        if (board.getPiece(calculateMoveCoords(null, myPosition, direction.DOWNLEFT).getEndPosition()).getTeamColor() != myTeamColor) {
-                            moves.add(calculateMoveCoords(null, myPosition, direction.DOWNLEFT));
-                        }
-                    } else {
-                        //no piece there, so we can add it
-                        moves.add(calculateMoveCoords(null, myPosition, direction.DOWNLEFT));
-                    }
-                }
+                moves.addAll(getMoves(board, myPosition, direction.DOWNLEFT, false));
                 //upleft
-                if ((myPosition.getRow() != 8) && (myPosition.getColumn() != 1)) {
-                    //if there's a piece there
-                    if (board.getPiece(calculateMoveCoords(null, myPosition, direction.UPLEFT).getEndPosition()) != null) {
-                        //check the piece color
-                        if (board.getPiece(calculateMoveCoords(null, myPosition, direction.UPLEFT).getEndPosition()).getTeamColor() != myTeamColor) {
-                            moves.add(calculateMoveCoords(null, myPosition, direction.UPLEFT));
-                        }
-                    } else {
-                        //no piece there, so we can add it
-                        moves.add(calculateMoveCoords(null, myPosition, direction.UPLEFT));
-                    }
-                }
+                moves.addAll(getMoves(board, myPosition, direction.UPLEFT, false));
                 break;
             case QUEEN:
                 //myPosition = position on the board - NOT INDEXES, ROWS AND COLUMNS
-                //edge of board check, then open square check
 
                 //+ directions
                 //up
@@ -287,10 +196,28 @@ public class ChessPiece {
                 moves.addAll(getMoves(board, myPosition, direction.UPLEFT, true));
                 break;
             case BISHOP:
+                //x directions
+                //upright
+                moves.addAll(getMoves(board, myPosition, direction.UPRIGHT, true));
+                //downright
+                moves.addAll(getMoves(board, myPosition, direction.DOWNRIGHT, true));
+                //downleft
+                moves.addAll(getMoves(board, myPosition, direction.DOWNLEFT, true));
+                //upleft
+                moves.addAll(getMoves(board, myPosition, direction.UPLEFT, true));
                 break;
             case KNIGHT:
                 break;
             case ROOK:
+                //+ directions
+                //up
+                moves.addAll(getMoves(board, myPosition, direction.UP, true));
+                //down
+                moves.addAll(getMoves(board, myPosition, direction.DOWN, true));
+                //left
+                moves.addAll(getMoves(board, myPosition, direction.LEFT, true));
+                //right
+                moves.addAll(getMoves(board, myPosition, direction.RIGHT, true));
                 break;
             case PAWN:
                 break;

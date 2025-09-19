@@ -210,33 +210,36 @@ public class ChessPiece {
                 //hard coding 8 positions
                 ChessPosition endCoords = new ChessPosition(100, 100);
                 for (int i = 0; i < 8; i++) {
-                    if (i == 0) endCoords = new ChessPosition(100, 100);
-                    if (i == 1) endCoords = new ChessPosition(100, 100);
-                    if (i == 2) endCoords = new ChessPosition(100, 100);
-                    if (i == 3) endCoords = new ChessPosition(100, 100);
-                    if (i == 4) endCoords = new ChessPosition(100, 100);
-                    if (i == 5) endCoords = new ChessPosition(100, 100);
-                    if (i == 6) endCoords = new ChessPosition(100, 100);
-                    if (i == 7) endCoords = new ChessPosition(100, 100);
-                    if (i == 8) endCoords = new ChessPosition(100, 100);
+                    //top right
+                    if (i == 0) endCoords = new ChessPosition(myPosition.getRow() + 1, myPosition.getColumn() + 2);
+                    if (i == 1) endCoords = new ChessPosition(myPosition.getRow() + 2, myPosition.getColumn() + 1);
+                    //bottom right
+                    if (i == 2) endCoords = new ChessPosition(myPosition.getRow() - 1, myPosition.getColumn() + 2);
+                    if (i == 3) endCoords = new ChessPosition(myPosition.getRow() - 2, myPosition.getColumn() + 1);
+                    //bottom left
+                    if (i == 4) endCoords = new ChessPosition(myPosition.getRow() - 1, myPosition.getColumn() - 2);
+                    if (i == 5) endCoords = new ChessPosition(myPosition.getRow() - 2, myPosition.getColumn() - 1);
+                    //top left
+                    if (i == 6) endCoords = new ChessPosition(myPosition.getRow() + 1, myPosition.getColumn() - 2);
+                    if (i == 7) endCoords = new ChessPosition(myPosition.getRow() + 2, myPosition.getColumn() - 1);
 
-                }
-                ChessMove myMove = new ChessMove(myPosition, endCoords, null);
-                //changed to if, not recursive
-                if (onBoard(myPosition, direction.UP)) {
-                    //if there's a piece there
-                    if (board.getPiece(endCoords) != null) {
-                        //check the piece color
-                        if (board.getPiece(endCoords).getTeamColor() != myTeamColor) {
+                    ChessMove myMove = new ChessMove(myPosition, endCoords, null);
+
+                    //changed to if, not recursive
+                    if (onBoard(myPosition, direction.UPRIGHT)) {
+                        //if there's a piece there
+                        if (board.getPiece(endCoords) != null) {
+                            //check the piece color
+                            if (board.getPiece(endCoords).getTeamColor() != myTeamColor) {
+                                moves.add(myMove);
+                            }
+                            //because there is a piece it's the last possible move in this line
+                            break;
+                        } else {
+                            //no piece there, so we can add it
                             moves.add(myMove);
                         }
-                        //because there is a piece it's the last possible move in this line
-                        break;
-                    } else {
-                        //no piece there, so we can add it
-                        moves.add(myMove);
                     }
-
                 }
                 break;
             case ROOK:

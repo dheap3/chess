@@ -209,25 +209,51 @@ public class ChessPiece {
                 break;
             case KNIGHT:
                 //hard coding 8 positions
+                //and directions
+                ChessPiece.direction direct = direction.UPRIGHT; //going to reassign
                 ChessPosition endCoords = new ChessPosition(100, 100);
                 for (int i = 0; i < 8; i++) {
                     //top right
-                    if (i == 0) endCoords = new ChessPosition(myPosition.getRow() + 1, myPosition.getColumn() + 2);
-                    if (i == 1) endCoords = new ChessPosition(myPosition.getRow() + 2, myPosition.getColumn() + 1);
+                    if (i == 0) {
+                        endCoords = new ChessPosition(myPosition.getRow() + 1, myPosition.getColumn() + 2);
+                        direct = direction.UPRIGHT;
+                    }
+                    if (i == 1) {
+                        endCoords = new ChessPosition(myPosition.getRow() + 2, myPosition.getColumn() + 1);
+                        direct = direction.UPRIGHT;
+                    }
                     //bottom right
-                    if (i == 2) endCoords = new ChessPosition(myPosition.getRow() - 1, myPosition.getColumn() + 2);
-                    if (i == 3) endCoords = new ChessPosition(myPosition.getRow() - 2, myPosition.getColumn() + 1);
+                    if (i == 2) {
+                        endCoords = new ChessPosition(myPosition.getRow() - 1, myPosition.getColumn() + 2);
+                        direct = direction.DOWNRIGHT;
+                    }
+                    if (i == 3) {
+                        endCoords = new ChessPosition(myPosition.getRow() - 2, myPosition.getColumn() + 1);
+                            direct = direction.DOWNRIGHT;
+                    }
                     //bottom left
-                    if (i == 4) endCoords = new ChessPosition(myPosition.getRow() - 1, myPosition.getColumn() - 2);
-                    if (i == 5) endCoords = new ChessPosition(myPosition.getRow() - 2, myPosition.getColumn() - 1);
+                    if (i == 4) {
+                        endCoords = new ChessPosition(myPosition.getRow() - 1, myPosition.getColumn() - 2);
+                        direct = direction.DOWNLEFT;
+                    }
+                    if (i == 5){
+                        endCoords = new ChessPosition(myPosition.getRow() - 2, myPosition.getColumn() - 1);
+                        direct = direction.DOWNLEFT;
+                    }
                     //top left
-                    if (i == 6) endCoords = new ChessPosition(myPosition.getRow() + 1, myPosition.getColumn() - 2);
-                    if (i == 7) endCoords = new ChessPosition(myPosition.getRow() + 2, myPosition.getColumn() - 1);
+                    if (i == 6) {
+                        endCoords = new ChessPosition(myPosition.getRow() + 1, myPosition.getColumn() - 2);
+                        direct = direction.UPLEFT;
+                    }
+                    if (i == 7) {
+                        endCoords = new ChessPosition(myPosition.getRow() + 2, myPosition.getColumn() - 1);
+                        direct = direction.UPLEFT;
+                    }
 
                     ChessMove myMove = new ChessMove(myPosition, endCoords, null);
 
                     //changed to if, not recursive
-                    if (onBoard(myPosition, direction.UPRIGHT)) {
+                    if (onBoard(myPosition, direct)) {
                         //if there's a piece there
                         if (board.getPiece(endCoords) != null) {
                             //check the piece color

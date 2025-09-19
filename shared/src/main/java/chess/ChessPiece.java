@@ -65,16 +65,17 @@ public class ChessPiece {
         UPLEFT
     }
 
+    //on a redo probably do a reverse (off board makes more sense when checking nums)
     private Boolean onBoard(ChessPosition position, ChessPiece.direction direction) {
         return switch (direction) {
-            case UP -> position.getRow() != 8;
-            case DOWN -> position.getRow() != 1;
-            case LEFT -> position.getColumn() != 1;
-            case RIGHT -> position.getColumn() != 8;
-            case UPRIGHT -> (position.getRow() != 8) && (position.getColumn() != 8);
-            case DOWNRIGHT -> (position.getRow() != 1) && (position.getColumn() != 8);
-            case DOWNLEFT -> (position.getRow() != 1) && (position.getColumn() != 1);
-            case UPLEFT -> (position.getRow() != 8) && (position.getColumn() != 1);
+            case UP -> position.getRow() < 8;
+            case DOWN -> position.getRow() > 1;
+            case LEFT -> position.getColumn() > 1;
+            case RIGHT -> position.getColumn() < 8;
+            case UPRIGHT -> (position.getRow() < 8) && (position.getColumn() < 8);
+            case DOWNRIGHT -> (position.getRow() > 1) && (position.getColumn() < 8);
+            case DOWNLEFT -> (position.getRow() > 1) && (position.getColumn() > 1);
+            case UPLEFT -> (position.getRow() < 8) && (position.getColumn() > 1);
             default -> false;
         };
     }
@@ -174,7 +175,6 @@ public class ChessPiece {
                 break;
             case QUEEN:
                 //myPosition = position on the board - NOT INDEXES, ROWS AND COLUMNS
-
                 //+ directions
                 //up
                 moves.addAll(getMoves(board, myPosition, direction.UP, true));
@@ -207,6 +207,37 @@ public class ChessPiece {
                 moves.addAll(getMoves(board, myPosition, direction.UPLEFT, true));
                 break;
             case KNIGHT:
+                //hard coding 8 positions
+                ChessPosition endCoords = new ChessPosition(100, 100);
+                for (int i = 0; i < 8; i++) {
+                    if (i == 0) endCoords = new ChessPosition(100, 100);
+                    if (i == 1) endCoords = new ChessPosition(100, 100);
+                    if (i == 2) endCoords = new ChessPosition(100, 100);
+                    if (i == 3) endCoords = new ChessPosition(100, 100);
+                    if (i == 4) endCoords = new ChessPosition(100, 100);
+                    if (i == 5) endCoords = new ChessPosition(100, 100);
+                    if (i == 6) endCoords = new ChessPosition(100, 100);
+                    if (i == 7) endCoords = new ChessPosition(100, 100);
+                    if (i == 8) endCoords = new ChessPosition(100, 100);
+
+                }
+                ChessMove myMove = new ChessMove(myPosition, endCoords, null);
+                //changed to if, not recursive
+                if (onBoard(myPosition, direction.UP)) {
+                    //if there's a piece there
+                    if (board.getPiece(endCoords) != null) {
+                        //check the piece color
+                        if (board.getPiece(endCoords).getTeamColor() != myTeamColor) {
+                            moves.add(myMove);
+                        }
+                        //because there is a piece it's the last possible move in this line
+                        break;
+                    } else {
+                        //no piece there, so we can add it
+                        moves.add(myMove);
+                    }
+
+                }
                 break;
             case ROOK:
                 //+ directions

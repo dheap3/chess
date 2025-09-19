@@ -91,11 +91,13 @@ public class ChessPiece {
             if (board.getPiece(calculateMoveCoords(null, tempPos, dir).getEndPosition()) != null) {
                 //check the piece color
                 if (board.getPiece(calculateMoveCoords(null, tempPos, dir).getEndPosition()).getTeamColor() != myTeamColor) {
-                    tempMoves.add(calculateMoveCoords(null, position, dir));
+                    tempMoves.add(calculateMoveCoords(position, tempPos, dir));
                 }
+                //because there is a piece it's the last possible move in this line
+                break;
             } else {
                 //no piece there, so we can add it
-                tempMoves.add(calculateMoveCoords(null, position, dir));
+                tempMoves.add(calculateMoveCoords(position, tempPos, dir));
             }
             if (!recursive) {
                 break;

@@ -29,7 +29,8 @@ public class ChessPiece {
         BISHOP,
         KNIGHT,
         ROOK,
-        PAWN
+        PAWN,
+        TEST
     }
 
     /**
@@ -233,8 +234,6 @@ public class ChessPiece {
                             if (board.getPiece(endCoords).getTeamColor() != myTeamColor) {
                                 moves.add(myMove);
                             }
-                            //because there is a piece it's the last possible move in this line
-                            break;
                         } else {
                             //no piece there, so we can add it
                             moves.add(myMove);
@@ -259,6 +258,8 @@ public class ChessPiece {
                 System.out.println("Unknown piece type: " + type);
         }
         System.out.println(moves.toString());
+//        //output where the piece can move
+//        System.out.println(new ChessBoard());
         return moves;
 //        throw new RuntimeException("Not implemented");
     }
@@ -299,7 +300,7 @@ public class ChessPiece {
         } else if (type == ChessPiece.PieceType.PAWN) {
             letter = "p";
         } else {
-            letter = "z";
+            letter = "*";
         }
         if (color == ChessGame.TeamColor.BLACK) {
             return letter.toUpperCase();

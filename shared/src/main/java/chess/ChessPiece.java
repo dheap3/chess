@@ -30,7 +30,7 @@ public class ChessPiece {
         KNIGHT,
         ROOK,
         PAWN
-    }
+    }//ALL DONE
 
     /**
      * @return Which team this chess piece belongs to

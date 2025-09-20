@@ -29,8 +29,7 @@ public class ChessPiece {
         BISHOP,
         KNIGHT,
         ROOK,
-        PAWN,
-        TEST
+        PAWN
     }
 
     /**
@@ -67,17 +66,17 @@ public class ChessPiece {
     }
 
     //on a redo probably do a reverse (off board makes more sense when checking nums)
-    //technically "if the move you do will be on the board"
+    //if the position passed in is on the board
     private Boolean onBoard(ChessPosition position, ChessPiece.direction direction) {
         return switch (direction) {
-            case UP -> position.getRow() < 8;
-            case DOWN -> position.getRow() > 1;
-            case LEFT -> position.getColumn() > 1;
-            case RIGHT -> position.getColumn() < 8;
-            case UPRIGHT -> (position.getRow() < 8) && (position.getColumn() < 8);
-            case DOWNRIGHT -> (position.getRow() > 1) && (position.getColumn() < 8);
-            case DOWNLEFT -> (position.getRow() > 1) && (position.getColumn() > 1);
-            case UPLEFT -> (position.getRow() < 8) && (position.getColumn() > 1);
+            case UP -> position.getRow() < 9;
+            case DOWN -> position.getRow() > 0;
+            case LEFT -> position.getColumn() > 0;
+            case RIGHT -> position.getColumn() < 9;
+            case UPRIGHT -> (position.getRow() < 9) && (position.getColumn() < 9);
+            case DOWNRIGHT -> (position.getRow() > 0) && (position.getColumn() < 9);
+            case DOWNLEFT -> (position.getRow() > 0) && (position.getColumn() > 0);
+            case UPLEFT -> (position.getRow() < 9) && (position.getColumn() > 0);
             default -> false;
         };
     }
@@ -89,7 +88,7 @@ public class ChessPiece {
         ChessPiece myTempPiece = board.getPiece(position);
         ChessGame.TeamColor myTeamColor = myTempPiece.getTeamColor();
 
-        while (onBoard(tempPos, dir)) {
+        while (onBoard(calculateMoveCoords(position, tempPos, dir, null).getEndPosition(), dir)) {
             //if there's a piece there
             if (board.getPiece(calculateMoveCoords(null, tempPos, dir, null).getEndPosition()) != null) {
                 //check the piece color
@@ -254,7 +253,7 @@ public class ChessPiece {
                     ChessMove myMove = new ChessMove(myPosition, endCoords, null);
 
                     //changed to if, not recursive
-                    if (onBoard(myPosition, direct)) {
+                    if (onBoard(endCoords, direct)) {
                         //if there's a piece there
                         if (board.getPiece(endCoords) != null) {
                             //check the piece color
@@ -293,7 +292,7 @@ public class ChessPiece {
                 if (myTeamColor == ChessGame.TeamColor.WHITE) {
                     //forward 1
                     myMove = calculateMoveCoords(null, myPosition, direction.UP, promoteType);
-                    if (onBoard(myPosition, direction.UP)) {
+                    if (onBoard(myMove.getEndPosition(), direction.UP)) {
                         //check if there's a piece
                         if (board.getPiece(myMove.getEndPosition()) != null) {
                             //do nothing
@@ -335,7 +334,7 @@ public class ChessPiece {
                     }
                     //front sides -> capturing
                     myMove = calculateMoveCoords(null, myPosition, direction.UPRIGHT, promoteType);
-                    if (onBoard(myPosition, direction.UPRIGHT)) {
+                    if (onBoard(myMove.getEndPosition(), direction.UPRIGHT)) {
                         //we could replace calculateMoveCoords(null, myPosition, direction.UPRIGHT) with something more dynamic later on
                         //we can only move there if there is a piece
                         if (board.getPiece(myMove.getEndPosition()) != null) {
@@ -362,7 +361,7 @@ public class ChessPiece {
                         }
                     }
                     myMove = calculateMoveCoords(null, myPosition, direction.UPLEFT, promoteType);
-                    if (onBoard(myPosition, direction.UPLEFT)) {
+                    if (onBoard(myMove.getEndPosition(), direction.UPLEFT)) {
                         //we could replace calculateMoveCoords(null, myPosition, direction.UPLEFT) with something more dynamic later on
                         //we can only move there if there is a piece
                         if (board.getPiece(myMove.getEndPosition()) != null) {
@@ -391,7 +390,7 @@ public class ChessPiece {
                 } else { //TeamColor.BLACK
                     //forward 1
                     myMove = calculateMoveCoords(null, myPosition, direction.DOWN, promoteType);
-                    if (onBoard(myPosition, direction.DOWN)) {
+                    if (onBoard(myMove.getEndPosition(), direction.DOWN)) {
                         //check if there's a piece
                         if (board.getPiece(myMove.getEndPosition()) != null) {
                             //do nothing
@@ -433,7 +432,7 @@ public class ChessPiece {
                     }
                     //front sides -> capturing
                     myMove = calculateMoveCoords(null, myPosition, direction.DOWNRIGHT, promoteType);
-                    if (onBoard(myPosition, direction.DOWNRIGHT)) {
+                    if (onBoard(myMove.getEndPosition(), direction.DOWNRIGHT)) {
                         //we could replace calculateMoveCoords(null, myPosition, direction.DOWNRIGHT) with something more dynamic later on
                         //we can only move there if there is a piece
                         if (board.getPiece(myMove.getEndPosition()) != null) {
@@ -460,7 +459,7 @@ public class ChessPiece {
                         }
                     }
                     myMove = calculateMoveCoords(null, myPosition, direction.DOWNLEFT, promoteType);
-                    if (onBoard(myPosition, direction.DOWNLEFT)) {
+                    if (onBoard(myMove.getEndPosition(), direction.DOWNLEFT)) {
                         //we could replace calculateMoveCoords(null, myPosition, direction.DOWNLEFT) with something more dynamic later on
                         //we can only move there if there is a piece
                         if (board.getPiece(myMove.getEndPosition()) != null) {
@@ -528,7 +527,7 @@ public class ChessPiece {
         } else if (type == ChessPiece.PieceType.BISHOP) {
             letter = "b";
         } else if (type == ChessPiece.PieceType.KNIGHT) {
-            letter = "n";
+            letter = "k";
         } else if (type == ChessPiece.PieceType.ROOK) {
             letter = "r";
         } else if (type == ChessPiece.PieceType.PAWN) {

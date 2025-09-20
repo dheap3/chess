@@ -296,7 +296,7 @@ public class ChessPiece {
                     if (onBoard(myPosition, direction.UP)) {
                         //check if there's a piece
                         if (board.getPiece(myMove.getEndPosition()) != null) {
-                            break;
+                            //do nothing
                         } else {
                             //no piece there, so we can add it
                             //check if it will promote
@@ -325,8 +325,12 @@ public class ChessPiece {
                         if (board.getPiece(myMove.endPosition) != null) {
                             break;
                         } else {
-                            //no piece there, so we can add it
-                            moves.add(myMove);
+                            //checking if it could move 1. if it could then it shouldn't be able to move 2. otherwise add the move
+                            if (moves.isEmpty()) {
+                                //can't move, do nothing
+                            } else {
+                                moves.add(myMove);
+                            }
                         }
                     }
                     //front sides -> capturing
@@ -384,9 +388,104 @@ public class ChessPiece {
                             }
                         }
                     }
-
                 } else { //TeamColor.BLACK
-
+                    //forward 1
+                    myMove = calculateMoveCoords(null, myPosition, direction.DOWN, promoteType);
+                    if (onBoard(myPosition, direction.DOWN)) {
+                        //check if there's a piece
+                        if (board.getPiece(myMove.getEndPosition()) != null) {
+                            //do nothing
+                        } else {
+                            //no piece there, so we can add it
+                            //check if it will promote
+                            if (myPosition.getRow() == 2) {
+                                promoteType = ChessPiece.PieceType.QUEEN;
+                                myMove = calculateMoveCoords(null, myPosition, direction.DOWN, promoteType);
+                                moves.add(myMove);
+                                promoteType = ChessPiece.PieceType.BISHOP;
+                                myMove = calculateMoveCoords(null, myPosition, direction.DOWN, promoteType);
+                                moves.add(myMove);
+                                promoteType = ChessPiece.PieceType.KNIGHT;
+                                myMove = calculateMoveCoords(null, myPosition, direction.DOWN, promoteType);
+                                moves.add(myMove);
+                                promoteType = ChessPiece.PieceType.ROOK;
+                                myMove = calculateMoveCoords(null, myPosition, direction.DOWN, promoteType);
+                                moves.add(myMove);
+                            } else {
+                                moves.add(myMove);
+                            }
+                        }
+                    }
+                    //don't need to check if it'll be on the board, already checks what row we're on
+                    if (myPosition.getRow() == 7) {
+                        //forward 2
+                        myMove = new ChessMove(myPosition, new ChessPosition(myPosition.getRow() - 2, myPosition.getColumn()), null);
+                        if (board.getPiece(myMove.endPosition) != null) {
+                            break;
+                        } else {
+                            //checking if it could move 1. if it could then it shouldn't be able to move 2. otherwise add the move
+                            if (moves.isEmpty()) {
+                                //can't move, do nothing
+                            } else {
+                                moves.add(myMove);
+                            }
+                        }
+                    }
+                    //front sides -> capturing
+                    myMove = calculateMoveCoords(null, myPosition, direction.DOWNRIGHT, promoteType);
+                    if (onBoard(myPosition, direction.DOWNRIGHT)) {
+                        //we could replace calculateMoveCoords(null, myPosition, direction.DOWNRIGHT) with something more dynamic later on
+                        //we can only move there if there is a piece
+                        if (board.getPiece(myMove.getEndPosition()) != null) {
+                            //we can move there if we can capture the piece - hence -> if it's the other team's color
+                            if (board.getPiece(myMove.getEndPosition()).getTeamColor() != myTeamColor) {
+                                //check if it will promote
+                                if (myPosition.getRow() == 2) {
+                                    promoteType = ChessPiece.PieceType.QUEEN;
+                                    myMove = calculateMoveCoords(null, myPosition, direction.DOWNRIGHT, promoteType);
+                                    moves.add(myMove);
+                                    promoteType = ChessPiece.PieceType.BISHOP;
+                                    myMove = calculateMoveCoords(null, myPosition, direction.DOWNRIGHT, promoteType);
+                                    moves.add(myMove);
+                                    promoteType = ChessPiece.PieceType.KNIGHT;
+                                    myMove = calculateMoveCoords(null, myPosition, direction.DOWNRIGHT, promoteType);
+                                    moves.add(myMove);
+                                    promoteType = ChessPiece.PieceType.ROOK;
+                                    myMove = calculateMoveCoords(null, myPosition, direction.DOWNRIGHT, promoteType);
+                                    moves.add(myMove);
+                                } else {
+                                    moves.add(myMove);
+                                }
+                            }
+                        }
+                    }
+                    myMove = calculateMoveCoords(null, myPosition, direction.DOWNLEFT, promoteType);
+                    if (onBoard(myPosition, direction.DOWNLEFT)) {
+                        //we could replace calculateMoveCoords(null, myPosition, direction.DOWNLEFT) with something more dynamic later on
+                        //we can only move there if there is a piece
+                        if (board.getPiece(myMove.getEndPosition()) != null) {
+                            //we can move there if we can capture the piece - hence -> if it's the other team's color
+                            if (board.getPiece(myMove.getEndPosition()).getTeamColor() != myTeamColor) {
+                                //check if it will promote
+                                if (myPosition.getRow() == 2) {
+                                    promoteType = ChessPiece.PieceType.QUEEN;
+                                    myMove = calculateMoveCoords(null, myPosition, direction.DOWNLEFT, promoteType);
+                                    moves.add(myMove);
+                                    promoteType = ChessPiece.PieceType.BISHOP;
+                                    myMove = calculateMoveCoords(null, myPosition, direction.DOWNLEFT, promoteType);
+                                    moves.add(myMove);
+                                    promoteType = ChessPiece.PieceType.KNIGHT;
+                                    myMove = calculateMoveCoords(null, myPosition, direction.DOWNLEFT, promoteType);
+                                    moves.add(myMove);
+                                    promoteType = ChessPiece.PieceType.ROOK;
+                                    myMove = calculateMoveCoords(null, myPosition, direction.DOWNLEFT, promoteType);
+                                    moves.add(myMove);
+                                } else {
+                                    moves.add(myMove);
+                                }
+                            }
+                        }
+                    }
                 }
                 break;
             default:

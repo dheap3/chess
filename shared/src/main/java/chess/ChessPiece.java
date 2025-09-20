@@ -67,6 +67,7 @@ public class ChessPiece {
     }
 
     //on a redo probably do a reverse (off board makes more sense when checking nums)
+    //technically "if the move you do will be on the board"
     private Boolean onBoard(ChessPosition position, ChessPiece.direction direction) {
         return switch (direction) {
             case UP -> position.getRow() < 8;
@@ -279,6 +280,57 @@ public class ChessPiece {
                 moves.addAll(getMoves(board, myPosition, direction.RIGHT, true));
                 break;
             case PAWN:
+//                ArrayList<ChessMove> moves = new ArrayList<>();
+//                ChessPiece myPiece = board.getPiece(myPosition);
+//                ChessGame.TeamColor myTeamColor = myPiece.getTeamColor();
+
+                if (myTeamColor == ChessGame.TeamColor.WHITE) {
+                    //forward 1
+                    if (onBoard(myPosition, direction.UP)) {
+                        //check if there's a piece
+                        if (board.getPiece(calculateMoveCoords(null, myPosition, direction.UP).getEndPosition()) != null) {
+                            break;
+                        } else {
+                            //no piece there, so we can add it
+                            moves.add(calculateMoveCoords(null, myPosition, direction.UP));
+                        }
+                    }
+                    //don't need to check if it'll be on the board, already checks what row we're on
+                    if (myPosition.getRow() == 2) {
+                        //forward 2
+                        ChessMove myMove = new ChessMove(myPosition, new ChessPosition(myPosition.getRow() + 2, myPosition.getColumn()), null);
+                        if (board.getPiece(myMove.endPosition) != null) {
+                            break;
+                        } else {
+                            //no piece there, so we can add it
+                            moves.add(myMove);
+                        }
+                    }
+                    //front sides
+                    if (onBoard(myPosition, direction.UPRIGHT)) {
+                        //we could replace calculateMoveCoords(null, myPosition, direction.UPRIGHT) with something more dynamic later on
+                        //we can only move there if there is a piece
+                        if (board.getPiece(calculateMoveCoords(null, myPosition, direction.UPRIGHT).getEndPosition()) != null) {
+                            //we can move there if we can capture the piece
+                            //if it's the other team's color
+                            if (board.getPiece(calculateMoveCoords(null, myPosition, direction.UPRIGHT).getEndPosition()).getTeamColor() != myTeamColor) {
+                                moves.add(calculateMoveCoords(null, myPosition, direction.UPRIGHT));
+                            }
+                        }
+                    }
+                    if (onBoard(myPosition, direction.UPLEFT)) {
+                        //we can only move there if there is a piece
+                        if (board.getPiece(calculateMoveCoords(null, myPosition, direction.UPLEFT).getEndPosition()) != null) {
+                            //we can move there if we can capture the piece
+                            //if it's the other team's color
+                            if (board.getPiece(calculateMoveCoords(null, myPosition, direction.UPLEFT).getEndPosition()).getTeamColor() != myTeamColor) {
+                                moves.add(calculateMoveCoords(null, myPosition, direction.UPLEFT));
+                            }
+                        }
+                    }
+                } else { //TeamColor.BLACK
+
+                }
                 break;
             default:
                 System.out.println("Unknown piece type: " + type);

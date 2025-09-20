@@ -91,16 +91,16 @@ public class ChessPiece {
 
         while (onBoard(tempPos, dir)) {
             //if there's a piece there
-            if (board.getPiece(calculateMoveCoords(null, tempPos, dir).getEndPosition()) != null) {
+            if (board.getPiece(calculateMoveCoords(null, tempPos, dir, null).getEndPosition()) != null) {
                 //check the piece color
-                if (board.getPiece(calculateMoveCoords(null, tempPos, dir).getEndPosition()).getTeamColor() != myTeamColor) {
-                    tempMoves.add(calculateMoveCoords(position, tempPos, dir));
+                if (board.getPiece(calculateMoveCoords(null, tempPos, dir, null).getEndPosition()).getTeamColor() != myTeamColor) {
+                    tempMoves.add(calculateMoveCoords(position, tempPos, dir, null));
                 }
                 //because there is a piece it's the last possible move in this line
                 break;
             } else {
                 //no piece there, so we can add it
-                tempMoves.add(calculateMoveCoords(position, tempPos, dir));
+                tempMoves.add(calculateMoveCoords(position, tempPos, dir, null));
             }
             if (!recursive) {
                 break;
@@ -121,26 +121,26 @@ public class ChessPiece {
         return tempMoves;
     }
     //prePosition added for recursive calls with pieces ex: queen
-    public ChessMove calculateMoveCoords(ChessPosition prePosition, ChessPosition myPosition, direction myDirection) {
+    public ChessMove calculateMoveCoords(ChessPosition prePosition, ChessPosition myPosition, direction myDirection, ChessPiece.PieceType promotionPiece) {
         if (prePosition == null){
             prePosition = myPosition;
         }
         if (myDirection == direction.UP ) {
-            return new ChessMove(prePosition, new ChessPosition(myPosition.getRow() + 1, myPosition.getColumn()), null);
+            return new ChessMove(prePosition, new ChessPosition(myPosition.getRow() + 1, myPosition.getColumn()), promotionPiece);
         } else if (myDirection == direction.DOWN ) {
-            return new ChessMove(prePosition, new ChessPosition(myPosition.getRow() - 1, myPosition.getColumn()), null);
+            return new ChessMove(prePosition, new ChessPosition(myPosition.getRow() - 1, myPosition.getColumn()), promotionPiece);
         } else if (myDirection == direction.LEFT) {
-            return new ChessMove(prePosition, new ChessPosition(myPosition.getRow(), myPosition.getColumn() - 1), null);
+            return new ChessMove(prePosition, new ChessPosition(myPosition.getRow(), myPosition.getColumn() - 1), promotionPiece); //promotionPiece should always be null here
         } else if (myDirection == direction.RIGHT) {
-            return new ChessMove(prePosition, new ChessPosition(myPosition.getRow(), myPosition.getColumn() + 1), null);
+            return new ChessMove(prePosition, new ChessPosition(myPosition.getRow(), myPosition.getColumn() + 1), promotionPiece); //promotionPiece should always be null here
         } else if (myDirection == direction.UPRIGHT ) {
-            return new ChessMove(prePosition, new ChessPosition(myPosition.getRow() + 1, myPosition.getColumn() + 1), null);
+            return new ChessMove(prePosition, new ChessPosition(myPosition.getRow() + 1, myPosition.getColumn() + 1), promotionPiece);
         } else if (myDirection == direction.DOWNRIGHT ) {
-            return new ChessMove(prePosition, new ChessPosition(myPosition.getRow() - 1, myPosition.getColumn() + 1), null);
+            return new ChessMove(prePosition, new ChessPosition(myPosition.getRow() - 1, myPosition.getColumn() + 1), promotionPiece);
         } else if (myDirection == direction.DOWNLEFT) {
-            return new ChessMove(prePosition, new ChessPosition(myPosition.getRow() - 1, myPosition.getColumn() - 1), null);
+            return new ChessMove(prePosition, new ChessPosition(myPosition.getRow() - 1, myPosition.getColumn() - 1), promotionPiece);
         } else if (myDirection == direction.UPLEFT) {
-            return new ChessMove(prePosition, new ChessPosition(myPosition.getRow() + 1, myPosition.getColumn() - 1), null);
+            return new ChessMove(prePosition, new ChessPosition(myPosition.getRow() + 1, myPosition.getColumn() - 1), promotionPiece);
         } else {
             return null;
         }
@@ -280,25 +280,48 @@ public class ChessPiece {
                 moves.addAll(getMoves(board, myPosition, direction.RIGHT, true));
                 break;
             case PAWN:
+                //promote variables?
+                ChessPiece.PieceType promoteType = null;
+//                if (myPosition.getRow() == 7) {
+//                    promoteType = ChessPiece.PieceType.TEST; //CAN PROMOTE
+//                }
 //                ArrayList<ChessMove> moves = new ArrayList<>();
 //                ChessPiece myPiece = board.getPiece(myPosition);
 //                ChessGame.TeamColor myTeamColor = myPiece.getTeamColor();
+                ChessMove myMove = null;//allows us to check promotion row quickly
 
                 if (myTeamColor == ChessGame.TeamColor.WHITE) {
                     //forward 1
+                    myMove = calculateMoveCoords(null, myPosition, direction.UP, promoteType);
                     if (onBoard(myPosition, direction.UP)) {
                         //check if there's a piece
-                        if (board.getPiece(calculateMoveCoords(null, myPosition, direction.UP).getEndPosition()) != null) {
+                        if (board.getPiece(myMove.getEndPosition()) != null) {
                             break;
                         } else {
                             //no piece there, so we can add it
-                            moves.add(calculateMoveCoords(null, myPosition, direction.UP));
+                            //check if it will promote
+                            if (myPosition.getRow() == 7) {
+                                promoteType = ChessPiece.PieceType.QUEEN;
+                                myMove = calculateMoveCoords(null, myPosition, direction.UP, promoteType);
+                                moves.add(myMove);
+                                promoteType = ChessPiece.PieceType.BISHOP;
+                                myMove = calculateMoveCoords(null, myPosition, direction.UP, promoteType);
+                                moves.add(myMove);
+                                promoteType = ChessPiece.PieceType.KNIGHT;
+                                myMove = calculateMoveCoords(null, myPosition, direction.UP, promoteType);
+                                moves.add(myMove);
+                                promoteType = ChessPiece.PieceType.ROOK;
+                                myMove = calculateMoveCoords(null, myPosition, direction.UP, promoteType);
+                                moves.add(myMove);
+                            } else {
+                                moves.add(myMove);
+                            }
                         }
                     }
                     //don't need to check if it'll be on the board, already checks what row we're on
                     if (myPosition.getRow() == 2) {
                         //forward 2
-                        ChessMove myMove = new ChessMove(myPosition, new ChessPosition(myPosition.getRow() + 2, myPosition.getColumn()), null);
+                        myMove = new ChessMove(myPosition, new ChessPosition(myPosition.getRow() + 2, myPosition.getColumn()), null);
                         if (board.getPiece(myMove.endPosition) != null) {
                             break;
                         } else {
@@ -306,28 +329,62 @@ public class ChessPiece {
                             moves.add(myMove);
                         }
                     }
-                    //front sides
+                    //front sides -> capturing
+                    myMove = calculateMoveCoords(null, myPosition, direction.UPRIGHT, promoteType);
                     if (onBoard(myPosition, direction.UPRIGHT)) {
                         //we could replace calculateMoveCoords(null, myPosition, direction.UPRIGHT) with something more dynamic later on
                         //we can only move there if there is a piece
-                        if (board.getPiece(calculateMoveCoords(null, myPosition, direction.UPRIGHT).getEndPosition()) != null) {
-                            //we can move there if we can capture the piece
-                            //if it's the other team's color
-                            if (board.getPiece(calculateMoveCoords(null, myPosition, direction.UPRIGHT).getEndPosition()).getTeamColor() != myTeamColor) {
-                                moves.add(calculateMoveCoords(null, myPosition, direction.UPRIGHT));
+                        if (board.getPiece(myMove.getEndPosition()) != null) {
+                            //we can move there if we can capture the piece - hence -> if it's the other team's color
+                            if (board.getPiece(myMove.getEndPosition()).getTeamColor() != myTeamColor) {
+                                //check if it will promote
+                                if (myPosition.getRow() == 7) {
+                                    promoteType = ChessPiece.PieceType.QUEEN;
+                                    myMove = calculateMoveCoords(null, myPosition, direction.UPRIGHT, promoteType);
+                                    moves.add(myMove);
+                                    promoteType = ChessPiece.PieceType.BISHOP;
+                                    myMove = calculateMoveCoords(null, myPosition, direction.UPRIGHT, promoteType);
+                                    moves.add(myMove);
+                                    promoteType = ChessPiece.PieceType.KNIGHT;
+                                    myMove = calculateMoveCoords(null, myPosition, direction.UPRIGHT, promoteType);
+                                    moves.add(myMove);
+                                    promoteType = ChessPiece.PieceType.ROOK;
+                                    myMove = calculateMoveCoords(null, myPosition, direction.UPRIGHT, promoteType);
+                                    moves.add(myMove);
+                                } else {
+                                    moves.add(myMove);
+                                }
                             }
                         }
                     }
+                    myMove = calculateMoveCoords(null, myPosition, direction.UPLEFT, promoteType);
                     if (onBoard(myPosition, direction.UPLEFT)) {
+                        //we could replace calculateMoveCoords(null, myPosition, direction.UPLEFT) with something more dynamic later on
                         //we can only move there if there is a piece
-                        if (board.getPiece(calculateMoveCoords(null, myPosition, direction.UPLEFT).getEndPosition()) != null) {
-                            //we can move there if we can capture the piece
-                            //if it's the other team's color
-                            if (board.getPiece(calculateMoveCoords(null, myPosition, direction.UPLEFT).getEndPosition()).getTeamColor() != myTeamColor) {
-                                moves.add(calculateMoveCoords(null, myPosition, direction.UPLEFT));
+                        if (board.getPiece(myMove.getEndPosition()) != null) {
+                            //we can move there if we can capture the piece - hence -> if it's the other team's color
+                            if (board.getPiece(myMove.getEndPosition()).getTeamColor() != myTeamColor) {
+                                //check if it will promote
+                                if (myPosition.getRow() == 7) {
+                                    promoteType = ChessPiece.PieceType.QUEEN;
+                                    myMove = calculateMoveCoords(null, myPosition, direction.UPLEFT, promoteType);
+                                    moves.add(myMove);
+                                    promoteType = ChessPiece.PieceType.BISHOP;
+                                    myMove = calculateMoveCoords(null, myPosition, direction.UPLEFT, promoteType);
+                                    moves.add(myMove);
+                                    promoteType = ChessPiece.PieceType.KNIGHT;
+                                    myMove = calculateMoveCoords(null, myPosition, direction.UPLEFT, promoteType);
+                                    moves.add(myMove);
+                                    promoteType = ChessPiece.PieceType.ROOK;
+                                    myMove = calculateMoveCoords(null, myPosition, direction.UPLEFT, promoteType);
+                                    moves.add(myMove);
+                                } else {
+                                    moves.add(myMove);
+                                }
                             }
                         }
                     }
+
                 } else { //TeamColor.BLACK
 
                 }
@@ -381,9 +438,9 @@ public class ChessPiece {
             letter = "*";
         }
         if (color == ChessGame.TeamColor.BLACK) {
-            return letter.toUpperCase();
-        } else {
             return letter.toLowerCase();
+        } else {
+            return letter.toUpperCase();
         }
     }
 

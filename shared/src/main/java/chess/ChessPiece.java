@@ -463,7 +463,7 @@ public class ChessPiece {
         } else if (type == ChessPiece.PieceType.BISHOP) {
             piece = "b";
         } else if (type == ChessPiece.PieceType.KNIGHT) {
-            piece = "k";
+            piece = "n";
         } else if (type == ChessPiece.PieceType.ROOK) {
             piece = "r";
         } else if (type == ChessPiece.PieceType.PAWN) {

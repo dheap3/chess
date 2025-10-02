@@ -14,10 +14,12 @@ public class ChessPiece {
 
     private final ChessGame.TeamColor pieceColor;
     private final PieceType type;
+    private ArrayList<ChessPiece> capturablePieces;
 
     public ChessPiece(ChessGame.TeamColor pieceColor, ChessPiece.PieceType type) {
         this.pieceColor = pieceColor;
         this.type = type;
+        this.capturablePieces = new ArrayList<ChessPiece>();
     }
 
     /**
@@ -30,6 +32,14 @@ public class ChessPiece {
         KNIGHT,
         ROOK,
         PAWN
+    }
+
+    public ArrayList<ChessPiece> getCapturablePieces() {
+        return capturablePieces;
+    }
+
+    public void resetCapturablePieces() {
+        capturablePieces = new ArrayList<ChessPiece>();
     }
 
     /**
@@ -65,6 +75,8 @@ public class ChessPiece {
         ChessGame.TeamColor myTeamColor = myPiece.getTeamColor();
         ChessGame.TeamColor prospectPieceTeamColor = prospectPiece.getTeamColor();
         if (prospectPieceTeamColor != myTeamColor) {
+            //add to list of capturable pieces
+            capturablePieces.add(prospectPiece);
             return true;
         } else {
             return false;

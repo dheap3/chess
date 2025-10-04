@@ -60,6 +60,8 @@ public class ChessGame {
         ArrayList<ChessMove> invalidMoves = new ArrayList<>();
         //if it would leave the king in check, remove it
         for (ChessMove move : validMoves) {
+            //save the end square so we don't lose anything
+            ChessPiece endSquare = board.getPiece(move.getEndPosition());
             //perform move
             board.addPiece(move.getEndPosition(), board.getPiece(move.getStartPosition()));
             board.addPiece(move.getStartPosition(), null);
@@ -68,7 +70,7 @@ public class ChessGame {
             }
             //reverse the move (reset the board)
             board.addPiece(move.getStartPosition(), board.getPiece(move.getEndPosition()));
-            board.addPiece(move.getEndPosition(), null);
+            board.addPiece(move.getEndPosition(), endSquare);
         }
         validMoves.removeAll(invalidMoves);
         return validMoves;

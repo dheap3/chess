@@ -90,8 +90,13 @@ public class ChessGame {
             throw new InvalidMoveException();
         }
         if (validMoves(move.startPosition).contains(move)) {
-            board.addPiece(move.getEndPosition(), board.getPiece(move.getStartPosition()));
-            board.addPiece(move.getStartPosition(), null);
+            if (move.getPromotionPiece() != null) {
+                board.addPiece(move.getEndPosition(), new ChessPiece(board.getPiece(move.getStartPosition()).getTeamColor(), move.getPromotionPiece()));
+                board.addPiece(move.getStartPosition(), null);
+            } else {
+                board.addPiece(move.getEndPosition(), board.getPiece(move.getStartPosition()));
+                board.addPiece(move.getStartPosition(), null);
+            }
         } else {
             throw new InvalidMoveException();
         }

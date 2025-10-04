@@ -307,8 +307,7 @@ public class ChessPiece {
             //1 in front
             ChessPosition endPos = new ChessPosition(myPosition.getRow() + 1, myPosition.getColumn());
             if (coordsOnBoard(endPos)) {
-                if (!blocked(board, endPos)) {
-                    //promotion
+                if (!blocked(board, endPos)) {//promotion
                     if (myPosition.getRow() == 7) {
                         pawnMoves.addAll(promotableMoves(myPosition, endPos));
                     } else {
@@ -327,8 +326,7 @@ public class ChessPiece {
             endPos = new ChessPosition(myPosition.getRow() + 1, myPosition.getColumn() + 1);
             if (coordsOnBoard(endPos)) {
                 if (blocked(board, endPos)) {
-                    if (capturable(board.getPiece(myPosition), board.getPiece(endPos))) {
-                        //promotion
+                    if (capturable(board.getPiece(myPosition), board.getPiece(endPos))) {//promotion
                         if (myPosition.getRow() == 7) {
                             pawnMoves.addAll(promotableMoves(myPosition, endPos));
                         } else {
@@ -340,8 +338,7 @@ public class ChessPiece {
             endPos = new ChessPosition(myPosition.getRow() + 1, myPosition.getColumn() - 1);
             if (coordsOnBoard(endPos)) {
                 if (blocked(board, endPos)) {
-                    if (capturable(board.getPiece(myPosition), board.getPiece(endPos))) {
-                        //promotion
+                    if (capturable(board.getPiece(myPosition), board.getPiece(endPos))) {//promotion
                         if (myPosition.getRow() == 7) {
                             pawnMoves.addAll(promotableMoves(myPosition, endPos));
                         } else {
@@ -355,8 +352,7 @@ public class ChessPiece {
             //1 in front
             ChessPosition endPos = new ChessPosition(myPosition.getRow() - 1, myPosition.getColumn());
             if (coordsOnBoard(endPos)) {
-                if (!blocked(board, endPos)) {
-                    //promotion
+                if (!blocked(board, endPos)) {//promotion
                     if (myPosition.getRow() == 2) {
                         pawnMoves.addAll(promotableMoves(myPosition, endPos));
                     } else {
@@ -375,8 +371,7 @@ public class ChessPiece {
             endPos = new ChessPosition(myPosition.getRow() - 1, myPosition.getColumn() + 1);
             if (coordsOnBoard(endPos)) {
                 if (blocked(board, endPos)) {
-                    if (capturable(board.getPiece(myPosition), board.getPiece(endPos))) {
-                        //promotion
+                    if (capturable(board.getPiece(myPosition), board.getPiece(endPos))) {//promotion
                         if (myPosition.getRow() == 2) {
                             pawnMoves.addAll(promotableMoves(myPosition, endPos));
                         } else {
@@ -388,8 +383,7 @@ public class ChessPiece {
             endPos = new ChessPosition(myPosition.getRow() - 1, myPosition.getColumn() - 1);
             if (coordsOnBoard(endPos)) {
                 if (blocked(board, endPos)) {
-                    if (capturable(board.getPiece(myPosition), board.getPiece(endPos))) {
-                        //promotion
+                    if (capturable(board.getPiece(myPosition), board.getPiece(endPos))) {//promotion
                         if (myPosition.getRow() == 2) {
                             pawnMoves.addAll(promotableMoves(myPosition, endPos));
                         } else {
@@ -399,7 +393,6 @@ public class ChessPiece {
                 }
             }
         }
-
         return pawnMoves;
     }
 

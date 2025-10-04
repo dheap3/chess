@@ -92,7 +92,8 @@ public class ChessGame {
         }
         if (validMoves(move.startPosition).contains(move)) {
             if (move.getPromotionPiece() != null) {
-                board.addPiece(move.getEndPosition(), new ChessPiece(board.getPiece(move.getStartPosition()).getTeamColor(), move.getPromotionPiece()));
+                ChessPiece promotedPiece = new ChessPiece(board.getPiece(move.getStartPosition()).getTeamColor(), move.getPromotionPiece());
+                board.addPiece(move.getEndPosition(), promotedPiece);
                 board.addPiece(move.getStartPosition(), null);
             } else {
                 board.addPiece(move.getEndPosition(), board.getPiece(move.getStartPosition()));
@@ -126,13 +127,11 @@ public class ChessGame {
             for (int j = 1; j <= 8; j++) {
                 ChessPosition currPosition = new ChessPosition(i, j);
                 ChessPiece piece = board.getPiece(currPosition);
-                if (piece != null) {
-                    if (piece.getTeamColor() == TeamColor.BLACK) {
-                        allCapturableWhitePieces.addAll(piece.getCapturablePieces(board, currPosition));
-                    } else {//TeamColor.WHITE
-                        allCapturableBlackPieces.addAll(piece.getCapturablePieces(board, currPosition));
-                    }
-                }
+                if (piece != null && piece.getTeamColor() == TeamColor.BLACK) {
+                    allCapturableWhitePieces.addAll(piece.getCapturablePieces(board, currPosition));
+                } else if (piece != null && piece.getTeamColor() == TeamColor.WHITE){
+                    allCapturableBlackPieces.addAll(piece.getCapturablePieces(board, currPosition));
+                }//weird else statement, changed like so to not be nested so deep
             }
         }
         if (teamColor == TeamColor.BLACK) {
@@ -151,6 +150,20 @@ public class ChessGame {
         return false;
     }
 
+    public boolean cannotMove(TeamColor teamColor) {
+        ArrayList<ChessMove> allPossibleMoves = new ArrayList<>();
+        for (int i = 1; i <= 8; i++) {
+            for (int j = 1; j <= 8; j++) {
+                ChessPosition currPosition = new ChessPosition(i, j);
+                ChessPiece piece = board.getPiece(currPosition);
+                if (piece != null && piece.getTeamColor() == teamColor) {
+                    allPossibleMoves.addAll(validMoves(currPosition));
+                }
+            }
+        }
+        return allPossibleMoves.isEmpty();
+    }
+
     /**
      * Determines if the given team is in checkmate
      *
@@ -159,21 +172,7 @@ public class ChessGame {
      */
     public boolean isInCheckmate(TeamColor teamColor) {
         if (isInCheck(teamColor)) {
-            ArrayList<ChessMove> allPossibleMoves = new ArrayList<>();
-            for (int i = 1; i <= 8; i++) {
-                for (int j = 1; j <= 8; j++) {
-                    ChessPosition currPosition = new ChessPosition(i, j);
-                    ChessPiece piece = board.getPiece(currPosition);
-                    if (piece != null) {
-                        if (piece.getTeamColor() == teamColor) {
-                            allPossibleMoves.addAll(validMoves(currPosition));
-                        }
-                    }
-                }
-            }
-            if (allPossibleMoves.isEmpty()) {
-                return true;
-            }
+            return cannotMove(teamColor);
         }
         return false;
     }
@@ -187,21 +186,7 @@ public class ChessGame {
      */
     public boolean isInStalemate(TeamColor teamColor) {
         if (!isInCheck(teamColor)) {
-            ArrayList<ChessMove> allPossibleMoves = new ArrayList<>();
-            for (int i = 1; i <= 8; i++) {
-                for (int j = 1; j <= 8; j++) {
-                    ChessPosition currPosition = new ChessPosition(i, j);
-                    ChessPiece piece = board.getPiece(currPosition);
-                    if (piece != null) {
-                        if (piece.getTeamColor() == teamColor) {
-                            allPossibleMoves.addAll(validMoves(currPosition));
-                        }
-                    }
-                }
-            }
-            if (allPossibleMoves.isEmpty()) {
-                return true;
-            }
+            return cannotMove(teamColor);
         }
         return false;
     }

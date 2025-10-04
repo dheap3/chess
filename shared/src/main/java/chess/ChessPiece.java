@@ -34,7 +34,9 @@ public class ChessPiece {
         PAWN
     }
 
-    public ArrayList<ChessPiece> getCapturablePieces() {
+    public ArrayList<ChessPiece> getCapturablePieces(ChessBoard board, ChessPosition position) {
+        resetCapturablePieces();
+        pieceMoves(board, position);
         return capturablePieces;
     }
 

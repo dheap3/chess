@@ -55,17 +55,20 @@ public class ChessGame {
         }
         //starting with every move calculated by the piece at the start pos
         ArrayList<ChessMove> validMoves = new ArrayList<>(currPiece.pieceMoves(board, startPosition));
+        ArrayList<ChessMove> invalidMoves = new ArrayList<>();
         //if it would leave the king in check, remove it
-        //fake board to test moves
-        ChessBoard testBoard = board;
         for (ChessMove move : validMoves) {
-//            makeMove(move);
-            if (isInCheck(TeamColor.BLACK)) {
-                validMoves.remove(move);
+            //perform move
+            board.addPiece(move.getEndPosition(), board.getPiece(move.getStartPosition()));
+            board.addPiece(move.getStartPosition(), null);
+            if (isInCheck(currPiece.getTeamColor())) {
+                invalidMoves.add(move);
             }
-            board = testBoard;
+            //reverse the move (reset the board)
+            board.addPiece(move.getStartPosition(), board.getPiece(move.getEndPosition()));
+            board.addPiece(move.getEndPosition(), null);
         }
-        //code
+        validMoves.removeAll(invalidMoves);
         return validMoves;
     }
 
@@ -88,28 +91,29 @@ public class ChessGame {
     public boolean isInCheck(TeamColor teamColor) {
         //only the king can be in check
         //check if the king is in the capturable pieces ArrayList (total combined of all pieces capturable arraylist)
-        ArrayList<ChessPiece> allCapturablePiecesByBlack = new ArrayList<>();
-        ArrayList<ChessPiece> allCapturablePiecesByWhite = new ArrayList<>();
-        for (int i = 7; i >= 0; i--) {
-            for (int j = 0; j < 8; j++) {
-                ChessPiece piece = board.getPiece(new ChessPosition(i, j));
+        ArrayList<ChessPiece> allCapturableWhitePieces = new ArrayList<>();
+        ArrayList<ChessPiece> allCapturableBlackPieces = new ArrayList<>();
+        for (int i = 1; i <= 8; i++) {
+            for (int j = 1; j <= 8; j++) {
+                ChessPosition currPosition = new ChessPosition(i, j);
+                ChessPiece piece = board.getPiece(currPosition);
                 if (piece != null) {
                     if (piece.getTeamColor() == TeamColor.BLACK) {
-                        allCapturablePiecesByBlack.addAll(piece.getCapturablePieces());
+                        allCapturableWhitePieces.addAll(piece.getCapturablePieces(board, currPosition));
                     } else {//TeamColor.WHITE
-                        allCapturablePiecesByWhite.addAll(piece.getCapturablePieces());
+                        allCapturableBlackPieces.addAll(piece.getCapturablePieces(board, currPosition));
                     }
                 }
             }
         }
         if (teamColor == TeamColor.BLACK) {
-            for (ChessPiece piece : allCapturablePiecesByWhite) {
+            for (ChessPiece piece : allCapturableBlackPieces) {
                 if (piece.getPieceType() == ChessPiece.PieceType.KING) {
                     return true;
                 }
             }
         } else { //TeamColor.WHITE
-            for (ChessPiece piece : allCapturablePiecesByBlack) {
+            for (ChessPiece piece : allCapturableWhitePieces) {
                 if (piece.getPieceType() == ChessPiece.PieceType.KING) {
                     return true;
                 }

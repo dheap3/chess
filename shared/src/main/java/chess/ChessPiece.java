@@ -324,29 +324,9 @@ public class ChessPiece {
             }
             //diagonals
             endPos = new ChessPosition(myPosition.getRow() + 1, myPosition.getColumn() + 1);
-            if (coordsOnBoard(endPos)) {
-                if (blocked(board, endPos)) {
-                    if (capturable(board.getPiece(myPosition), board.getPiece(endPos))) {//promotion
-                        if (myPosition.getRow() == 7) {
-                            pawnMoves.addAll(promotableMoves(myPosition, endPos));
-                        } else {
-                            pawnMoves.add(new ChessMove(myPosition, endPos, null));
-                        }
-                    }
-                }
-            }
+            pawnMoves.addAll(calcPMoves(board, myPosition, endPos, 7));
             endPos = new ChessPosition(myPosition.getRow() + 1, myPosition.getColumn() - 1);
-            if (coordsOnBoard(endPos)) {
-                if (blocked(board, endPos)) {
-                    if (capturable(board.getPiece(myPosition), board.getPiece(endPos))) {//promotion
-                        if (myPosition.getRow() == 7) {
-                            pawnMoves.addAll(promotableMoves(myPosition, endPos));
-                        } else {
-                            pawnMoves.add(new ChessMove(myPosition, endPos, null));
-                        }
-                    }
-                }
-            }
+            pawnMoves.addAll(calcPMoves(board, myPosition, endPos, 7));
         } else {
             //BLACK
             //1 in front
@@ -369,26 +349,22 @@ public class ChessPiece {
             }
             //diagonals
             endPos = new ChessPosition(myPosition.getRow() - 1, myPosition.getColumn() + 1);
-            if (coordsOnBoard(endPos)) {
-                if (blocked(board, endPos)) {
-                    if (capturable(board.getPiece(myPosition), board.getPiece(endPos))) {//promotion
-                        if (myPosition.getRow() == 2) {
-                            pawnMoves.addAll(promotableMoves(myPosition, endPos));
-                        } else {
-                            pawnMoves.add(new ChessMove(myPosition, endPos, null));
-                        }
-                    }
-                }
-            }
+            pawnMoves.addAll(calcPMoves(board, myPosition, endPos, 2));
             endPos = new ChessPosition(myPosition.getRow() - 1, myPosition.getColumn() - 1);
-            if (coordsOnBoard(endPos)) {
-                if (blocked(board, endPos)) {
-                    if (capturable(board.getPiece(myPosition), board.getPiece(endPos))) {//promotion
-                        if (myPosition.getRow() == 2) {
-                            pawnMoves.addAll(promotableMoves(myPosition, endPos));
-                        } else {
-                            pawnMoves.add(new ChessMove(myPosition, endPos, null));
-                        }
+            pawnMoves.addAll(calcPMoves(board, myPosition, endPos, 2));
+        }
+        return pawnMoves;
+    }
+
+    private ArrayList<ChessMove> calcPMoves(ChessBoard board, ChessPosition myPosition, ChessPosition endPos, int row) {
+        ArrayList<ChessMove> pawnMoves = new ArrayList<>();
+        if (coordsOnBoard(endPos)) {
+            if (blocked(board, endPos)) {
+                if (capturable(board.getPiece(myPosition), board.getPiece(endPos))) {//promotion
+                    if (myPosition.getRow() == row) {
+                        pawnMoves.addAll(promotableMoves(myPosition, endPos));
+                    } else {
+                        pawnMoves.add(new ChessMove(myPosition, endPos, null));
                     }
                 }
             }

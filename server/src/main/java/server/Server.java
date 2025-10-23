@@ -22,11 +22,9 @@ public class Server {
 
     private void register(Context ctx) {
         var serializer = new Gson();
-        userService userService = new userService();
         var req = serializer.fromJson(ctx.body(), Map.class);
-        req.put("authToken", "cow");
         userService.register(req);
-//        ctx.status(200).result(AuthData);
+
 
     }
 

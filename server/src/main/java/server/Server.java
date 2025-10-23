@@ -31,8 +31,23 @@ public class Server {
         var req = serializer.fromJson(ctx.body(), Map.class);
         Map<String, Map<UserData, AuthData>> registerData = userService.register(req);
 
-        //checks if the user has already registered
+
+
+        //checks if the user sent valid data
+        String username = (String) req.get("username");
+        String password = (String) req.get("password");
+        String email = (String) req.get("email");
+        if (username == null || username.isBlank() ||
+                password == null || password.isBlank() ||
+                email == null || email.isBlank()) {
+            var res = new Gson().toJson(Map.of("message", "Error: bad request"));
+            ctx.status(400).result(res);
+            return;
+        }
+
         UserData user = userService.getUser((String) req.get("username"), users);
+
+        //checks if the user has already registered
         if (user != null) {
             var res = new Gson().toJson(Map.of("message", "Error: already taken"));
             ctx.status(403).result(res);

@@ -29,14 +29,29 @@ public class Server {
     private void register(Context ctx) {
         var serializer = new Gson();
         var req = serializer.fromJson(ctx.body(), Map.class);
-        userService.register(req);
+        Map<String, Map<UserData, AuthData>> registerData = userService.register(req);
+        //should only hold one set in each map for register data
+        users.put((String) req.get("username"), registerData.get(req.get("username")).keySet().iterator().next());
+        auths.put((String) req.get("username"), registerData.get(req.get("username")).values().iterator().next());
 
         UserData user = userService.getUser((String) req.get("username"), users);
+        if (user == null) {
+            var res = new Gson().toJson(Map.of("username", "", "authToken", ""));
+            ctx.status(500).result(res);
+            return;
+        }
         users.put(user.getUsername(), user);
-        AuthData auth = userService.CreateAuth(user.getUsername(), user.getPassword(), user.getEmail());
+        AuthData auth = userService.getAuth(user.getUsername(), auths);
+        if (auth == null) {
+            var res = new Gson().toJson(Map.of("username", "", "authToken", ""));
+            ctx.status(500).result(res);
+            return;
+        }
         auths.put(auth.getUsername(), auth);
 
-
+        var res = new Gson().toJson(Map.of("username", auth.getUsername(), "authToken", auth.getAuthToken()));
+        ctx.status(200).result(res);
+//        ctx.status(200).result({ "username":auth.getUsername(), "authToken":auth.getAuthToken() });
     }
 
     public int run(int desiredPort) {

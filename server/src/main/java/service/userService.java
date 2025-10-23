@@ -10,7 +10,7 @@ public class userService {
 //    private Map<String, UserData> users = new HashMap<String, UserData>();
 //    private Map<String, AuthData> auths = new HashMap<String, AuthData>();
 
-    public void register(Map<String, Object> req) {
+    public Map<String, Map<UserData, AuthData>> register(Map<String, Object> req) {
         String username = (String) req.get("username");
         String password = (String) req.get("password");
         String email = (String) req.get("email");
@@ -20,9 +20,13 @@ public class userService {
 ////            Exception AlreadyTakenException = null;
 ////            throw AlreadyTakenException;
 //        }
-        createUser(username, password, email);
-        CreateAuth(username, password, email);
-//        return getAuth(username);
+        Map<String, Map<UserData, AuthData>> registerData = new HashMap<>();
+        Map<UserData, AuthData> datas = new HashMap<>();
+        datas.put(createUser(username, password, email), createAuth(username, password, email));
+        registerData.put(username, datas);
+//        createUser(username, password, email);
+//        createAuth(username, password, email);
+        return registerData;
     }
     public UserData getUser(String username, Map<String, UserData> users) {
         //get the user from the db
@@ -54,7 +58,7 @@ public class userService {
             return null;
         }
     }
-    public AuthData CreateAuth(String username, String password, String email) {
+    public AuthData createAuth(String username, String password, String email) {
         //create authToken
         var authToken = password + ":" + email;
         AuthData auth = new AuthData(username, authToken);

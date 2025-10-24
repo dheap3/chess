@@ -84,7 +84,7 @@ public class Server {
         //reset our user to the appropriate value
         user = userService.getUser((String) req.get("username"), users);
 
-        AuthData auth = userService.getAuth(user.getUsername(), auths);
+        AuthData auth = userService.getAuth(user.username(), auths);
 //        if (auth == null) {
 //            var res = new Gson().toJson(Map.of("username", "", "authToken", ""));
 //            ctx.status(500).result(res);
@@ -92,7 +92,7 @@ public class Server {
 //        }
 
 
-        var res = new Gson().toJson(Map.of("username", auth.getUsername(), "authToken", auth.getAuthToken()));
+        var res = new Gson().toJson(Map.of("username", auth.username(), "authToken", auth.authToken()));
         ctx.status(200).result(res);
 //        ctx.status(200).result({ "username":auth.getUsername(), "authToken":auth.getAuthToken() });
     }
@@ -113,7 +113,7 @@ public class Server {
         //check if the user is authorized (correct password)
         UserData correctData = users.get(username);
         if (correctData == null ||//cannot find data for the associated username (incorrect username)
-                !password.equals(correctData.getPassword())) {//the password given doesn't match the one stored
+                !password.equals(correctData.password())) {//the password given doesn't match the one stored
             var res = new Gson().toJson(Map.of("message", "Error: unauthorized"));
             ctx.status(401).result(res);
             return;
@@ -122,7 +122,7 @@ public class Server {
         AuthData auth = userService.login(req);
         auths.put(username, auth);
 
-        var res = new Gson().toJson(Map.of("username", auth.getUsername(), "authToken", auth.getAuthToken()));
+        var res = new Gson().toJson(Map.of("username", auth.username(), "authToken", auth.authToken()));
         ctx.status(200).result(res);
 //        ctx.status(200).result({ "username":auth.getUsername(), "authToken":auth.getAuthToken() });
     }
@@ -153,7 +153,7 @@ public class Server {
         //check if the authToken exists in db
         boolean found = false;
         for (AuthData authData : auths.values()) {
-            if (authToken.equals(authData.getAuthToken())) {
+            if (authToken.equals(authData.authToken())) {
                 found = true;
                 break;
             }
@@ -165,7 +165,7 @@ public class Server {
         }
 
         GameData myGamePackage = gameService.createGame(gameName);
-        Integer gameID = myGamePackage.getGameID();
+        Integer gameID = myGamePackage.gameID();
         games.put(gameID, myGamePackage);
 
         var res = new Gson().toJson(Map.of("gameID", gameID));
@@ -198,7 +198,7 @@ public class Server {
         //check if the authToken exists in db
         boolean found = false;
         for (AuthData authData : auths.values()) {
-            if (authToken.equals(authData.getAuthToken())) {
+            if (authToken.equals(authData.authToken())) {
                 //set the username
                 username = authData.username();
                 found = true;
@@ -225,7 +225,7 @@ public class Server {
         //check if the authToken exists in db
         boolean found = false;
         for (AuthData authData : auths.values()) {
-            if (authToken.equals(authData.getAuthToken())) {
+            if (authToken.equals(authData.authToken())) {
                 found = true;
                 break;
             }

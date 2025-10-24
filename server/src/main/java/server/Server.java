@@ -23,6 +23,7 @@ public class Server {
         // Register your endpoints and exception handlers here.
         server.delete("db", ctx ->ctx.result("{}"));
         server.post("user", this::register); //same as server.post("user", ctx -> register(ctx));
+        server.post("session", this::login);
 
     }
 
@@ -61,6 +62,36 @@ public class Server {
 
         //reset our user to the appropriate value
         user = userService.getUser((String) req.get("username"), users);
+
+        AuthData auth = userService.getAuth(user.getUsername(), auths);
+//        if (auth == null) {
+//            var res = new Gson().toJson(Map.of("username", "", "authToken", ""));
+//            ctx.status(500).result(res);
+//            return;
+//        }
+
+
+        var res = new Gson().toJson(Map.of("username", auth.getUsername(), "authToken", auth.getAuthToken()));
+        ctx.status(200).result(res);
+//        ctx.status(200).result({ "username":auth.getUsername(), "authToken":auth.getAuthToken() });
+    }
+
+    private void login(Context ctx) {
+        var serializer = new Gson();
+        var req = serializer.fromJson(ctx.body(), Map.class);
+        AuthData loginData = userService.login(req);
+
+        //checks if the user sent valid data
+        String username = (String) req.get("username");
+        String password = (String) req.get("password");
+        if (username == null || username.isBlank() ||
+                password == null || password.isBlank()) {
+            var res = new Gson().toJson(Map.of("message", "Error: bad request"));
+            ctx.status(400).result(res);
+            return;
+        }
+
+        UserData user = userService.getUser((String) req.get("username"), users);
 
         AuthData auth = userService.getAuth(user.getUsername(), auths);
 //        if (auth == null) {

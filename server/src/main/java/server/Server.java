@@ -79,7 +79,6 @@ public class Server {
     private void login(Context ctx) {
         var serializer = new Gson();
         var req = serializer.fromJson(ctx.body(), Map.class);
-        AuthData loginData = userService.login(req);
 
         //checks if the user sent valid data
         String username = (String) req.get("username");
@@ -91,15 +90,17 @@ public class Server {
             return;
         }
 
-        UserData user = userService.getUser((String) req.get("username"), users);
+        //check if the user is authorized (correct password)
+        UserData correctData = users.get(username);
+        if (correctData == null ||//cannot find data for the associated username (incorrect username)
+                !password.equals(correctData.getPassword())) {//the password given doesn't match the one stored
+            var res = new Gson().toJson(Map.of("message", "Error: unauthorized"));
+            ctx.status(401).result(res);
+            return;
+        }
 
-        AuthData auth = userService.getAuth(user.getUsername(), auths);
-//        if (auth == null) {
-//            var res = new Gson().toJson(Map.of("username", "", "authToken", ""));
-//            ctx.status(500).result(res);
-//            return;
-//        }
-
+        AuthData auth = userService.login(req);
+        auths.put(username, auth);
 
         var res = new Gson().toJson(Map.of("username", auth.getUsername(), "authToken", auth.getAuthToken()));
         ctx.status(200).result(res);

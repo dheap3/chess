@@ -172,13 +172,13 @@ public class Server {
         ctx.status(200).result(res);
     }
     private void joinGame(Context ctx) {
-        System.out.println("==== REQUEST CONTEXT DUMP ====");
-        System.out.println("Method: " + ctx.method());
-        System.out.println("Path: " + ctx.path());
-        System.out.println("Headers: " + ctx.headerMap());
-        System.out.println("Query params: " + ctx.queryParamMap());
-        System.out.println("Body: " + ctx.body());
-        System.out.println("==============================");
+//        System.out.println("==== REQUEST CONTEXT DUMP ====");
+//        System.out.println("Method: " + ctx.method());
+//        System.out.println("Path: " + ctx.path());
+//        System.out.println("Headers: " + ctx.headerMap());
+//        System.out.println("Query params: " + ctx.queryParamMap());
+//        System.out.println("Body: " + ctx.body());
+//        System.out.println("==============================");
         var serializer = new Gson();
         var req = serializer.fromJson(ctx.body(), Map.class);
         String authToken = ctx.header("Authorization");
@@ -188,6 +188,7 @@ public class Server {
 
         //checks if the user sent valid data
         if (playerColor == null || playerColor.isBlank() ||
+                (!playerColor.equals("WHITE") && !playerColor.equals("BLACK")) ||
                 gameIDDouble == null) {
             var res = new Gson().toJson(Map.of("message", "Error: bad request"));
             ctx.status(400).result(res);

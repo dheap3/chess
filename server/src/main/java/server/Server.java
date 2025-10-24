@@ -172,28 +172,30 @@ public class Server {
         ctx.status(200).result(res);
     }
     private void joinGame(Context ctx) {
-//        System.out.println("==== REQUEST CONTEXT DUMP ====");
-//        System.out.println("Method: " + ctx.method());
-//        System.out.println("Path: " + ctx.path());
-//        System.out.println("Headers: " + ctx.headerMap());
-//        System.out.println("Query params: " + ctx.queryParamMap());
-//        System.out.println("Body: " + ctx.body());
-//        System.out.println("==============================");
+        System.out.println("==== REQUEST CONTEXT DUMP ====");
+        System.out.println("Method: " + ctx.method());
+        System.out.println("Path: " + ctx.path());
+        System.out.println("Headers: " + ctx.headerMap());
+        System.out.println("Query params: " + ctx.queryParamMap());
+        System.out.println("Body: " + ctx.body());
+        System.out.println("==============================");
         var serializer = new Gson();
         var req = serializer.fromJson(ctx.body(), Map.class);
         String authToken = ctx.header("Authorization");
         String playerColor = (String) req.get("playerColor");
-        double gameIDDouble = (Double) req.get("gameID");
-        int gameID = (int) gameIDDouble;
+        Double gameIDDouble = (Double) req.get("gameID");
         String username = "";
 
         //checks if the user sent valid data
         if (playerColor == null || playerColor.isBlank() ||
-                gameID == 0) {
+                gameIDDouble == null) {
             var res = new Gson().toJson(Map.of("message", "Error: bad request"));
             ctx.status(400).result(res);
             return;
         }
+        //nasty double conversion
+        double dub = gameIDDouble;
+        int gameID = (int) dub;
 
         //check if the authToken exists in db
         boolean found = false;
@@ -213,6 +215,12 @@ public class Server {
 
         GameData gamePackage = games.get(gameID);
         //verify that the game is accepting a user of the color given ie: not full
+        if ((playerColor.equals("WHITE") && gamePackage.whiteUsername() != null) ||
+                (playerColor.equals("BLACK") && gamePackage.blackUsername() != null)) {
+            var res = new Gson().toJson(Map.of("message", "Error: already taken"));
+            ctx.status(403).result(res);
+            return;
+        }
         games.put(gameID, gameService.joinGame(username, playerColor, gamePackage));
 
 

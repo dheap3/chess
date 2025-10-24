@@ -28,18 +28,17 @@ public class userService {
 //        createAuth(username, password, email);
         return registerData;
     }
-
     public AuthData login(Map<String, Object> req) {
         String username = (String) req.get("username");
         String password = (String) req.get("password");
 
-//        Map<String, Map<UserData, AuthData>> loginData = new HashMap<>();
-//        Map<UserData, AuthData> datas = new HashMap<>();
-//        datas.put(getUser(username), createAuth(username, password, email));
-//        registerData.put(username, datas);
         AuthData loginData = createAuth(username, password, "login");
         return loginData;
     }
+    public void logout() {
+
+    }
+
     public UserData getUser(String username, Map<String, UserData> users) {
         //get the user from the db
         if (users.containsKey(username)) {

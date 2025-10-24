@@ -24,9 +24,13 @@ public class Server {
         server.delete("db", ctx ->ctx.result("{}"));
         server.post("user", this::register); //same as server.post("user", ctx -> register(ctx));
         server.post("session", this::login);
+        server.delete("session", this::logout);
+        server.get("game", this::listGames);
+        server.post("game", this::createGame);
+        server.put("game", this::joinGame);
 
     }
-
+    //helper functions for http endpoints
     private void register(Context ctx) {
         var serializer = new Gson();
         var req = serializer.fromJson(ctx.body(), Map.class);
@@ -75,7 +79,6 @@ public class Server {
         ctx.status(200).result(res);
 //        ctx.status(200).result({ "username":auth.getUsername(), "authToken":auth.getAuthToken() });
     }
-
     private void login(Context ctx) {
         var serializer = new Gson();
         var req = serializer.fromJson(ctx.body(), Map.class);
@@ -106,6 +109,20 @@ public class Server {
         ctx.status(200).result(res);
 //        ctx.status(200).result({ "username":auth.getUsername(), "authToken":auth.getAuthToken() });
     }
+    private void logout(Context ctx) {
+        if (auths.isEmpty()) {
+            var res = new Gson().toJson(Map.of("message", "Error: unauthorized"));
+            ctx.status(401).result(res);
+            return;
+        }
+        auths.clear();
+
+        var res = new Gson().toJson(Map.of());//empty JSON object
+        ctx.status(200).result(res);
+    }
+    private void listGames(Context ctx) {}
+    private void createGame(Context ctx) {}
+    private void joinGame(Context ctx) {}
 
     public int run(int desiredPort) {
         server.start(desiredPort);

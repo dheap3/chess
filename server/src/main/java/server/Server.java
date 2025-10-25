@@ -53,8 +53,6 @@ public class Server {
         var req = serializer.fromJson(ctx.body(), Map.class);
         Map<String, Map<UserData, AuthData>> registerData = userService.register(req);
 
-
-
         //checks if the user sent valid data
         String username = (String) req.get("username");
         String password = (String) req.get("password");
@@ -78,19 +76,16 @@ public class Server {
 
         //add userData and Authdata to db
         //should only hold one set in each map for register data
-        users.put((String) req.get("username"), registerData.get(req.get("username")).keySet().iterator().next());
-        auths.put((String) req.get("username"), registerData.get(req.get("username")).values().iterator().next());
+        UserData myUserData = registerData.get(req.get("username")).keySet().iterator().next();
+        AuthData myAuthData = registerData.get(req.get("username")).values().iterator().next();
+        String authToken = myAuthData.authToken();
+        users.put(myUserData.username(), myUserData);
+        auths.put(authToken, myAuthData);
 
         //reset our user to the appropriate value
         user = userService.getUser((String) req.get("username"), users);
 
-        AuthData auth = userService.getAuth(user.username(), auths);
-//        if (auth == null) {
-//            var res = new Gson().toJson(Map.of("username", "", "authToken", ""));
-//            ctx.status(500).result(res);
-//            return;
-//        }
-
+        AuthData auth = userService.getAuth(authToken, auths);
 
         var res = new Gson().toJson(Map.of("username", auth.username(), "authToken", auth.authToken()));
         ctx.status(200).result(res);
@@ -120,19 +115,22 @@ public class Server {
         }
 
         AuthData auth = userService.login(req);
-        auths.put(username, auth);
+        auths.put(auth.authToken(), auth);
 
         var res = new Gson().toJson(Map.of("username", auth.username(), "authToken", auth.authToken()));
         ctx.status(200).result(res);
 //        ctx.status(200).result({ "username":auth.getUsername(), "authToken":auth.getAuthToken() });
     }
     private void logout(Context ctx) {
-        if (auths.isEmpty()) {
+        var serializer = new Gson();
+        var req = serializer.fromJson(ctx.body(), Map.class);
+        String authToken = ctx.header("Authorization");
+        if (!auths.containsKey(authToken)) {
             var res = new Gson().toJson(Map.of("message", "Error: unauthorized"));
             ctx.status(401).result(res);
             return;
         }
-        auths.clear();
+        auths.remove(authToken);
 
         var res = new Gson().toJson(Map.of());//empty JSON object
         ctx.status(200).result(res);
@@ -151,14 +149,7 @@ public class Server {
         }
 
         //check if the authToken exists in db
-        boolean found = false;
-        for (AuthData authData : auths.values()) {
-            if (authToken.equals(authData.authToken())) {
-                found = true;
-                break;
-            }
-        }
-        if (!found) {
+        if (!auths.containsKey(authToken)) {
             var res = new Gson().toJson(Map.of("message", "Error: unauthorized"));
             ctx.status(401).result(res);
             return;
@@ -199,20 +190,12 @@ public class Server {
         int gameID = (int) dub;
 
         //check if the authToken exists in db
-        boolean found = false;
-        for (AuthData authData : auths.values()) {
-            if (authToken.equals(authData.authToken())) {
-                //set the username
-                username = authData.username();
-                found = true;
-                break;
-            }
-        }
-        if (!found) {
+        if (!auths.containsKey(authToken)) {
             var res = new Gson().toJson(Map.of("message", "Error: unauthorized"));
             ctx.status(401).result(res);
             return;
         }
+        username = auths.get(authToken).username();
 
         GameData gamePackage = games.get(gameID);
         //verify that the game is accepting a user of the color given ie: not full
@@ -232,16 +215,10 @@ public class Server {
         String authToken = ctx.header("Authorization");
 
         //check if the authToken exists in db
-        boolean found = false;
-        for (AuthData authData : auths.values()) {
-            if (authToken.equals(authData.authToken())) {
-                found = true;
-                break;
-            }
-        }
-        if (!found) {
+        if (!auths.containsKey(authToken)) {
             var res = new Gson().toJson(Map.of("message", "Error: unauthorized"));
             ctx.status(401).result(res);
+            return;
         }
 //        ArrayList<GameData> gamesList = gameService.listGames();
         ArrayList<GameData> gamesList = new ArrayList<>(games.values());

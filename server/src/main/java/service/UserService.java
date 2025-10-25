@@ -64,5 +64,5 @@ public class UserService {
         AuthData auth = new AuthData(username, authToken);
         //add to db
         return auth;
-
+    }
 }

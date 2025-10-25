@@ -1,7 +1,7 @@
 package service;
 
 import chess.ChessGame;
-import DataModel.GameData;
+import datamodel.GameData;
 
 import java.util.ArrayList;
 

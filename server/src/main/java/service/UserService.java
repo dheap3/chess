@@ -1,7 +1,7 @@
 package service;
 
-import DataModel.AuthData;
-import DataModel.UserData;
+import datamodel.AuthData;
+import datamodel.UserData;
 
 import java.util.HashMap;
 import java.util.Map;

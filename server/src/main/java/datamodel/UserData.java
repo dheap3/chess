@@ -1,4 +1,4 @@
-package DataModel;
+package datamodel;
 
 public record UserData(String username, String password, String email) {
     public UserData(String username, String password, String email) {

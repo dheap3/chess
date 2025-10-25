@@ -1,9 +1,9 @@
 package server;
 
 import com.google.gson.Gson;
-import DataModel.AuthData;
-import DataModel.GameData;
-import DataModel.UserData;
+import datamodel.AuthData;
+import datamodel.GameData;
+import datamodel.UserData;
 import io.javalin.*;
 import io.javalin.http.Context;
 import service.GameService;

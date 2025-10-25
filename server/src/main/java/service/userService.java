@@ -5,25 +5,35 @@ import dataModel.UserData;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.UUID;
 
 public class userService {
 //    private Map<String, UserData> users = new HashMap<String, UserData>();
 //    private Map<String, AuthData> auths = new HashMap<String, AuthData>();
 
-    public void register(Map<String, Object> req) {
+    public Map<String, Map<UserData, AuthData>> register(Map<String, Object> req) {
         String username = (String) req.get("username");
         String password = (String) req.get("password");
         String email = (String) req.get("email");
 
-//        if (getUser(username) != null) {
-//            //fix exception here
-////            Exception AlreadyTakenException = null;
-////            throw AlreadyTakenException;
-//        }
-        createUser(username, password, email);
-        CreateAuth(username, password, email);
-//        return getAuth(username);
+        Map<String, Map<UserData, AuthData>> registerData = new HashMap<>();
+        Map<UserData, AuthData> datas = new HashMap<>();
+        AuthData myAuthData = createAuth(username);
+        datas.put(createUser(username, password, email), myAuthData);
+        registerData.put(username, datas);
+        return registerData;
     }
+    public AuthData login(Map<String, Object> req) {
+        String username = (String) req.get("username");
+        String password = (String) req.get("password");
+
+        AuthData loginData = createAuth(username);
+        return loginData;
+    }
+    public void logout() {
+
+    }
+
     public UserData getUser(String username, Map<String, UserData> users) {
         //get the user from the db
         if (users.containsKey(username)) {
@@ -45,18 +55,18 @@ public class userService {
 //            return false;
 //        }
     }
-    public AuthData getAuth(String username, Map<String, AuthData> auths) {
+    public AuthData getAuth(String authToken, Map<String, AuthData> auths) {
         //get the auth from the db
-        if (auths.containsKey(username)) {
-            var auth = auths.get(username);
+        if (auths.containsKey(authToken)) {
+            var auth = auths.get(authToken);
             return auth;
         } else {
             return null;
         }
     }
-    public AuthData CreateAuth(String username, String password, String email) {
+    public AuthData createAuth(String username) {
         //create authToken
-        var authToken = password + ":" + email;
+        var authToken = UUID.randomUUID().toString();
         AuthData auth = new AuthData(username, authToken);
         //add to db
         return auth;

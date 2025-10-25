@@ -1,12 +1,11 @@
 package service;
 
 import chess.ChessGame;
-import dataModel.GameData;
+import DataModel.GameData;
 
 import java.util.ArrayList;
-import java.util.Map;
 
-public class gameService {
+public class GameService {
     public int numGames = 1;
     public ArrayList<GameData> listGames() {
         ArrayList<GameData> games = new ArrayList<>();

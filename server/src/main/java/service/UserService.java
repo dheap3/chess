@@ -1,13 +1,13 @@
 package service;
 
-import dataModel.AuthData;
-import dataModel.UserData;
+import DataModel.AuthData;
+import DataModel.UserData;
 
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
-public class userService {
+public class UserService {
 //    private Map<String, UserData> users = new HashMap<String, UserData>();
 //    private Map<String, AuthData> auths = new HashMap<String, AuthData>();
 
@@ -48,12 +48,6 @@ public class userService {
         var user = new UserData(username, password, email);
         //add to db
         return user;
-//        users.put(username, user);
-//        if (users.containsKey(username)) {
-//            return true;
-//        } else {
-//            return false;
-//        }
     }
     public AuthData getAuth(String authToken, Map<String, AuthData> auths) {
         //get the auth from the db
@@ -70,12 +64,5 @@ public class userService {
         AuthData auth = new AuthData(username, authToken);
         //add to db
         return auth;
-//        auths.put(username, auth);
-//        if (auths.containsKey(username)) {
-//            return true;
-//        } else {
-//            return false;
-//        }
-    }
 
 }

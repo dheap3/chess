@@ -1,25 +1,23 @@
 package server;
 
-import chess.ChessGame;
 import com.google.gson.Gson;
-import dataModel.AuthData;
-import dataModel.GameData;
-import dataModel.UserData;
+import DataModel.AuthData;
+import DataModel.GameData;
+import DataModel.UserData;
 import io.javalin.*;
 import io.javalin.http.Context;
-import service.gameService;
-import service.userService;
+import service.GameService;
+import service.UserService;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 public class Server {
 
     private final Javalin server;
-    private userService userService = new userService();
-    private gameService gameService = new gameService();
+    private UserService userService = new UserService();
+    private GameService gameService = new GameService();
 
     //move these fake db too mysql later and the methods into the service classes
     private Map<String, UserData> users = new HashMap<String, UserData>();
@@ -163,13 +161,6 @@ public class Server {
         ctx.status(200).result(res);
     }
     private void joinGame(Context ctx) {
-//        System.out.println("==== REQUEST CONTEXT DUMP ====");
-//        System.out.println("Method: " + ctx.method());
-//        System.out.println("Path: " + ctx.path());
-//        System.out.println("Headers: " + ctx.headerMap());
-//        System.out.println("Query params: " + ctx.queryParamMap());
-//        System.out.println("Body: " + ctx.body());
-//        System.out.println("==============================");
         var serializer = new Gson();
         var req = serializer.fromJson(ctx.body(), Map.class);
         String authToken = ctx.header("Authorization");

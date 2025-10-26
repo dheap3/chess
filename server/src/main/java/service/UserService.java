@@ -50,12 +50,39 @@ public class UserService {
         statusCode = 200;
         return Map.of(statusCode, statusString);
     }
-    public AuthData login(Map<String, Object> req) {
-        String username = (String) req.get("username");
-        String password = (String) req.get("password");
+    public Map<Integer, Map<String, String>> login(String username, String password) {
+        Map<String, String> statusString = new HashMap<>();
+        int statusCode;
 
-        AuthData loginData = createAuth(username);
-        return loginData;
+        UserData user = userDAO.getUser(username);
+        //checks if the user sent valid data
+        if (username == null || username.isBlank() ||
+                password == null || password.isBlank()) {
+            statusString = Map.of("message", "Error: bad request");
+            statusCode = 400;
+            return Map.of(statusCode, statusString);
+        }
+
+        //check if the user is authorized (correct password)
+        UserData correctData = getUser(username);
+        if (correctData == null ||//cannot find data for the associated username (incorrect username)
+                !password.equals(correctData.password())) {//the password given doesn't match the one stored
+            statusString = Map.of("message", "Error: unauthorized");
+            statusCode = 401;
+            return Map.of(statusCode, statusString);
+        }
+
+
+        AuthData myAuthData = createAuth(user.username());
+        //put auth in db
+        authDAO.addAuth(myAuthData);
+
+        //success
+        statusString = Map.of("username", myAuthData.username(), "authToken", myAuthData.authToken());
+        statusCode = 200;
+        return Map.of(statusCode, statusString);
+
+
     }
     public void logout() {
 

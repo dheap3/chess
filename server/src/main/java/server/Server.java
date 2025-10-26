@@ -67,30 +67,6 @@ public class Server {
 
         var res = new Gson().toJson(registerData.entrySet().iterator().next().getValue());
         ctx.status(registerData.entrySet().iterator().next().getKey()).result(res);
-
-        //checks if the user sent valid data
-        if (username == null || username.isBlank() ||
-                password == null || password.isBlank()) {
-            var res = new Gson().toJson(Map.of("message", "Error: bad request"));
-            ctx.status(400).result(res);
-            return;
-        }
-
-        //check if the user is authorized (correct password)
-        UserData correctData = userService.getUser(username);
-        if (correctData == null ||//cannot find data for the associated username (incorrect username)
-                !password.equals(correctData.password())) {//the password given doesn't match the one stored
-            var res = new Gson().toJson(Map.of("message", "Error: unauthorized"));
-            ctx.status(401).result(res);
-            return;
-        }
-
-        AuthData auth = userService.login(req);
-//        userService.login()
-
-        var res = new Gson().toJson(Map.of("username", auth.username(), "authToken", auth.authToken()));
-        ctx.status(200).result(res);
-//        ctx.status(200).result({ "username":auth.getUsername(), "authToken":auth.getAuthToken() });
     }
     private void logout(Context ctx) {
         var serializer = new Gson();

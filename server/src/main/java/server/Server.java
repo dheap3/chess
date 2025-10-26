@@ -1,6 +1,8 @@
 package server;
 
 import com.google.gson.Gson;
+import dataaccess.AuthDAO;
+import dataaccess.MemoryAuthDAO;
 import datamodel.GameData;
 import io.javalin.*;
 import io.javalin.http.Context;
@@ -14,13 +16,9 @@ import java.util.Map;
 public class Server {
 
     private final Javalin server;
-    private UserService userService = new UserService();
-    private GameService gameService = new GameService();
-
-    //move these fake db too mysql later and the methods into the service classes
-
-    private Map<Integer, GameData> games = new HashMap<Integer, GameData>();
-
+    AuthDAO myAuthDAO = new MemoryAuthDAO();
+    private UserService userService = new UserService(myAuthDAO);
+    private GameService gameService = new GameService(myAuthDAO);
 
     public Server() {
         server = Javalin.create(config -> config.staticFiles.add("web"));
@@ -38,8 +36,7 @@ public class Server {
     //helper functions for http endpoints
     private void clear(Context ctx) {
         userService.clearDB();
-//        gameservice.clearDB();
-        games.clear();
+        gameService.clearDB();
         var res = new Gson().toJson(Map.of());
         ctx.status(200).result(res);
     }
@@ -82,26 +79,20 @@ public class Server {
         String authToken = ctx.header("Authorization");
         String gameName = (String) req.get("gameName");
 
-        //checks if the user sent valid data
-        if (gameName == null || gameName.isBlank()) {
-            var res = new Gson().toJson(Map.of("message", "Error: bad request"));
-            ctx.status(400).result(res);
-            return;
+
+
+        Map<Integer, Map<String, String>> createGameData = gameService.createGame(authToken, gameName);
+        int createGameStatus = createGameData.entrySet().iterator().next().getKey();
+
+        var res = new Gson().toJson(createGameData.entrySet().iterator().next().getValue());
+        ctx.status(createGameStatus).result(res);
+        if (createGameStatus == 200) {
+            //if it's a success we need to send the gameID as an int
+            String gameID = createGameData.entrySet().iterator().next().getValue().get("gameID");
+            res = new Gson().toJson(Map.of("gameID", Integer.valueOf(gameID)));
+            ctx.status(200).result(res);
         }
 
-        //check if the authToken exists in db
-        if (!userService.getAuth(authToken).authToken().equals(authToken)) {
-            var res = new Gson().toJson(Map.of("message", "Error: unauthorized"));
-            ctx.status(401).result(res);
-            return;
-        }
-
-        GameData myGamePackage = gameService.createGame(gameName);
-        Integer gameID = myGamePackage.gameID();
-        games.put(gameID, myGamePackage);
-
-        var res = new Gson().toJson(Map.of("gameID", gameID));
-        ctx.status(200).result(res);
     }
     private void joinGame(Context ctx) {
         var serializer = new Gson();
@@ -131,7 +122,7 @@ public class Server {
         }
 //        username = auths.get(authToken).username();
 
-        GameData gamePackage = games.get(gameID);
+        GameData gamePackage = gameService.getGame(gameID);
         //verify that the game is accepting a user of the color given ie: not full
         if ((playerColor.equals("WHITE") && gamePackage.whiteUsername() != null) ||
                 (playerColor.equals("BLACK") && gamePackage.blackUsername() != null)) {
@@ -139,25 +130,25 @@ public class Server {
             ctx.status(403).result(res);
             return;
         }
-        games.put(gameID, gameService.joinGame(username, playerColor, gamePackage));
+//        gameService.joinGame(gameID, gameService.joinGame(username, playerColor, gamePackage));
 
 
         var res = new Gson().toJson(Map.of());
         ctx.status(200).result(res);
     }
     private void listGames(Context ctx) {
-        String authToken = ctx.header("Authorization");
-
-        //check if the authToken exists in db
-        if (!userService.getAuth(authToken).authToken().equals(authToken)) {
-            var res = new Gson().toJson(Map.of("message", "Error: unauthorized"));
-            ctx.status(401).result(res);
-            return;
-        }
-//        ArrayList<GameData> gamesList = gameService.listGames();
-        ArrayList<GameData> gamesList = new ArrayList<>(games.values());
-        var res = new Gson().toJson(Map.of("games", gamesList));
-        ctx.status(200).result(res);
+//        String authToken = ctx.header("Authorization");
+//
+//        //check if the authToken exists in db
+//        if (!userService.getAuth(authToken).authToken().equals(authToken)) {
+//            var res = new Gson().toJson(Map.of("message", "Error: unauthorized"));
+//            ctx.status(401).result(res);
+//            return;
+//        }
+////        ArrayList<GameData> gamesList = gameService.listGames();
+//        ArrayList<GameData> gamesList = new ArrayList<>(games.values());
+//        var res = new Gson().toJson(Map.of("games", gamesList));
+//        ctx.status(200).result(res);
     }
 
     public int run(int desiredPort) {

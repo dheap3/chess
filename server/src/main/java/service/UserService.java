@@ -13,7 +13,11 @@ import java.util.UUID;
 
 public class UserService {
     UserDAO userDAO = new MemoryUserDAO();
-    AuthDAO authDAO = new MemoryAuthDAO();
+    private AuthDAO authDAO = new MemoryAuthDAO();
+
+    public UserService(AuthDAO authDAO) {
+        this.authDAO = authDAO;
+    }
 
     public Map<Integer, Map<String, String>> register(String username, String password, String email) {
         Map<String, String> statusString = new HashMap<>();
@@ -102,13 +106,6 @@ public class UserService {
 
     public UserData getUser(String username) {
         return userDAO.getUser(username);
-    }
-
-    public UserData createUser(String username, String password, String email) {
-        //create user
-        var user = new UserData(username, password, email);
-        //add to db
-        return user;
     }
     public AuthData getAuth(String authToken) {
         return authDAO.getAuth(authToken);

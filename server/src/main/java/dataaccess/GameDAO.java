@@ -4,5 +4,6 @@ import datamodel.GameData;
 
 public interface GameDAO {
     boolean addGame(GameData game);
-    boolean getGame(int gameID);
+    GameData getGame(int gameID);
+    void clearDB();
 }

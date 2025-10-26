@@ -107,9 +107,6 @@ public class UserService {
     public UserData getUser(String username) {
         return userDAO.getUser(username);
     }
-    public AuthData getAuth(String authToken) {
-        return authDAO.getAuth(authToken);
-    }
     public AuthData createAuth(String username) {
         //create authToken
         var authToken = UUID.randomUUID().toString();

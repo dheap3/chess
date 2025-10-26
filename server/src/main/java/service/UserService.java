@@ -115,9 +115,6 @@ public class UserService {
         authDAO.addAuth(auth);
         return auth;
     }
-    public boolean checkAuth(String authToken) {
-        return true;
-    }
     public boolean removeAuth(String authToken) {
         authDAO.removeAuth(authToken);
         return true;

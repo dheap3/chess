@@ -102,53 +102,18 @@ public class Server {
         Double gameIDDouble = (Double) req.get("gameID");
         String username = "";
 
-        //checks if the user sent valid data
-        if (playerColor == null || playerColor.isBlank() ||
-                (!playerColor.equals("WHITE") && !playerColor.equals("BLACK")) ||
-                gameIDDouble == null) {
-            var res = new Gson().toJson(Map.of("message", "Error: bad request"));
-            ctx.status(400).result(res);
-            return;
-        }
-        //nasty double conversion
-        double dub = gameIDDouble;
-        int gameID = (int) dub;
-
-        //check if the authToken exists in db
-        if (!userService.getAuth(authToken).authToken().equals(authToken)) {
-            var res = new Gson().toJson(Map.of("message", "Error: unauthorized"));
-            ctx.status(401).result(res);
-            return;
-        }
-//        username = auths.get(authToken).username();
-
-        GameData gamePackage = gameService.getGame(gameID);
-        //verify that the game is accepting a user of the color given ie: not full
-        if ((playerColor.equals("WHITE") && gamePackage.whiteUsername() != null) ||
-                (playerColor.equals("BLACK") && gamePackage.blackUsername() != null)) {
-            var res = new Gson().toJson(Map.of("message", "Error: already taken"));
-            ctx.status(403).result(res);
-            return;
-        }
-//        gameService.joinGame(gameID, gameService.joinGame(username, playerColor, gamePackage));
+        gameService.joinGame(authToken, playerColor, gameIDDouble);
 
 
         var res = new Gson().toJson(Map.of());
         ctx.status(200).result(res);
     }
     private void listGames(Context ctx) {
-//        String authToken = ctx.header("Authorization");
-//
-//        //check if the authToken exists in db
-//        if (!userService.getAuth(authToken).authToken().equals(authToken)) {
-//            var res = new Gson().toJson(Map.of("message", "Error: unauthorized"));
-//            ctx.status(401).result(res);
-//            return;
-//        }
-////        ArrayList<GameData> gamesList = gameService.listGames();
-//        ArrayList<GameData> gamesList = new ArrayList<>(games.values());
-//        var res = new Gson().toJson(Map.of("games", gamesList));
-//        ctx.status(200).result(res);
+        String authToken = ctx.header("Authorization");
+        Map<Integer, String> listGamesResponse = gameService.listGames(authToken);//returns json string because of the list
+
+        var res = listGamesResponse.entrySet().iterator().next().getValue();
+        ctx.status(listGamesResponse.entrySet().iterator().next().getKey()).result(res);
     }
 
     public int run(int desiredPort) {

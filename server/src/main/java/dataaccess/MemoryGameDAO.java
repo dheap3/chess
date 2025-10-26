@@ -2,6 +2,7 @@ package dataaccess;
 
 import datamodel.GameData;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -18,6 +19,18 @@ public class MemoryGameDAO implements GameDAO {
     @Override
     public GameData getGame(int gameID) {
         return games.get(gameID);
+    }
+
+    @Override
+    public GameData updateGame(GameData newGame) {
+        games.replace(newGame.gameID(), newGame);
+        return newGame;
+    }
+
+    @Override
+    public ArrayList<GameData> getGames() {
+        ArrayList<GameData> gamesList = new ArrayList<>(games.values());
+        return gamesList;
     }
 
     @Override

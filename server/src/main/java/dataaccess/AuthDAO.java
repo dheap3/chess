@@ -7,4 +7,5 @@ public interface AuthDAO {
     AuthData getAuth(String username);
     boolean removeAuth(String authToken);
     void clearDB();
+    boolean dbContains(String authToken);
 }

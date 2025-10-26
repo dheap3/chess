@@ -1,6 +1,5 @@
 package service;
 
-import com.google.gson.Gson;
 import dataaccess.AuthDAO;
 import dataaccess.MemoryAuthDAO;
 import dataaccess.MemoryUserDAO;
@@ -84,8 +83,21 @@ public class UserService {
 
 
     }
-    public void logout() {
+    public Map<Integer, Map<String, String>> logout(String authToken) {
+        Map<String, String> statusString = new HashMap<>();
+        int statusCode;
 
+        if (!authDAO.dbContains(authToken)) {
+            statusString = Map.of("message", "Error: unauthorized");
+            statusCode = 401;
+            return Map.of(statusCode, statusString);
+        }
+        removeAuth(authToken);
+
+        //success
+        statusString = Map.of();
+        statusCode = 200;
+        return Map.of(statusCode, statusString);
     }
 
     public UserData getUser(String username) {

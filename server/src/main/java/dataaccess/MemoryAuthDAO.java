@@ -29,4 +29,9 @@ public class MemoryAuthDAO implements AuthDAO {
     public void clearDB() {
         auths.clear();
     }
+
+    @Override
+    public boolean dbContains(String authToken) {
+        return auths.containsKey(authToken);
+    }
 }

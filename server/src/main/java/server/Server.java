@@ -1,9 +1,7 @@
 package server;
 
 import com.google.gson.Gson;
-import datamodel.AuthData;
 import datamodel.GameData;
-import datamodel.UserData;
 import io.javalin.*;
 import io.javalin.http.Context;
 import service.GameService;
@@ -70,17 +68,13 @@ public class Server {
     }
     private void logout(Context ctx) {
         var serializer = new Gson();
-        var req = serializer.fromJson(ctx.body(), Map.class);
         String authToken = ctx.header("Authorization");
-        if (!userService.getAuth(authToken).authToken().equals(authToken)) {
-            var res = new Gson().toJson(Map.of("message", "Error: unauthorized"));
-            ctx.status(401).result(res);
-            return;
-        }
-        userService.removeAuth(authToken);
 
-        var res = new Gson().toJson(Map.of());//empty JSON object
-        ctx.status(200).result(res);
+        Map<Integer, Map<String, String>> registerData = userService.logout(authToken);
+
+        var res = new Gson().toJson(registerData.entrySet().iterator().next().getValue());
+        ctx.status(registerData.entrySet().iterator().next().getKey()).result(res);
+
     }
     private void createGame(Context ctx) {
         var serializer = new Gson();

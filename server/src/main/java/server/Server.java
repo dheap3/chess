@@ -102,11 +102,10 @@ public class Server {
         Double gameIDDouble = (Double) req.get("gameID");
         String username = "";
 
-        gameService.joinGame(authToken, playerColor, gameIDDouble);
+        Map<Integer, Map<String, String>> joinGameData = gameService.joinGame(authToken, playerColor, gameIDDouble);
 
-
-        var res = new Gson().toJson(Map.of());
-        ctx.status(200).result(res);
+        var res = new Gson().toJson(joinGameData.entrySet().iterator().next().getValue());
+        ctx.status(joinGameData.entrySet().iterator().next().getKey()).result(res);
     }
     private void listGames(Context ctx) {
         String authToken = ctx.header("Authorization");

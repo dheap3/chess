@@ -99,7 +99,7 @@ public class GameService {
         if ((playerColor.equals("WHITE") && gamePackage.whiteUsername() != null) ||
                 (playerColor.equals("BLACK") && gamePackage.blackUsername() != null)) {
             statusString = Map.of("message", "Error: already taken");
-            statusCode = 401;
+            statusCode = 403;
             return Map.of(statusCode, statusString);
         }
 

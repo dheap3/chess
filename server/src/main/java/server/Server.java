@@ -20,8 +20,7 @@ public class Server {
     private GameService gameService = new GameService();
 
     //move these fake db too mysql later and the methods into the service classes
-    private Map<String, UserData> users = new HashMap<String, UserData>();
-    private Map<String, AuthData> auths = new HashMap<String, AuthData>();
+
     private Map<Integer, GameData> games = new HashMap<Integer, GameData>();
 
 
@@ -40,8 +39,8 @@ public class Server {
     }
     //helper functions for http endpoints
     private void clear(Context ctx) {
-        users.clear();
-        auths.clear();
+        userService.clearDB();
+//        gameservice.clearDB();
         games.clear();
         var res = new Gson().toJson(Map.of());
         ctx.status(200).result(res);
@@ -49,53 +48,27 @@ public class Server {
     private void register(Context ctx) {
         var serializer = new Gson();
         var req = serializer.fromJson(ctx.body(), Map.class);
-        Map<String, Map<UserData, AuthData>> registerData = userService.register(req);
-
-        //checks if the user sent valid data
         String username = (String) req.get("username");
         String password = (String) req.get("password");
         String email = (String) req.get("email");
-        if (username == null || username.isBlank() ||
-                password == null || password.isBlank() ||
-                email == null || email.isBlank()) {
-            var res = new Gson().toJson(Map.of("message", "Error: bad request"));
-            ctx.status(400).result(res);
-            return;
-        }
 
-        UserData user = userService.getUser((String) req.get("username"), users);
+        Map<Integer, Map<String, String>> registerData = userService.register(username, password, email);
 
-        //checks if the user has already registered
-        if (user != null) {
-            var res = new Gson().toJson(Map.of("message", "Error: already taken"));
-            ctx.status(403).result(res);
-            return;
-        }
-
-        //add userData and Authdata to db
-        //should only hold one set in each map for register data
-        UserData myUserData = registerData.get(req.get("username")).keySet().iterator().next();
-        AuthData myAuthData = registerData.get(req.get("username")).values().iterator().next();
-        String authToken = myAuthData.authToken();
-        users.put(myUserData.username(), myUserData);
-        auths.put(authToken, myAuthData);
-
-        //reset our user to the appropriate value
-        user = userService.getUser((String) req.get("username"), users);
-
-        AuthData auth = userService.getAuth(authToken, auths);
-
-        var res = new Gson().toJson(Map.of("username", auth.username(), "authToken", auth.authToken()));
-        ctx.status(200).result(res);
-//        ctx.status(200).result({ "username":auth.getUsername(), "authToken":auth.getAuthToken() });
+        var res = new Gson().toJson(registerData.entrySet().iterator().next().getValue());
+        ctx.status(registerData.entrySet().iterator().next().getKey()).result(res);
     }
     private void login(Context ctx) {
         var serializer = new Gson();
         var req = serializer.fromJson(ctx.body(), Map.class);
-
-        //checks if the user sent valid data
         String username = (String) req.get("username");
         String password = (String) req.get("password");
+
+        Map<Integer, Map<String, String>> registerData = userService.login(username, password);
+
+        var res = new Gson().toJson(registerData.entrySet().iterator().next().getValue());
+        ctx.status(registerData.entrySet().iterator().next().getKey()).result(res);
+
+        //checks if the user sent valid data
         if (username == null || username.isBlank() ||
                 password == null || password.isBlank()) {
             var res = new Gson().toJson(Map.of("message", "Error: bad request"));
@@ -104,7 +77,7 @@ public class Server {
         }
 
         //check if the user is authorized (correct password)
-        UserData correctData = users.get(username);
+        UserData correctData = userService.getUser(username);
         if (correctData == null ||//cannot find data for the associated username (incorrect username)
                 !password.equals(correctData.password())) {//the password given doesn't match the one stored
             var res = new Gson().toJson(Map.of("message", "Error: unauthorized"));
@@ -113,7 +86,7 @@ public class Server {
         }
 
         AuthData auth = userService.login(req);
-        auths.put(auth.authToken(), auth);
+//        userService.login()
 
         var res = new Gson().toJson(Map.of("username", auth.username(), "authToken", auth.authToken()));
         ctx.status(200).result(res);
@@ -123,12 +96,12 @@ public class Server {
         var serializer = new Gson();
         var req = serializer.fromJson(ctx.body(), Map.class);
         String authToken = ctx.header("Authorization");
-        if (!auths.containsKey(authToken)) {
+        if (!userService.getAuth(authToken).authToken().equals(authToken)) {
             var res = new Gson().toJson(Map.of("message", "Error: unauthorized"));
             ctx.status(401).result(res);
             return;
         }
-        auths.remove(authToken);
+        userService.removeAuth(authToken);
 
         var res = new Gson().toJson(Map.of());//empty JSON object
         ctx.status(200).result(res);
@@ -147,7 +120,7 @@ public class Server {
         }
 
         //check if the authToken exists in db
-        if (!auths.containsKey(authToken)) {
+        if (!userService.getAuth(authToken).authToken().equals(authToken)) {
             var res = new Gson().toJson(Map.of("message", "Error: unauthorized"));
             ctx.status(401).result(res);
             return;
@@ -181,12 +154,12 @@ public class Server {
         int gameID = (int) dub;
 
         //check if the authToken exists in db
-        if (!auths.containsKey(authToken)) {
+        if (!userService.getAuth(authToken).authToken().equals(authToken)) {
             var res = new Gson().toJson(Map.of("message", "Error: unauthorized"));
             ctx.status(401).result(res);
             return;
         }
-        username = auths.get(authToken).username();
+//        username = auths.get(authToken).username();
 
         GameData gamePackage = games.get(gameID);
         //verify that the game is accepting a user of the color given ie: not full
@@ -206,7 +179,7 @@ public class Server {
         String authToken = ctx.header("Authorization");
 
         //check if the authToken exists in db
-        if (!auths.containsKey(authToken)) {
+        if (!userService.getAuth(authToken).authToken().equals(authToken)) {
             var res = new Gson().toJson(Map.of("message", "Error: unauthorized"));
             ctx.status(401).result(res);
             return;

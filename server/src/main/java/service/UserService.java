@@ -1,5 +1,10 @@
 package service;
 
+import com.google.gson.Gson;
+import dataaccess.AuthDAO;
+import dataaccess.MemoryAuthDAO;
+import dataaccess.MemoryUserDAO;
+import dataaccess.UserDAO;
 import datamodel.AuthData;
 import datamodel.UserData;
 
@@ -8,20 +13,42 @@ import java.util.Map;
 import java.util.UUID;
 
 public class UserService {
-//    private Map<String, UserData> users = new HashMap<String, UserData>();
-//    private Map<String, AuthData> auths = new HashMap<String, AuthData>();
+    UserDAO userDAO = new MemoryUserDAO();
+    AuthDAO authDAO = new MemoryAuthDAO();
 
-    public Map<String, Map<UserData, AuthData>> register(Map<String, Object> req) {
-        String username = (String) req.get("username");
-        String password = (String) req.get("password");
-        String email = (String) req.get("email");
+    public Map<Integer, Map<String, String>> register(String username, String password, String email) {
+        Map<String, String> statusString = new HashMap<>();
+        int statusCode;
 
-        Map<String, Map<UserData, AuthData>> registerData = new HashMap<>();
-        Map<UserData, AuthData> datas = new HashMap<>();
-        AuthData myAuthData = createAuth(username);
-        datas.put(createUser(username, password, email), myAuthData);
-        registerData.put(username, datas);
-        return registerData;
+        UserData user = userDAO.getUser(username);
+        //checks if the user sent valid data
+        if (username == null || username.isBlank() ||
+                password == null || password.isBlank() ||
+                email == null || email.isBlank()) {
+            statusString = Map.of("message", "Error: bad request");
+            statusCode = 400;
+            return Map.of(statusCode, statusString);
+        }
+
+        //checks if the user has already registered
+        if (user != null) {
+            statusString = Map.of("message", "Error: already taken");
+            statusCode = 403;
+            return Map.of(statusCode, statusString);
+        }
+
+        user = new UserData(username, password, email);
+        //put user in db
+        userDAO.addUser(user);
+
+        AuthData myAuthData = createAuth(user.username());
+        //put auth in db
+        authDAO.addAuth(myAuthData);
+
+        //success
+        statusString = Map.of("username", myAuthData.username(), "authToken", myAuthData.authToken());
+        statusCode = 200;
+        return Map.of(statusCode, statusString);
     }
     public AuthData login(Map<String, Object> req) {
         String username = (String) req.get("username");
@@ -34,35 +61,36 @@ public class UserService {
 
     }
 
-    public UserData getUser(String username, Map<String, UserData> users) {
-        //get the user from the db
-        if (users.containsKey(username)) {
-            var user = users.get(username);
-            return user;
-        } else {
-            return null;
-        }
+    public UserData getUser(String username) {
+        return userDAO.getUser(username);
     }
+
     public UserData createUser(String username, String password, String email) {
         //create user
         var user = new UserData(username, password, email);
         //add to db
         return user;
     }
-    public AuthData getAuth(String authToken, Map<String, AuthData> auths) {
-        //get the auth from the db
-        if (auths.containsKey(authToken)) {
-            var auth = auths.get(authToken);
-            return auth;
-        } else {
-            return null;
-        }
+    public AuthData getAuth(String authToken) {
+        return authDAO.getAuth(authToken);
     }
     public AuthData createAuth(String username) {
         //create authToken
         var authToken = UUID.randomUUID().toString();
         AuthData auth = new AuthData(username, authToken);
         //add to db
+        authDAO.addAuth(auth);
         return auth;
+    }
+    public boolean checkAuth(String authToken) {
+        return true;
+    }
+    public boolean removeAuth(String authToken) {
+        authDAO.removeAuth(authToken);
+        return true;
+    }
+    public void clearDB() {
+        userDAO.clearDB();
+        authDAO.clearDB();
     }
 }

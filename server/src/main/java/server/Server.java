@@ -100,7 +100,6 @@ public class Server {
         String authToken = ctx.header("Authorization");
         String playerColor = (String) req.get("playerColor");
         Double gameIDDouble = (Double) req.get("gameID");
-        String username = "";
 
         Map<Integer, Map<String, String>> joinGameData = gameService.joinGame(authToken, playerColor, gameIDDouble);
 

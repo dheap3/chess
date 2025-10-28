@@ -247,9 +247,20 @@ public class StandardServiceTests {
         assertEquals(Map.of(statusCode, statusString), response);
         assertFalse(testAuthDAO.dbContains(testAuthToken));
     }
-    //test getUser
     //test createAuth
-    //test removeAuth
+    @Test
+    public void testCreateUniqueAuth() {
+        String testUsername = "testUsername";
+        var testAuthData = testUserService.createAuth(testUsername);
+        testAuthDAO.addAuth(testAuthData);
+
+        testAuthData = testUserService.createAuth(testUsername);
+        testAuthDAO.addAuth(testAuthData);
+
+        assertEquals(2, testAuthDAO.getAuths().size());
+        assertNotEquals(testAuthDAO.getAuths().get(0), testAuthDAO.getAuths().get(1));
+
+    }
     //test clearDB
     @Test
     public void testClearDBSuccess() {

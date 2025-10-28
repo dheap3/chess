@@ -279,7 +279,7 @@ public class StandardServiceTests {
         testAuthDAO.addAuth(testAuth);
         //add two of the same auth token
         assertEquals(1, testAuthDAO.getAuths().size());
-        assertEquals(testAuth, testAuthDAO.getAuths().get(1));
+        assertEquals(testAuth, testAuthDAO.getAuths().get(0));
     }
     //test removeAuth
     @Test

@@ -1,7 +1,9 @@
 package dataaccess;
 
 import datamodel.AuthData;
+import datamodel.UserData;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -9,9 +11,8 @@ public class MemoryAuthDAO implements AuthDAO {
     private Map<String, AuthData> auths = new HashMap<String, AuthData>();
 
     @Override
-    public boolean addAuth(AuthData auth) {
+    public void addAuth(AuthData auth) {
         auths.put(auth.authToken(), auth);
-        return true;
     }
 
     @Override
@@ -20,9 +21,8 @@ public class MemoryAuthDAO implements AuthDAO {
     }
 
     @Override
-    public boolean removeAuth(String authToken) {
+    public void removeAuth(String authToken) {
         auths.remove(authToken);
-        return true;
     }
 
     @Override
@@ -33,5 +33,10 @@ public class MemoryAuthDAO implements AuthDAO {
     @Override
     public boolean dbContains(String authToken) {
         return auths.containsKey(authToken);
+    }
+
+    @Override
+    public ArrayList<AuthData> getAuths() {
+        return new ArrayList<>(auths.values());
     }
 }

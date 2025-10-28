@@ -6,6 +6,7 @@ import dataaccess.MemoryUserDAO;
 import dataaccess.UserDAO;
 import datamodel.AuthData;
 import datamodel.UserData;
+import org.eclipse.jetty.server.Authentication;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -13,7 +14,7 @@ import java.util.UUID;
 
 public class UserService {
     UserDAO userDAO = new MemoryUserDAO();
-    private AuthDAO authDAO = new MemoryAuthDAO();
+    public AuthDAO authDAO = new MemoryAuthDAO();
 
     public UserService(AuthDAO authDAO) {
         this.authDAO = authDAO;
@@ -115,9 +116,8 @@ public class UserService {
         authDAO.addAuth(auth);
         return auth;
     }
-    public boolean removeAuth(String authToken) {
+    public void removeAuth(String authToken) {
         authDAO.removeAuth(authToken);
-        return true;
     }
     public void clearDB() {
         userDAO.clearDB();

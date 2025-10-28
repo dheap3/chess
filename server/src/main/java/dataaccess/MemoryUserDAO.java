@@ -1,9 +1,9 @@
 package dataaccess;
 
+import datamodel.GameData;
 import datamodel.UserData;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 public class MemoryUserDAO implements UserDAO {
     private Map<String, UserData> users = new HashMap<String, UserData>();
@@ -17,6 +17,11 @@ public class MemoryUserDAO implements UserDAO {
     @Override
     public UserData getUser(String username) {
         return users.get(username);
+    }
+
+    @Override
+    public ArrayList<UserData> getUsers() {
+        return new ArrayList<>(users.values());
     }
 
     @Override

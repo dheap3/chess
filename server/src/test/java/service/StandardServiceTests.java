@@ -247,12 +247,19 @@ public class StandardServiceTests {
         assertEquals(Map.of(statusCode, statusString), response);
         assertFalse(testAuthDAO.dbContains(testAuthToken));
     }
+    //testGetUser
     @Test
     public void testGetUser() {
         String testUsername = "testUsername";
         testUserService.userDAO.addUser(new UserData(testUsername, "testPassword", "testEmail@test.com"));
         var testUser = testUserService.getUser(testUsername);
         assertEquals(testUsername, testUser.username());
+    }
+    @Test
+    public void testGetUserFail() {
+        String testUsername = "testUsername";
+        var testUser = testUserService.getUser(testUsername);
+        assertNull(testUser);
     }
     //test createAuth
     @Test
@@ -266,11 +273,28 @@ public class StandardServiceTests {
         assertNotEquals(testAuthDAO.getAuths().get(0), testAuthDAO.getAuths().get(1));
     }
     @Test
+    public void testCreateUniqueAuthFail() {
+        String testUsername = "testUsername";
+        var testAuth = testUserService.createAuth(testUsername);
+        testAuthDAO.addAuth(testAuth);
+        //add two of the same auth token
+        assertEquals(1, testAuthDAO.getAuths().size());
+        assertEquals(testAuth, testAuthDAO.getAuths().get(1));
+    }
+    //test removeAuth
+    @Test
     public void testRemoveAuth() {
         String testUsername = "testUsername";
         var testAuth = testUserService.createAuth(testUsername);
         testUserService.removeAuth(testAuth.authToken());
         assertFalse(testAuthDAO.dbContains(testAuth.authToken()));
+    }
+    @Test
+    public void testRemoveAuthFail() {
+        String testUsername = "testUsername";
+        var testAuth = testUserService.createAuth(testUsername);
+        testUserService.removeAuth("testAuth.authToken()");
+        assertTrue(testAuthDAO.dbContains(testAuth.authToken()));
     }
     //test clearDB
     @Test

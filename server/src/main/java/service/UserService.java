@@ -73,13 +73,10 @@ public class UserService {
             return Map.of(statusCode, statusString);
         }
 
-        //hash the password with bcrypt
-        String bcryptPass = BCrypt.hashpw(password, BCrypt.gensalt());
-
         //check if the user is authorized (correct password)
         UserData correctData = getUser(username);
         if (correctData == null ||//cannot find data for the associated username (incorrect username)
-                !bcryptPass.equals(correctData.password())) {//the password given doesn't match the one stored
+                !hashedPassMatches(password, correctData.password())) {//the password given doesn't match the one stored
             statusString = Map.of("message", "Error: unauthorized");
             statusCode = 401;
             return Map.of(statusCode, statusString);
@@ -129,5 +126,8 @@ public class UserService {
     public void clearDB() {
         userDAO.clearDB();
         authDAO.clearDB();
+    }
+    public boolean hashedPassMatches(String clearTextPass, String hashedPass) {
+        return BCrypt.checkpw(clearTextPass, hashedPass);
     }
 }

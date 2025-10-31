@@ -54,9 +54,9 @@ public class MySQLAuthDAO implements AuthDAO {
                 preparedStatement.setString(1, authToken);
                 try (var rs = preparedStatement.executeQuery()) {
                     while (rs.next()) {
+                        //authToken already there
                         String username = rs.getString("username");
-                        String token = rs.getString("authToken");
-                        return new AuthData(token, username);
+                        return new AuthData(authToken, username);
                     }
                 }
             }
@@ -79,8 +79,8 @@ public class MySQLAuthDAO implements AuthDAO {
                     while (rs.next()) {
                         String username = rs.getString("username");
                         String token = rs.getString("authToken");
-                        var currAuth = new AuthData(token, username);
-                        auths.add(currAuth);
+                        var currAuthData = new AuthData(token, username);
+                        auths.add(currAuthData);
                     }
                 }
             }

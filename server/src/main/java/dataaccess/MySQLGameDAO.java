@@ -5,6 +5,7 @@ import datamodel.AuthData;
 import datamodel.GameData;
 import com.google.gson.Gson;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
@@ -90,7 +91,31 @@ public class MySQLGameDAO implements GameDAO {
 
     @Override
     public Collection<GameData> getGames() {
-        return List.of();
+        ArrayList<GameData> games = new ArrayList<>();
+        try (var conn = DatabaseManager.getConnection()) {
+            String sqlComm = """
+                    SELECT * FROM gameData;
+                    """;
+
+            try (var preparedStatement = conn.prepareStatement(sqlComm)) {
+                try (var rs = preparedStatement.executeQuery()) {
+                    while (rs.next()) {
+                        int gameID = rs.getInt("gameID");
+                        String whiteUsername = rs.getString("whiteUsername");
+                        String blackUsername = rs.getString("blackUsername");
+                        String gameName = rs.getString("gameName");
+                        String gameJSON = rs.getString("gameJSON");
+                        var serializer = new Gson();
+                        ChessGame game = serializer.fromJson(gameJSON, ChessGame.class);
+                        GameData currGameData = new GameData(gameID, whiteUsername, blackUsername, gameName, game);
+                        games.add(currGameData);
+                    }
+                }
+            }
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+        return games;
     }
 
     @Override

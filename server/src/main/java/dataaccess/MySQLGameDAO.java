@@ -1,10 +1,13 @@
 package dataaccess;
 
+import chess.ChessGame;
+import datamodel.AuthData;
 import datamodel.GameData;
 import com.google.gson.Gson;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 
 public class MySQLGameDAO implements GameDAO {
 
@@ -43,6 +46,7 @@ public class MySQLGameDAO implements GameDAO {
                 Gson gson = new Gson();
                 String gameJSON = gson.toJson(game.game());
                 preparedStatement.setString(5, gameJSON);
+
                 preparedStatement.executeUpdate();
             }
         } catch (Exception e) {
@@ -53,6 +57,29 @@ public class MySQLGameDAO implements GameDAO {
 
     @Override
     public GameData getGame(int gameID) {
+        try (var conn = DatabaseManager.getConnection()) {
+            String sqlComm = """
+                    SELECT * FROM gameData WHERE gameID = ?;
+                    """;
+
+            try (var preparedStatement = conn.prepareStatement(sqlComm)) {
+                preparedStatement.setInt(1, gameID);
+                try (var rs = preparedStatement.executeQuery()) {
+                    while (rs.next()) {
+                        //gameID already there
+                        String whiteUsername = rs.getString("whiteUsername");
+                        String blackUsername = rs.getString("blackUsername");
+                        String gameName = rs.getString("gameName");
+                        String gameJSON = rs.getString("gameJSON");
+                        var serializer = new Gson();
+                        ChessGame game = serializer.fromJson(gameJSON, ChessGame.class);
+                        return new GameData(gameID, whiteUsername, blackUsername, gameName, game);
+                    }
+                }
+            }
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
         return null;
     }
 
@@ -68,6 +95,16 @@ public class MySQLGameDAO implements GameDAO {
 
     @Override
     public void clearDB() {
+        try (var conn = DatabaseManager.getConnection()) {
+            String sqlComm = """
+                    TRUNCATE TABLE gameData;
+                    """;
 
+            try (var preparedStatement = conn.prepareStatement(sqlComm)) {
+                preparedStatement.executeUpdate();
+            }
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
     }
 }

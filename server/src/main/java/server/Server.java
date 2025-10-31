@@ -2,7 +2,9 @@ package server;
 
 import com.google.gson.Gson;
 import dataaccess.AuthDAO;
+import dataaccess.DatabaseManager;
 import dataaccess.MemoryAuthDAO;
+import dataaccess.MySQLAuthDAO;
 import datamodel.GameData;
 import io.javalin.*;
 import io.javalin.http.Context;
@@ -16,12 +18,20 @@ import java.util.Map;
 public class Server {
 
     private final Javalin server;
+
     AuthDAO myAuthDAO = new MemoryAuthDAO();
     private UserService userService = new UserService(myAuthDAO);
     private GameService gameService = new GameService(myAuthDAO);
 
     public Server() {
         server = Javalin.create(config -> config.staticFiles.add("web"));
+        try {
+            myAuthDAO = new MySQLAuthDAO();
+            userService = new UserService(myAuthDAO);
+            gameService = new GameService(myAuthDAO);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
         // Register your endpoints and exception handlers here.
 //        server.delete("db", ctx ->ctx.result("{}"));
         server.delete("db", this::clear);

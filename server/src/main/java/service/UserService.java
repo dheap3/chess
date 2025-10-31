@@ -4,6 +4,7 @@ import dataaccess.*;
 import datamodel.AuthData;
 import datamodel.UserData;
 import org.eclipse.jetty.server.Authentication;
+import org.mindrot.jbcrypt.BCrypt;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -43,7 +44,10 @@ public class UserService {
             return Map.of(statusCode, statusString);
         }
 
-        user = new UserData(username, password, email);
+        //hash the password with bcrypt
+        String bcryptPass = BCrypt.hashpw(password, BCrypt.gensalt());
+
+        user = new UserData(username, bcryptPass, email);
         //put user in db
         userDAO.addUser(user);
 
@@ -69,10 +73,13 @@ public class UserService {
             return Map.of(statusCode, statusString);
         }
 
+        //hash the password with bcrypt
+        String bcryptPass = BCrypt.hashpw(password, BCrypt.gensalt());
+
         //check if the user is authorized (correct password)
         UserData correctData = getUser(username);
         if (correctData == null ||//cannot find data for the associated username (incorrect username)
-                !password.equals(correctData.password())) {//the password given doesn't match the one stored
+                !bcryptPass.equals(correctData.password())) {//the password given doesn't match the one stored
             statusString = Map.of("message", "Error: unauthorized");
             statusCode = 401;
             return Map.of(statusCode, statusString);

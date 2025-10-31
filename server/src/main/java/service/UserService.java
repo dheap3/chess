@@ -1,9 +1,6 @@
 package service;
 
-import dataaccess.AuthDAO;
-import dataaccess.MemoryAuthDAO;
-import dataaccess.MemoryUserDAO;
-import dataaccess.UserDAO;
+import dataaccess.*;
 import datamodel.AuthData;
 import datamodel.UserData;
 import org.eclipse.jetty.server.Authentication;
@@ -18,6 +15,11 @@ public class UserService {
 
     public UserService(AuthDAO authDAO) {
         this.authDAO = authDAO;
+        try {
+            userDAO = new MySQLUserDAO();
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
     }
 
     public Map<Integer, Map<String, String>> register(String username, String password, String email) {

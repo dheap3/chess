@@ -2,10 +2,7 @@ package service;
 
 import chess.ChessGame;
 import com.google.gson.Gson;
-import dataaccess.AuthDAO;
-import dataaccess.GameDAO;
-import dataaccess.MemoryAuthDAO;
-import dataaccess.MemoryGameDAO;
+import dataaccess.*;
 import datamodel.GameData;
 
 import java.util.ArrayList;
@@ -18,6 +15,11 @@ public class GameService {
 
     public GameService(AuthDAO authDAO) {
         this.authDAO = authDAO;
+        try {
+            gameDAO = new MySQLGameDAO();
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
     }
     public int numGames = 1;
 

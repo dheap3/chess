@@ -86,7 +86,23 @@ public class MySQLGameDAO implements GameDAO {
 
     @Override
     public GameData updateGame(GameData newGame) {
-        return null;
+        try (var conn = DatabaseManager.getConnection()) {
+            String sqlComm = """
+                    UPDATE gameData SET gameJson = ? WHERE gameID = ?;
+                    """;
+
+            try (var preparedStatement = conn.prepareStatement(sqlComm)) {
+                Gson gson = new Gson();
+                String gameJSON = gson.toJson(newGame.game());
+                preparedStatement.setString(1, gameJSON);
+                preparedStatement.setInt(2, newGame.gameID());
+
+                preparedStatement.executeUpdate();
+            }
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+        return newGame;
     }
 
     @Override

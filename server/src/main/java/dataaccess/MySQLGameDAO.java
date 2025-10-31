@@ -88,14 +88,16 @@ public class MySQLGameDAO implements GameDAO {
     public GameData updateGame(GameData newGame) {
         try (var conn = DatabaseManager.getConnection()) {
             String sqlComm = """
-                    UPDATE gameData SET gameJson = ? WHERE gameID = ?;
+                    UPDATE gameData SET whiteUsername = ?, blackUsername = ?, gameJson = ? WHERE gameID = ?;
                     """;
 
             try (var preparedStatement = conn.prepareStatement(sqlComm)) {
                 Gson gson = new Gson();
                 String gameJSON = gson.toJson(newGame.game());
-                preparedStatement.setString(1, gameJSON);
-                preparedStatement.setInt(2, newGame.gameID());
+                preparedStatement.setString(1, newGame.whiteUsername());
+                preparedStatement.setString(2, newGame.blackUsername());
+                preparedStatement.setString(3, gameJSON);
+                preparedStatement.setInt(4, newGame.gameID());
 
                 preparedStatement.executeUpdate();
             }

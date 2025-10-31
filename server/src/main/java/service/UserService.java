@@ -114,8 +114,6 @@ public class UserService {
         //create authToken
         var authToken = UUID.randomUUID().toString();
         AuthData auth = new AuthData(username, authToken);
-        //add to db
-        authDAO.addAuth(auth);
         return auth;
     }
     public void removeAuth(String authToken) {

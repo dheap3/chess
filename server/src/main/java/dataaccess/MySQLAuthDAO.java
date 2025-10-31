@@ -67,7 +67,7 @@ public class MySQLAuthDAO implements AuthDAO {
     }
 
     @Override
-    public ArrayList<AuthData> getAuths() {
+    public Collection<AuthData> getAuths() {
         var auths = new ArrayList<AuthData>();
         try (var conn = DatabaseManager.getConnection()) {
             String sqlComm = """

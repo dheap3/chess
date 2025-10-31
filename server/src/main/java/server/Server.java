@@ -45,10 +45,15 @@ public class Server {
     }
     //helper functions for http endpoints
     private void clear(Context ctx) {
-        userService.clearDB();
-        gameService.clearDB();
-        var res = new Gson().toJson(Map.of());
-        ctx.status(200).result(res);
+        try {
+            userService.clearDB();
+            gameService.clearDB();
+            var res = new Gson().toJson(Map.of());
+            ctx.status(200).result(res);
+        } catch (Exception e) {
+            var res = new Gson().toJson(Map.of("message", "Error: Internal Server Error"));
+            ctx.status(500).result(res);
+        }
     }
     private void register(Context ctx) {
         var serializer = new Gson();
@@ -57,7 +62,14 @@ public class Server {
         String password = (String) req.get("password");
         String email = (String) req.get("email");
 
-        Map<Integer, Map<String, String>> registerData = userService.register(username, password, email);
+        Map<Integer, Map<String, String>> registerData = Map.of();//null if it can't register correctly it will
+        try {
+            registerData = userService.register(username, password, email);
+        } catch (Exception e) {
+            var res = new Gson().toJson(Map.of("message", "Error: Internal Server Error"));
+            ctx.status(500).result(res);
+            return;
+        }
 
         var res = new Gson().toJson(registerData.entrySet().iterator().next().getValue());
         ctx.status(registerData.entrySet().iterator().next().getKey()).result(res);
@@ -68,7 +80,14 @@ public class Server {
         String username = (String) req.get("username");
         String password = (String) req.get("password");
 
-        Map<Integer, Map<String, String>> registerData = userService.login(username, password);
+        Map<Integer, Map<String, String>> registerData;
+        try {
+            registerData = userService.login(username, password);
+        } catch (Exception e) {
+            var res = new Gson().toJson(Map.of("message", "Error: Internal Server Error"));
+            ctx.status(500).result(res);
+            return;
+        }
 
         var res = new Gson().toJson(registerData.entrySet().iterator().next().getValue());
         ctx.status(registerData.entrySet().iterator().next().getKey()).result(res);
@@ -77,7 +96,14 @@ public class Server {
         var serializer = new Gson();
         String authToken = ctx.header("Authorization");
 
-        Map<Integer, Map<String, String>> registerData = userService.logout(authToken);
+        Map<Integer, Map<String, String>> registerData;
+        try {
+            registerData = userService.logout(authToken);
+        } catch (Exception e) {
+            var res = new Gson().toJson(Map.of("message", "Error: Internal Server Error"));
+            ctx.status(500).result(res);
+            return;
+        }
 
         var res = new Gson().toJson(registerData.entrySet().iterator().next().getValue());
         ctx.status(registerData.entrySet().iterator().next().getKey()).result(res);
@@ -89,9 +115,15 @@ public class Server {
         String authToken = ctx.header("Authorization");
         String gameName = (String) req.get("gameName");
 
+        Map<Integer, Map<String, String>> createGameData;
+        try {
+            createGameData = gameService.createGame(authToken, gameName);
+        } catch (Exception e) {
+            var res = new Gson().toJson(Map.of("message", "Error: Internal Server Error"));
+            ctx.status(500).result(res);
+            return;
+        }
 
-
-        Map<Integer, Map<String, String>> createGameData = gameService.createGame(authToken, gameName);
         int createGameStatus = createGameData.entrySet().iterator().next().getKey();
 
         var res = new Gson().toJson(createGameData.entrySet().iterator().next().getValue());
@@ -111,15 +143,29 @@ public class Server {
         String playerColor = (String) req.get("playerColor");
         Double gameIDDouble = (Double) req.get("gameID");
 
-        Map<Integer, Map<String, String>> joinGameData = gameService.joinGame(authToken, playerColor, gameIDDouble);
+        Map<Integer, Map<String, String>> joinGameData;
+        try {
+            joinGameData = gameService.joinGame(authToken, playerColor, gameIDDouble);
+        } catch (Exception e) {
+            var res = new Gson().toJson(Map.of("message", "Error: Internal Server Error"));
+            ctx.status(500).result(res);
+            return;
+        }
 
         var res = new Gson().toJson(joinGameData.entrySet().iterator().next().getValue());
         ctx.status(joinGameData.entrySet().iterator().next().getKey()).result(res);
     }
     private void listGames(Context ctx) {
         String authToken = ctx.header("Authorization");
-        Map<Integer, String> listGamesResponse = gameService.listGames(authToken);//returns json string because of the list
 
+        Map<Integer, String> listGamesResponse;
+        try {
+            listGamesResponse = gameService.listGames(authToken);//returns json string because of the list
+        } catch (Exception e) {
+            var res = new Gson().toJson(Map.of("message", "Error: Internal Server Error"));
+            ctx.status(500).result(res);
+            return;
+        }
         var res = listGamesResponse.entrySet().iterator().next().getValue();
         ctx.status(listGamesResponse.entrySet().iterator().next().getKey()).result(res);
     }

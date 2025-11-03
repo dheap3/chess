@@ -27,7 +27,7 @@ public class MySQLAuthDAO implements AuthDAO {
     }
 
     @Override
-    public void addAuth(AuthData auth) {
+    public boolean addAuth(AuthData auth) {
         try (var conn = DatabaseManager.getConnection()) {
             String sqlComm = """
                     INSERT INTO authData (authToken, username) VALUES (?, ?);
@@ -41,6 +41,7 @@ public class MySQLAuthDAO implements AuthDAO {
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
+        return true;
     }
 
     @Override

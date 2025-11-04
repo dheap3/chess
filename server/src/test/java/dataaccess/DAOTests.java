@@ -1,5 +1,6 @@
+package dataaccess;
+
 import chess.ChessGame;
-import dataaccess.*;
 import datamodel.AuthData;
 import datamodel.GameData;
 import datamodel.UserData;

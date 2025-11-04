@@ -295,17 +295,17 @@ public class DAOTests {
     @Test
     public void clearGameDBSuccess() {
         GameDAO myGameDAO = new MemoryGameDAO();
-        int gameID = 1234;
-        String whiteUsername = "phil";
-        String blackUsername = "sherry";
-        String gameName = "WAR";
+        int gameID = 12345;
+        String whiteUsername = "phillis";
+        String blackUsername = "sherril";
+        String gameName = "PEACE";
         ChessGame chess = new ChessGame();
         GameData game = new GameData(gameID, whiteUsername, blackUsername, gameName, chess);
         myGameDAO.addGame(game);
-        int gameID2 = 12342;
-        String whiteUsername2 = "phil2";
-        String blackUsername2 = "sherry2";
-        String gameName2 = "WAR2";
+        int gameID2 = 123452;
+        String whiteUsername2 = "phillis2";
+        String blackUsername2 = "sherril2";
+        String gameName2 = "PEACE2";
         ChessGame chess2 = new ChessGame();
         GameData game2 = new GameData(gameID2, whiteUsername2, blackUsername2, gameName2, chess2);
         myGameDAO.addGame(game2);

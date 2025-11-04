@@ -11,13 +11,16 @@ public class MemoryGameDAO implements GameDAO {
 
     @Override
     public boolean addGame(GameData game) {
+        if (game == null) {
+            return false;
+        }
         Integer gameID = game.gameID();
         games.put(gameID, game);
         return true;
     }
 
     @Override
-    public GameData getGame(int gameID) {
+    public GameData getGame(Integer gameID) {
         return games.get(gameID);
     }
 

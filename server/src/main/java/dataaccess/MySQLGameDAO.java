@@ -1,14 +1,11 @@
 package dataaccess;
 
 import chess.ChessGame;
-import datamodel.AuthData;
 import datamodel.GameData;
 import com.google.gson.Gson;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.List;
-import java.util.Map;
 
 public class MySQLGameDAO implements GameDAO {
 
@@ -57,7 +54,7 @@ public class MySQLGameDAO implements GameDAO {
     }
 
     @Override
-    public GameData getGame(int gameID) {
+    public GameData getGame(Integer gameID) {
         try (var conn = DatabaseManager.getConnection()) {
             String sqlComm = """
                     SELECT * FROM gameData WHERE gameID = ?;

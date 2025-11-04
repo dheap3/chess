@@ -1,7 +1,9 @@
 package passoff.server;
 
+import chess.ChessGame;
 import dataaccess.*;
 import datamodel.AuthData;
+import datamodel.GameData;
 import datamodel.UserData;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
@@ -11,6 +13,9 @@ import org.junit.jupiter.api.Test;
 import java.util.*;
 
 public class DAOTests {
+    /// clean up these tests so they are consistent
+
+
     //test authDAO
     //addAuth
     @Test
@@ -217,9 +222,97 @@ public class DAOTests {
 
     //test gameDAO
     //addGame
+    @Test
+    public void testAddGameSuccess() throws Exception {
+        int gameID = 1234;
+        String whiteUsername = "phil";
+        String blackUsername = "sherry";
+        String gameName = "WAR";
+        ChessGame chess = new ChessGame();
+        GameData game = new GameData(gameID, whiteUsername, blackUsername, gameName, chess);
+        GameDAO myGameDAO = new MemoryGameDAO();
+        Assertions.assertTrue(myGameDAO.addGame(game));
+    }
+    @Test
+    public void testAddGameFail() throws Exception {
+        GameDAO myGameDAO = new MemoryGameDAO();
+        Assertions.assertFalse(myGameDAO.addGame(null));
+    }
     //getGame
+    @Test
+    public void testGetGameSuccess() throws Exception {
+        int gameID = 1234;
+        String whiteUsername = "phil";
+        String blackUsername = "sherry";
+        String gameName = "WAR";
+        ChessGame chess = new ChessGame();
+        GameData game = new GameData(gameID, whiteUsername, blackUsername, gameName, chess);
+        GameDAO myGameDAO = new MemoryGameDAO();
+        myGameDAO.addGame(game);
+
+        Assertions.assertEquals(game, myGameDAO.getGame(gameID));
+    }
+    @Test
+    public void testGetGameFail() throws Exception {
+        GameDAO myGameDAO = new MemoryGameDAO();
+        Assertions.assertNull(myGameDAO.getGame(null));
+    }
     //getGames
-    //updateGame
+    @Test
+    public void testGetGamesSuccess() throws Exception {
+        GameDAO myGameDAO = new MemoryGameDAO();
+        int gameID = 1234;
+        String whiteUsername = "phil";
+        String blackUsername = "sherry";
+        String gameName = "WAR";
+        ChessGame chess = new ChessGame();
+        GameData game = new GameData(gameID, whiteUsername, blackUsername, gameName, chess);
+        myGameDAO.addGame(game);
+        int gameID2 = 12342;
+        String whiteUsername2 = "phil2";
+        String blackUsername2 = "sherry2";
+        String gameName2 = "WAR2";
+        ChessGame chess2 = new ChessGame();
+        GameData game2 = new GameData(gameID2, whiteUsername2, blackUsername2, gameName2, chess2);
+        myGameDAO.addGame(game2);
+
+        ArrayList<GameData> optimalGames = new ArrayList<>(List.of());
+        optimalGames.add(game);
+        optimalGames.add(game2);
+
+        ArrayList<GameData> games = (ArrayList<GameData>) myGameDAO.getGames();
+        optimalGames.sort(Comparator.comparing(GameData::gameID));
+        games.sort(Comparator.comparing(GameData::gameID));
+
+        Assertions.assertEquals(optimalGames, games);
+    }
+    @Test
+    public void testGetGamesFail() throws Exception {
+        GameDAO myGameDAO = new MemoryGameDAO();
+        Assertions.assertEquals(List.of(), myGameDAO.getGames());
+    }
     //clearDB
+    @Test
+    public void clearGameDBSuccess() {
+        GameDAO myGameDAO = new MemoryGameDAO();
+        int gameID = 1234;
+        String whiteUsername = "phil";
+        String blackUsername = "sherry";
+        String gameName = "WAR";
+        ChessGame chess = new ChessGame();
+        GameData game = new GameData(gameID, whiteUsername, blackUsername, gameName, chess);
+        myGameDAO.addGame(game);
+        int gameID2 = 12342;
+        String whiteUsername2 = "phil2";
+        String blackUsername2 = "sherry2";
+        String gameName2 = "WAR2";
+        ChessGame chess2 = new ChessGame();
+        GameData game2 = new GameData(gameID2, whiteUsername2, blackUsername2, gameName2, chess2);
+        myGameDAO.addGame(game2);
+
+        myGameDAO.clearDB();
+        Assertions.assertEquals(List.of(), myGameDAO.getGames());
+    }
+    //updateGame
 
 }

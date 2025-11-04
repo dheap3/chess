@@ -10,6 +10,9 @@ public class MemoryUserDAO implements UserDAO {
 
     @Override
     public boolean addUser(UserData user) {
+        if (user == null) {
+            return false;
+        }
         users.put(user.username(), user);
         return true;
     }

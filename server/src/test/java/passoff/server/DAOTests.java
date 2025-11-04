@@ -1,9 +1,8 @@
 package passoff.server;
 
-import dataaccess.AuthDAO;
-import dataaccess.MemoryAuthDAO;
-import dataaccess.MySQLAuthDAO;
+import dataaccess.*;
 import datamodel.AuthData;
+import datamodel.UserData;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
@@ -99,7 +98,7 @@ public class DAOTests {
     }
     //clearDB
     @Test
-    public void clearDBSuccess() {
+    public void clearAuthDBSuccess() {
         String testUsername1 = "testUsername1";
         String testAuthToken1 = "testAuthToken1";
         AuthData auth1 = new AuthData(testUsername1, testAuthToken1);
@@ -135,9 +134,86 @@ public class DAOTests {
 
     //test userDAO
     //addUser
+    @Test
+    public void testAddUserSuccess() throws Exception {
+        String testUsername = "testUsername";
+        String testPassword = "testPassword";
+        String testEmail = "testEmail";
+        UserData user = new UserData(testUsername, testPassword, testEmail);
+        UserDAO myUserDAO = new MemoryUserDAO();
+
+        Assertions.assertTrue(myUserDAO.addUser(user));
+    }
+    @Test
+    public void testAddUserFail() throws Exception {
+        UserDAO myUserDAO = new MemoryUserDAO();
+        Assertions.assertFalse(myUserDAO.addUser(null));
+    }
     //getUser
+    @Test
+    public void testGetUserSuccess() throws Exception {
+        String testUsername = "testUsername";
+        String testPassword = "testPassword";
+        String testEmail = "testEmail";
+        UserData user = new UserData(testUsername, testPassword, testEmail);
+        UserDAO myUserDAO = new MemoryUserDAO();
+        myUserDAO.addUser(user);
+
+        Assertions.assertEquals(user, myUserDAO.getUser(testUsername));
+    }
+    @Test
+    public void testGetUserFail() throws Exception {
+        UserDAO myUserDAO = new MemoryUserDAO();
+        Assertions.assertNull(myUserDAO.getUser(null));
+    }
     //getUsers
+    @Test
+    public void testGetUsersSuccess() throws Exception {
+        String testUsername = "testUsername";
+        String testPassword = "testPassword";
+        String testEmail = "testEmail";
+        UserData user = new UserData(testUsername, testPassword, testEmail);
+        UserDAO myUserDAO = new MemoryUserDAO();
+        myUserDAO.addUser(user);
+        String testUsername1 = "testUsername1";
+        String testPassword1 = "testPassword1";
+        String testEmail1 = "testEmail1";
+        UserData user1 = new UserData(testUsername1, testPassword1, testEmail1);
+        myUserDAO.addUser(user1);
+
+        ArrayList<UserData> optimalUsers = new ArrayList<>(List.of());
+        optimalUsers.add(user);
+        optimalUsers.add(user1);
+
+        ArrayList<UserData> users = (ArrayList<UserData>) myUserDAO.getUsers();
+        optimalUsers.sort(Comparator.comparing(UserData::username));
+        users.sort(Comparator.comparing(UserData::username));
+
+        Assertions.assertEquals(optimalUsers, users);
+    }
+    @Test
+    public void testGetUsersFail() throws Exception {
+        UserDAO myUserDAO = new MemoryUserDAO();
+        Assertions.assertEquals(List.of(), myUserDAO.getUsers());
+    }
     //clearDB
+    @Test
+    public void clearUserDBSuccess() {
+        String testUsername = "testUsername";
+        String testPassword = "testPassword";
+        String testEmail = "testEmail";
+        UserData user = new UserData(testUsername, testPassword, testEmail);
+        UserDAO myUserDAO = new MemoryUserDAO();
+        myUserDAO.addUser(user);
+        String testUsername1 = "testUsername1";
+        String testPassword1 = "testPassword1";
+        String testEmail1 = "testEmail1";
+        UserData user1 = new UserData(testUsername1, testPassword1, testEmail1);
+        myUserDAO.addUser(user1);
+
+        myUserDAO.clearDB();
+        Assertions.assertEquals(List.of(), myUserDAO.getUsers());
+    }
 
     //test gameDAO
     //addGame

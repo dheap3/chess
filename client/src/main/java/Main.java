@@ -1,4 +1,8 @@
+import chess.ChessGame;
+
 import java.util.Scanner;
+
+import static java.lang.System.exit;
 
 public class Main {
     public static void main(String[] args) {
@@ -12,8 +16,8 @@ public class Main {
         boolean exit = false;
         String input;
         printPreOptions();
-        System.out.print("[LOGGED OUT] ->> ");
         while (!exit) {
+            System.out.print("[LOGGED OUT] ->> ");
             input = scanner.nextLine();
             input = input.toLowerCase();
             switch (input) {
@@ -21,8 +25,7 @@ public class Main {
                     printPreOptions();
                     System.out.print("[LOGGED OUT] ->> ");
                     break;
-                case "quit":
-//                    System.out.println("bye");
+                case "quit", "exit":
                     exit = true;
                     break;
                 case "login":
@@ -35,7 +38,6 @@ public class Main {
                     break;
                 default:
                     System.out.println("option not valid. please try again");
-                    System.out.print("[LOGGED OUT] ->> ");
             }
 
         }
@@ -45,10 +47,13 @@ public class Main {
         Scanner scanner = new Scanner(System.in);
         boolean exit = false;
         String input;
+        int gameID = 123;
+        ChessGame.TeamColor color;
+
         System.out.println("you are logged in!");
         printPostOptions();
-        System.out.print("[LOGGED IN] ->> ");
         while (!exit) {
+            System.out.print("[LOGGED IN] ->> ");
             input = scanner.nextLine();
             input = input.toLowerCase();
             switch (input) {
@@ -59,7 +64,6 @@ public class Main {
                 case "logout":
                     //Logs out the user. Calls the server logout API to log out the user. After logging out with the server, the client should transition to the Prelogin UI.
                     exit = true;
-//                    preloginUI();
                     break;
                 case "create":
                     //Allows the user to input a name for the new game. Calls the server create API to create the game. This does not join the player to the created game; it only creates the new game in the server.
@@ -69,21 +73,52 @@ public class Main {
                     //Lists all the games that currently exist on the server. Calls the server list API to get all the game data, and displays the games in a numbered list, including the game name and players (not observers) in the game. The numbering for the list should be independent of the game IDs and should start at 1.
                     System.out.println("heres all the games you need:");
                     break;
-                case "play":
+                case "join":
                     //Allows the user to specify which game they want to join and what color they want to play. They should be able to enter the number of the desired game. Your client will need to keep track of which number corresponds to which game from the last time it listed the games. Calls the server join API to join the user to the game.
                     System.out.println("be a kid, play a game!");
+                    gameID = 123;
+                    color = ChessGame.TeamColor.BLACK;
+                    gameUI(gameID, color);
                     break;
                 case "observe":
                     //Allows the user to specify which game they want to observe. They should be able to enter the number of the desired game. Your client will need to keep track of which number corresponds to which game from the last time it listed the games. Additional functionality will be added in Phase 6.
                     System.out.println("be an adult, watch the kids play");
+                    gameID = 234;
+                    color = ChessGame.TeamColor.WHITE;
+                    gameUI(gameID, color);
                     break;
                 default:
                     System.out.println("option not valid. please try again");
-                    System.out.print("[LOGGED IN] ->> ");
 
             }
         }
 
+    }
+
+    static void gameUI(int GameID, ChessGame.TeamColor color) {
+        Scanner scanner = new Scanner(System.in);
+        String input;
+        boolean exit = false;
+        System.out.println("welcome to the game!");
+
+        if (color == ChessGame.TeamColor.BLACK) {
+            printBlackBoard();
+        } else if (color == ChessGame.TeamColor.WHITE) {
+            printWhiteBoard();
+        } else {
+            System.out.println("color error");
+            exit(0);
+        }
+        //loop here to continue the game
+
+    }
+
+    static void printBlackBoard() {
+        System.out.println("black board");
+    }
+
+    static void printWhiteBoard() {
+        System.out.println("white board");
     }
 
     static void printPreOptions() {

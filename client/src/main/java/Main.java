@@ -31,7 +31,7 @@ public class Main {
                     break;
                 case "login":
                     if (args.length != 3) {
-                        System.out.println("[LOGGED OUT] ->> Login failed, please enter a valid username/password");
+                        System.out.println("[LOGGED OUT] ->> Login failed. Please enter a valid USERNAME/PASSWORD");
                         break;
                     } else {
                         System.out.println(args[1] + " = username");
@@ -42,7 +42,7 @@ public class Main {
                     }
                 case "register":
                     if (args.length != 4) {
-                        System.out.println("[LOGGED OUT] ->> Register failed, please enter a valid username/password/email");
+                        System.out.println("Register failed, please enter a valid USERNAME/PASSWORD/EMAIL");
                         break;
                     }  else {
                         System.out.println(args[1] + " = username");
@@ -62,16 +62,19 @@ public class Main {
     static void postLoginUI() {
         Scanner scanner = new Scanner(System.in);
         boolean exit = false;
+        String line;
         String input;
         int gameID = 123;
-        ChessGame.TeamColor color;
+        String gameName = "";
+        ChessGame.TeamColor color = null;
 
-        System.out.println("you are logged in!");
+        System.out.println("You are logged in!");
         printPostOptions();
         while (!exit) {
             System.out.print("[LOGGED IN] ->> ");
-            input = scanner.nextLine();
-            input = input.toLowerCase();
+            line = scanner.nextLine();
+            var args = line.split(" ");
+            input = args[0].toLowerCase();
             switch (input) {
                 case "help":
                     printPostOptions();
@@ -82,27 +85,50 @@ public class Main {
                     exit = true;
                     break;
                 case "create":
-                    //Allows the user to input a name for the new game. Calls the server create API to create the game. This does not join the player to the created game; it only creates the new game in the server.
-                    System.out.println("create a game that pleases you");
-                    break;
+                    if (args.length != 2) {
+                        System.out.println("Create failed. Please enter a valid GAMENAME");
+                        break;
+                    } else {
+                        gameName = args[1];
+                        System.out.println(gameName + " = gamename");
+                        //Allows the user to input a name for the new game. Calls the server create API to create the game. This does not join the player to the created game; it only creates the new game in the server.
+                        break;
+                    }
                 case "list":
                     //Lists all the games that currently exist on the server. Calls the server list API to get all the game data, and displays the games in a numbered list, including the game name and players (not observers) in the game. The numbering for the list should be independent of the game IDs and should start at 1.
                     System.out.println("heres all the games you need:");
                     break;
                 case "join":
-                    //Allows the user to specify which game they want to join and what color they want to play. They should be able to enter the number of the desired game. Your client will need to keep track of which number corresponds to which game from the last time it listed the games. Calls the server join API to join the user to the game.
-                    System.out.println("be a kid, play a game!");
-                    gameID = 123;
-                    color = ChessGame.TeamColor.BLACK;
-                    gameUI(gameID, color);
-                    break;
+                    if (args.length != 3) {
+                        System.out.println("Join failed. Please enter a valid game ID/COLOR");
+                        break;
+                    } else {
+                        gameID = Integer.parseInt(args[1]);
+                        if (args[2].equals("WHITE")) {
+                            color = ChessGame.TeamColor.WHITE;
+                        } else if (args[2].equals("BLACK")){
+                            color = ChessGame.TeamColor.BLACK;
+                        } else {
+                            System.out.println("Join failed. Please enter a valid game ID/COLOR (COLOR must be all caps)");
+                            break;
+                        }
+                        //Allows the user to specify which game they want to join and what color they want to play. They should be able to enter the number of the desired game. Your client will need to keep track of which number corresponds to which game from the last time it listed the games. Calls the server join API to join the user to the game.
+                        System.out.println(gameID + " = gameID");
+                        System.out.println(color + " = color");
+                        gameUI(gameID, color);
+                        break;
+                    }
                 case "observe":
-                    //Allows the user to specify which game they want to observe. They should be able to enter the number of the desired game. Your client will need to keep track of which number corresponds to which game from the last time it listed the games. Additional functionality will be added in Phase 6.
-                    System.out.println("be an adult, watch the kids play");
-                    gameID = 234;
-                    color = ChessGame.TeamColor.WHITE;
-                    gameUI(gameID, color);
-                    break;
+                    if (args.length != 2) {
+                        System.out.println("Create failed. Please enter a valid game ID");
+                        break;
+                    } else {
+                        gameID = Integer.parseInt(args[1]);
+                        //Allows the user to specify which game they want to observe. They should be able to enter the number of the desired game. Your client will need to keep track of which number corresponds to which game from the last time it listed the games. Additional functionality will be added in Phase 6.
+                        System.out.println(gameID + " = game ID");
+                        gameUI(gameID, color);
+                        break;
+                    }
                 default:
                     System.out.println("option not valid. please try again");
 

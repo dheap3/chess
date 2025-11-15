@@ -1,8 +1,7 @@
 import chess.ChessGame;
-
 import java.util.Scanner;
-
 import static java.lang.System.exit;
+import ui.BoardText;
 
 public class Main {
     public static void main(String[] args) {
@@ -14,12 +13,14 @@ public class Main {
     static void preloginUI() {
         Scanner scanner = new Scanner(System.in);
         boolean exit = false;
+        String line;
         String input;
         printPreOptions();
         while (!exit) {
             System.out.print("[LOGGED OUT] ->> ");
-            input = scanner.nextLine();
-            input = input.toLowerCase();
+            line = scanner.nextLine();
+            var args = line.split(" ");
+            input = args[0].toLowerCase();
             switch (input) {
                 case "help":
                     printPreOptions();
@@ -29,13 +30,28 @@ public class Main {
                     exit = true;
                     break;
                 case "login":
-                    //Prompts the user to input login information. Calls the server login API to log in the user. When successfully logged in, the client should transition to the Postlogin UI.
-                    postLoginUI();
-                    break;
+                    if (args.length != 3) {
+                        System.out.println("[LOGGED OUT] ->> Login failed, please enter a valid username/password");
+                        break;
+                    } else {
+                        System.out.println(args[1] + " = username");
+                        System.out.println(args[2] + " = password");
+                        //Prompts the user to input login information. Calls the server login API to log in the user. When successfully logged in, the client should transition to the Postlogin UI.
+                        postLoginUI();
+                        break;
+                    }
                 case "register":
-                    //Prompts the user to input registration information. Calls the server register API to register and login the user. If successfully registered, the client should be logged in and transition to the Postlogin UI.
-                    System.out.println("register here please");
-                    break;
+                    if (args.length != 4) {
+                        System.out.println("[LOGGED OUT] ->> Register failed, please enter a valid username/password/email");
+                        break;
+                    }  else {
+                        System.out.println(args[1] + " = username");
+                        System.out.println(args[2] + " = password");
+                        System.out.println(args[3] + " = email");
+                        //Prompts the user to input registration information. Calls the server register API to register and login the user. If successfully registered, the client should be logged in and transition to the Postlogin UI.
+                        postLoginUI();
+                        break;
+                    }
                 default:
                     System.out.println("option not valid. please try again");
             }
@@ -100,7 +116,6 @@ public class Main {
         String input;
         boolean exit = false;
         System.out.println("welcome to the game!");
-
         if (color == ChessGame.TeamColor.BLACK) {
             printBlackBoard();
         } else if (color == ChessGame.TeamColor.WHITE) {
@@ -114,11 +129,13 @@ public class Main {
     }
 
     static void printBlackBoard() {
-        System.out.println("black board");
+        BoardText blackBoard = new BoardText(true);
+        blackBoard.printBoard();
     }
 
     static void printWhiteBoard() {
-        System.out.println("white board");
+        BoardText whiteBoard = new BoardText(false);
+        whiteBoard.printBoard();
     }
 
     static void printPreOptions() {

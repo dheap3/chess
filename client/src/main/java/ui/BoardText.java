@@ -7,10 +7,6 @@ import static java.lang.Math.abs;
 import static ui.EscapeSequences.*;
 
 public class BoardText {
-
-    // Board dimensions.
-    private static final int BOARD_SIZE_IN_SQUARES = 10;
-
     //POV of board
     private static Boolean blackPOV = null;
 
@@ -34,7 +30,8 @@ public class BoardText {
 //    public static final String BLACK_ROOK = " r ";
 //    public static final String BLACK_PAWN = " p ";
 //    public static final String EMPTY = "   ";
-//    public static final String COL_EMPTY = "   ";
+//    public static final String LCOL_EMPTY = "   ";
+//    public static final String RCOL_EMPTY = "   ";
 //    public static final String A = " a ";
 //    public static final String B = " b ";
 //    public static final String C = " c ";
@@ -57,7 +54,8 @@ public class BoardText {
     public static final String BLACK_ROOK = " ♜ "; //" \u265E ";
     public static final String BLACK_PAWN = " ♟ "; //" \u265F ";
     public static final String EMPTY = " \u2003 ";
-    public static final String COL_EMPTY = "  ";
+    public static final String LCOL_EMPTY = "  ";
+    public static final String RCOL_EMPTY = "    ";
     public static final String A = " \u2003\u0061";
     public static final String B = " \u2003\u0062";
     public static final String C = " \u2003\u0063";
@@ -69,31 +67,29 @@ public class BoardText {
 
     public static final String SNOWMAN = " \u2603 ";
 
-    public static void main(String[] args) {
-        var out = new PrintStream(System.out, true, StandardCharsets.UTF_8);
+    public BoardText(boolean pov) {
+        blackPOV = pov;
+        timesRowNameCalled = 0;
+        boardRow = 0;
+        timesPrintPieceCalled = 0;
+        isPieceBlack = false;
+    }
 
+    public void printBoard() {
+        var out = new PrintStream(System.out, true, StandardCharsets.UTF_8);
         out.print(ERASE_SCREEN);
 
-        blackPOV = false;
         printSquares(out);
 
-
-//        timesRowNameCalled = 0;
-//        boardRow = 0;
-//        timesPrintPieceCalled = 0;
-//        blackPOV = true;
-//        printSquares(out);
-
-        out.print(SET_BG_COLOR_BLACK);
-        out.print(SET_TEXT_COLOR_WHITE);
+        resetColor(out);
     }
 
     private static void printColNames(PrintStream out) {
-        setBlack(out);
-        String[] normalColNames = { COL_EMPTY, A, B, C, D, E, F, G, H, COL_EMPTY};
-        String [] reversedColNames = { COL_EMPTY, H, G, F, E, D, C, B, A, COL_EMPTY};
+        resetColor(out);
+        String[] normalColNames = { LCOL_EMPTY, A, B, C, D, E, F, G, H, RCOL_EMPTY};
+        String [] reversedColNames = { LCOL_EMPTY, H, G, F, E, D, C, B, A, RCOL_EMPTY};
         String[] colNames = blackPOV ? reversedColNames : normalColNames;
-        for (int boardCol = 0; boardCol < BOARD_SIZE_IN_SQUARES; ++boardCol) {
+        for (int boardCol = 0; boardCol < 10; ++boardCol) {
             printHeaderText(out, colNames[boardCol]);
         }
         out.println();
@@ -101,7 +97,7 @@ public class BoardText {
 
     private static void printRowName(PrintStream out) {
         timesRowNameCalled++;
-        setBlack(out);
+        resetColor(out);
         String[] normalRowNames = { " 8 ", " 7 ", " 6 ", " 5 ", " 4 ", " 3 ", " 2 ", " 1 "};
         String [] reversedRowNames = { " 1 ", " 2 ", " 3 ", " 4 ", " 5 ", " 6 ", " 7 ", " 8 "};
         String[] rowNames =  blackPOV ? reversedRowNames : normalRowNames;
@@ -115,7 +111,7 @@ public class BoardText {
         out.print(SET_BG_COLOR_BLACK);
         out.print(SET_TEXT_COLOR_GREEN);
         out.print(name);
-        setBlack(out);
+        resetColor(out);
     }
 
     private static void printSquares(PrintStream out) {
@@ -125,12 +121,12 @@ public class BoardText {
                 if (boardCol == 0 || boardCol == 9) {
                     setWhite(out);
                     printRowName(out);
-                    setBlack(out);
+                    resetColor(out);
                 } else {
                     setWhite(out);
                     String piece = calcPieceString(boardRow + 1, boardCol);
                     printPiece(out, piece);
-                    setBlack(out);
+                    resetColor(out);
                 }
             }
             out.println();
@@ -205,9 +201,8 @@ public class BoardText {
         out.print(SET_TEXT_COLOR_WHITE);
     }
 
-    private static void setBlack(PrintStream out) {
-        out.print(SET_BG_COLOR_BLACK);
-        out.print(SET_TEXT_COLOR_BLACK);
+    private static void resetColor(PrintStream out) {
+        out.print("\u001b[0m");
     }
 
     private static void printPiece(PrintStream out, String piece) {

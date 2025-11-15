@@ -137,7 +137,7 @@ public class Main {
 
     }
 
-    static void gameUI(int GameID, ChessGame.TeamColor color) {
+    static void gameUI(int gameID, ChessGame.TeamColor color) {
         Scanner scanner = new Scanner(System.in);
         String input;
         boolean exit = false;

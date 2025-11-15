@@ -17,42 +17,18 @@ public class BoardText {
     private static boolean isPieceBlack;//declared here because no pointers in java
 
     // Padded characters.
-//    public static final String WHITE_KING = " K ";
-//    public static final String WHITE_QUEEN = " Q ";
-//    public static final String WHITE_BISHOP = " B ";
-//    public static final String WHITE_KNIGHT = " N ";
-//    public static final String WHITE_ROOK = " R ";
-//    public static final String WHITE_PAWN = " P ";
-//    public static final String BLACK_KING = " k ";
-//    public static final String BLACK_QUEEN = " q ";
-//    public static final String BLACK_BISHOP = " b ";
-//    public static final String BLACK_KNIGHT = " n ";
-//    public static final String BLACK_ROOK = " r ";
-//    public static final String BLACK_PAWN = " p ";
-//    public static final String EMPTY = "   ";
-//    public static final String LCOL_EMPTY = "   ";
-//    public static final String RCOL_EMPTY = "   ";
-//    public static final String A = " a ";
-//    public static final String B = " b ";
-//    public static final String C = " c ";
-//    public static final String D = " d ";
-//    public static final String E = " e ";
-//    public static final String F = " f ";
-//    public static final String G = " g ";
-//    public static final String H = " h ";
-
-    public static final String WHITE_KING = " ♔ "; //" \u2654 ";
-    public static final String WHITE_QUEEN = " ♕ "; //" \u2655 ";
-    public static final String WHITE_BISHOP = " ♗ "; //" \u2656 ";
-    public static final String WHITE_KNIGHT = " ♘ "; //" \u2657 ";
-    public static final String WHITE_ROOK = " ♖ "; //" \u2658 ";
-    public static final String WHITE_PAWN = " ♙ "; //" \u2659 ";
-    public static final String BLACK_KING = " ♚ "; //" \u265A ";
-    public static final String BLACK_QUEEN = " ♛ "; //" \u265B ";
-    public static final String BLACK_BISHOP = " ♝ "; //" \u265C ";
-    public static final String BLACK_KNIGHT = " ♞ "; //" \u265D ";
-    public static final String BLACK_ROOK = " ♜ "; //" \u265E ";
-    public static final String BLACK_PAWN = " ♟ "; //" \u265F ";
+    public static final String WHITE_KING = " ♔ ";
+    public static final String WHITE_QUEEN = " ♕ ";
+    public static final String WHITE_BISHOP = " ♗ ";
+    public static final String WHITE_KNIGHT = " ♘ ";
+    public static final String WHITE_ROOK = " ♖ ";
+    public static final String WHITE_PAWN = " ♙ ";
+    public static final String BLACK_KING = " ♚ ";
+    public static final String BLACK_QUEEN = " ♛ ";
+    public static final String BLACK_BISHOP = " ♝ ";
+    public static final String BLACK_KNIGHT = " ♞ ";
+    public static final String BLACK_ROOK = " ♜ ";
+    public static final String BLACK_PAWN = " ♟ ";
     public static final String EMPTY = " \u2003 ";
     public static final String LCOL_EMPTY = "  ";
     public static final String RCOL_EMPTY = "    ";

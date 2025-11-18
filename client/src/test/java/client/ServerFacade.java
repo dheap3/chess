@@ -36,7 +36,8 @@ public class ServerFacade {
         return handleResponse(response, AuthData.class);
     }
     public AuthData login(String username, String password) {
-        var request = buildRequest("POST", "/session", "user");
+        LoginRequest loginRequest = new LoginRequest(username, password);
+        var request = buildRequest("POST", "/session", loginRequest);
         var response = sendRequest(request);
         return handleResponse(response, AuthData.class);
     }

@@ -1,5 +1,6 @@
 package client;
 
+import datamodel.AuthData;
 import datamodel.ErrorResponse;
 import org.junit.jupiter.api.*;
 import server.Server;
@@ -35,8 +36,8 @@ public class ServerFacadeTests {
     @Test
     void registerGood() {
         try {
-            var authData = facade.register("player1", "password", "p1@email.com");
-            assertTrue(authData.authToken().length() > 10);
+            AuthData auth = facade.register("player1", "password", "p1@email.com");
+            assertTrue(auth.authToken().length() > 10);
         } catch (Exception e) {
             fail();
         }
@@ -44,11 +45,11 @@ public class ServerFacadeTests {
     @Test
     void registerBad() {
         try {
-            var authData = facade.register("", "password", "p2@email.com");
+            AuthData auth = facade.register("", "password", "p2@email.com");
             fail();
         }  catch (Exception e) {
             //if it threw an exception then it was correct
-            assertTrue(true);
+            assertFalse(false);
         }
     }
 
@@ -62,12 +63,29 @@ public class ServerFacadeTests {
         }
     }
     @Test
-    void clearBad() {
+    void clearBad() {//it either works or it doesn't...
         try {
             facade.clear();
             assertFalse(false);
         } catch (Exception e) {
             fail();
+        }
+    }
+
+    @Test
+    void loginGood() {
+        facade.register("player1", "password", "p1@email.com");
+        AuthData auth = facade.login("player1", "password");
+        assertTrue(auth.authToken().length() > 10);
+    }
+    @Test
+    void loginBad() {
+        facade.register("player1", "password", "p1@email.com");
+        try {
+            AuthData auth = facade.login("player1", "urmom");
+            fail();
+        } catch (Exception e) {
+            assertFalse(false);
         }
     }
 

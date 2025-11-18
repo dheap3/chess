@@ -41,7 +41,11 @@ public class ServerFacade {
         var response = sendRequest(request);
         return handleResponse(response, AuthData.class);
     }
-    public void logout() {}
+    public void logout() {
+        var request = buildRequest("DELETE", "/session", null);
+        var response = sendRequest(request);
+        handleResponse(response, null);
+    }
     public GameData createGame(GameData game) {
         return game;
     }
@@ -71,8 +75,8 @@ public class ServerFacade {
                 .method(method, makeRequestBody(body));
         if (body != null) {
             request.setHeader("Content-Type", "application/json");
-            request.setHeader("Authorization", authToken);
         }
+        request.setHeader("authorization", authToken);
         return request.build();
     }
 

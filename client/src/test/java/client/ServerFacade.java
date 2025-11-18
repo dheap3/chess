@@ -66,19 +66,6 @@ public class ServerFacade {
         return handleResponse(response, ListGamesResponse.class);
     }
 
-    public void deletePet(int id){
-        var path = String.format("/pet/%s", id);
-        var request = buildRequest("DELETE", path, null);
-        var response = sendRequest(request);
-        handleResponse(response, null);
-    }
-
-//    public PetList listPets(){
-//        var request = buildRequest("GET", "/pet", null);
-//        var response = sendRequest(request);
-//        return handleResponse(response, PetList.class);
-//    }
-
     private HttpRequest buildRequest(String method, String path, Object body) {
         var request = HttpRequest.newBuilder()
                 .uri(URI.create(serverUrl + path))

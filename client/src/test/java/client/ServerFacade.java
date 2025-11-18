@@ -18,6 +18,10 @@ public class ServerFacade {
         serverUrl = url;
     }
 
+    public void clear(){
+        var request = buildRequest("DELETE", "/db", null);
+        sendRequest(request);
+    }
     public AuthData register(String username, String password, String email) {
         UserData user = new UserData(username, password, email);
         var request = buildRequest("POST", "/user", user);

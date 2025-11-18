@@ -18,7 +18,23 @@ public class ServerFacade {
         serverUrl = url;
     }
 
+    public AuthData register(String username, String password, String email) {
+        UserData user = new UserData(username, password, email);
+        var request = buildRequest("POST", "/user", user);
+        var response = sendRequest(request);
+        return handleResponse(response, AuthData.class);
+    }
 
+    private HttpRequest buildRequest(String method, String path, Object body) {
+        var request = HttpRequest.newBuilder()
+                .uri(URI.create(serverUrl + path))
+                .method(method, makeRequestBody(body));
+        if (body != null) {
+            request.setHeader("Content-Type", "application/json");
+            request.setHeader("Authorization", authToken);
+        }
+        return request.build();
+    }
 
     private BodyPublisher makeRequestBody(Object request) {
         if (request != null) {

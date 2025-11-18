@@ -89,4 +89,25 @@ public class ServerFacadeTests {
         }
     }
 
+    @Test
+    void logoutGood() {
+        try {
+            facade.register("player1", "password", "p1@email.com");
+            AuthData auth = facade.login("player1", "password");
+            facade.logout();
+            assertTrue(true);
+        } catch (Exception e) {
+            fail();
+        }
+    }
+//    @Test
+//    void logoutBad() {//it either works or it doesn't...
+//        try {
+//            facade.clear();
+//            assertFalse(false);
+//        } catch (Exception e) {
+//            fail();
+//        }
+//    }
+
 }

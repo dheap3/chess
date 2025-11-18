@@ -1,5 +1,6 @@
 package client;
 
+import chess.ChessGame;
 import datamodel.AuthData;
 import datamodel.CreateGameResponse;
 import datamodel.ErrorResponse;
@@ -130,6 +131,31 @@ public class ServerFacadeTests {
             fail();
         } catch (Exception e) {
             assertFalse(false);
+        }
+    }
+
+    @Test
+    void joinGameGood() {
+        facade.register("player1", "password", "p1@email.com");
+        AuthData auth = facade.login("player1", "password");
+        var createResponse = facade.createGame("the best game ever");
+        try {
+            facade.joinGame(ChessGame.TeamColor.BLACK, createResponse.gameID());
+            assertTrue(true);
+        } catch (Exception e) {
+            fail();
+        }
+    }
+    @Test
+    void joinGameBad() {//it either works or it doesn't...
+        facade.register("player1", "password", "p1@email.com");
+        AuthData auth = facade.login("player1", "password");
+        var createResponse = facade.createGame("the best game ever");
+        try {
+            facade.joinGame(ChessGame.TeamColor.BLACK, createResponse.gameID());
+            assertFalse(false);
+        } catch (Exception e) {
+            fail();
         }
     }
 

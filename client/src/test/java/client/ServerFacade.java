@@ -1,5 +1,6 @@
 package client;
 
+import chess.ChessGame;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
@@ -52,8 +53,12 @@ public class ServerFacade {
         var response = sendRequest(request);
         return handleResponse(response, CreateGameResponse.class);
     }
-    public GameData joinGame(GameData game) {
-        return game;
+    public void joinGame(ChessGame.TeamColor playerColor, Integer id) {
+        Double gameID = id.doubleValue();//covert to double because our http server uses doubles
+        JoinGameRequest joinGameRequest = new JoinGameRequest(playerColor, gameID);
+        var request = buildRequest("PUT", "/game", joinGameRequest);
+        var response = sendRequest(request);
+        handleResponse(response, null);
     }
     public GameData listGames(GameData game) {
         return game;

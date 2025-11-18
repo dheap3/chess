@@ -5,4 +5,8 @@ public class CreateGameResponse {
     public CreateGameResponse(Integer gameID) {
         this.gameID = gameID;
     }
+
+    public Integer gameID() {
+        return gameID;
+    }
 }

@@ -1,6 +1,8 @@
 package client;
 
 import com.google.gson.Gson;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 import datamodel.*;
 
 import java.net.*;
@@ -26,10 +28,17 @@ public class ServerFacade {
         UserData user = new UserData(username, password, email);
         var request = buildRequest("POST", "/user", user);
         var response = sendRequest(request);
+        //if it returned an auth token we need to update our authToken
+        JsonObject obj = JsonParser.parseString(response.body()).getAsJsonObject();
+        if (obj.get("authToken") != null) {
+            authToken = obj.get("authToken").getAsString();
+        }
         return handleResponse(response, AuthData.class);
     }
     public AuthData login(String username, String password) {
-        return new AuthData(username, password);
+        var request = buildRequest("POST", "/session", "user");
+        var response = sendRequest(request);
+        return handleResponse(response, AuthData.class);
     }
     public void logout() {}
     public GameData createGame(GameData game) {

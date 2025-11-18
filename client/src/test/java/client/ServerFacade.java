@@ -60,8 +60,10 @@ public class ServerFacade {
         var response = sendRequest(request);
         handleResponse(response, null);
     }
-    public GameData listGames(GameData game) {
-        return game;
+    public ListGamesResponse listGames() {
+        var request = buildRequest("GET", "/game", null);
+        var response = sendRequest(request);
+        return handleResponse(response, ListGamesResponse.class);
     }
 
     public void deletePet(int id){

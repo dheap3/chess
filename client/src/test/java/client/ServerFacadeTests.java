@@ -1,10 +1,7 @@
 package client;
 
 import chess.ChessGame;
-import datamodel.AuthData;
-import datamodel.CreateGameResponse;
-import datamodel.ErrorResponse;
-import datamodel.GameData;
+import datamodel.*;
 import org.junit.jupiter.api.*;
 import server.Server;
 
@@ -154,6 +151,35 @@ public class ServerFacadeTests {
         try {
             facade.joinGame(ChessGame.TeamColor.BLACK, createResponse.gameID());
             assertFalse(false);
+        } catch (Exception e) {
+            fail();
+        }
+    }
+
+    @Test
+    void ListGamesGood() {
+        //1st game
+        facade.register("player1", "password", "p1@email.com");
+        AuthData auth = facade.login("player1", "password");
+        var createResponse = facade.createGame("the best game ever");
+        facade.joinGame(ChessGame.TeamColor.BLACK, createResponse.gameID());
+        facade.logout();
+        facade.register("player2", "password2", "p2@email.com");
+        auth = facade.login("player2", "password2");
+        facade.joinGame(ChessGame.TeamColor.WHITE, createResponse.gameID());
+        //2nd game
+        facade.register("player3", "password3", "p3@email.com");
+        auth = facade.login("player3", "password3");
+        createResponse = facade.createGame("the worst game ever");
+        facade.joinGame(ChessGame.TeamColor.BLACK, createResponse.gameID());
+        facade.logout();
+        facade.register("player4", "password4", "p4@email.com");
+        auth = facade.login("player4", "password4");
+        facade.joinGame(ChessGame.TeamColor.WHITE, createResponse.gameID());
+        //actual test now
+        try {
+            ListGamesResponse res = facade.listGames();
+            assertTrue(true);
         } catch (Exception e) {
             fail();
         }

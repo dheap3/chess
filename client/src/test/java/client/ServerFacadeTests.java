@@ -51,4 +51,23 @@ public class ServerFacadeTests {
         }
     }
 
+    @Test
+    void clearGood() {
+        try {
+            facade.clear();
+            assertTrue(true);
+        } catch (Exception e) {
+            fail();
+        }
+    }
+    @Test
+    void clearBad() {
+        try {
+            facade.clear();
+            assertFalse(false);
+        } catch (Exception e) {
+            fail();
+        }
+    }
+
 }

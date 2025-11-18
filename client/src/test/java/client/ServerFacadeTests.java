@@ -44,10 +44,11 @@ public class ServerFacadeTests {
     @Test
     void registerBad() {
         try {
-            var authData = facade.register("player2", "password", "p2@email.com");
-            assertNotEquals("player1", authData.username());
-        }  catch (Exception e) {
+            var authData = facade.register("", "password", "p2@email.com");
             fail();
+        }  catch (Exception e) {
+            //if it threw an exception then it was correct
+            assertTrue(true);
         }
     }
 

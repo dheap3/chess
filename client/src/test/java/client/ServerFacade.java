@@ -46,8 +46,11 @@ public class ServerFacade {
         var response = sendRequest(request);
         handleResponse(response, null);
     }
-    public GameData createGame(GameData game) {
-        return game;
+    public CreateGameResponse createGame(String gameName) {
+        CreateGameRequest createGameRequest = new CreateGameRequest(gameName);
+        var request = buildRequest("POST", "/game", createGameRequest);
+        var response = sendRequest(request);
+        return handleResponse(response, CreateGameResponse.class);
     }
     public GameData joinGame(GameData game) {
         return game;

@@ -1,7 +1,9 @@
 package client;
 
 import datamodel.AuthData;
+import datamodel.CreateGameResponse;
 import datamodel.ErrorResponse;
+import datamodel.GameData;
 import org.junit.jupiter.api.*;
 import server.Server;
 
@@ -109,6 +111,25 @@ public class ServerFacadeTests {
             assertFalse(false);
         } catch (Exception e) {
             fail();
+        }
+    }
+
+    @Test
+    void createGameGood() {
+        facade.register("player1", "password", "p1@email.com");
+        AuthData auth = facade.login("player1", "password");
+        CreateGameResponse res = facade.createGame("the best game ever");
+        assertNotNull(res);
+    }
+    @Test
+    void createGameBad() {
+        facade.register("player1", "password", "p1@email.com");
+        AuthData auth = facade.login("player1", "password");
+        try {
+            CreateGameResponse res = facade.createGame("");
+            fail();
+        } catch (Exception e) {
+            assertFalse(false);
         }
     }
 

@@ -157,7 +157,7 @@ public class ServerFacadeTests {
     }
 
     @Test
-    void ListGamesGood() {
+    void listGamesGood() {
         //1st game
         facade.register("player1", "password", "p1@email.com");
         AuthData auth = facade.login("player1", "password");
@@ -185,24 +185,24 @@ public class ServerFacadeTests {
         }
     }
     @Test
-    void ListGamesBad() {
+    void listGamesBad() {
         //1st game
-        facade.register("player1", "password", "p1@email.com");
-        AuthData auth = facade.login("player1", "password");
-        var createResponse = facade.createGame("the best game ever");
+        facade.register("player5", "password5", "p5@email.com");
+        AuthData auth = facade.login("player5", "password5");
+        var createResponse = facade.createGame("the most mid game ever");
         facade.joinGame(ChessGame.TeamColor.BLACK, createResponse.gameID());
         facade.logout();
-        facade.register("player2", "password2", "p2@email.com");
-        auth = facade.login("player2", "password2");
+        facade.register("player6", "password6", "p6@email.com");
+        auth = facade.login("player6", "password6");
         facade.joinGame(ChessGame.TeamColor.WHITE, createResponse.gameID());
         //2nd game
-        facade.register("player3", "password3", "p3@email.com");
-        auth = facade.login("player3", "password3");
-        createResponse = facade.createGame("the worst game ever");
+        facade.register("player7", "password7", "p7@email.com");
+        auth = facade.login("player7", "password7");
+        createResponse = facade.createGame("just a game");
         facade.joinGame(ChessGame.TeamColor.BLACK, createResponse.gameID());
         facade.logout();
-        facade.register("player4", "password4", "p4@email.com");
-        auth = facade.login("player4", "password4");
+        facade.register("player8", "password8", "p8@email.com");
+        auth = facade.login("player8", "password8");
         facade.joinGame(ChessGame.TeamColor.WHITE, createResponse.gameID());
         //actual test now
         try {

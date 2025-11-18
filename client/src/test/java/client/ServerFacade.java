@@ -28,6 +28,32 @@ public class ServerFacade {
         var response = sendRequest(request);
         return handleResponse(response, AuthData.class);
     }
+    public AuthData login(String username, String password) {
+        return new AuthData(username, password);
+    }
+    public void logout() {}
+    public GameData createGame(GameData game) {
+        return game;
+    }
+    public GameData joinGame(GameData game) {
+        return game;
+    }
+    public GameData listGames(GameData game) {
+        return game;
+    }
+
+    public void deletePet(int id){
+        var path = String.format("/pet/%s", id);
+        var request = buildRequest("DELETE", path, null);
+        var response = sendRequest(request);
+        handleResponse(response, null);
+    }
+
+//    public PetList listPets(){
+//        var request = buildRequest("GET", "/pet", null);
+//        var response = sendRequest(request);
+//        return handleResponse(response, PetList.class);
+//    }
 
     private HttpRequest buildRequest(String method, String path, Object body) {
         var request = HttpRequest.newBuilder()

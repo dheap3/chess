@@ -10,7 +10,7 @@ public class Main {
 
     public static void main(String[] args) {
         System.out.println("♕ Welcome to CS 240 Chess! ♕\nEnter one of the following options:");
-        int port = 55920;
+        int port = 53414;
         String url = "http://localhost:" + port;
         facade = new ServerFacade(port);
         preloginUI();
@@ -53,14 +53,14 @@ public class Main {
                         facade.register(args[1], args[2], args[3]);
                     } catch (Exception e) {
                         System.out.println("Register failed, please enter a valid USERNAME/PASSWORD/EMAIL");
-                        System.out.println(e.toString());
+//                        System.out.println(e.toString());
                         break;
                     }
                     postLoginUI();
                     break;
                 case "admin":
                     System.out.println("You can now clear the database. Only use for testing purposes. There is no going back");
-                    System.out.println("would you like to clear the database? (Y/N)");
+                    System.out.println("Would you like to clear the database? (Y/N)\n:");
                     String answer = scanner.nextLine();
                     if (answer.equalsIgnoreCase("y")) {
                         facade.clear();
@@ -112,11 +112,16 @@ public class Main {
                     break;
                 case "list":
                     try {
-                        var list = facade.listGames();
-                        System.out.println(list);
+                        var list = facade.listGames().getGames();
+                        System.out.println("# : Game ID : Game Name");
+                        for (int i = 0; i < list.size(); i++) {
+                            var game = list.get(i);
+                            System.out.println((i + 1) + ". : " + game.gameID() + " : " + game.gameName());
+                        }
+//                        System.out.println(list.toString());
                     } catch (Exception e) {
                         System.out.println("List failed. Talk to the administrator :(");
-//                            System.out.println(e.toString());
+                        System.out.println(e.toString());
                         break;
                     }
                     break;
@@ -145,6 +150,8 @@ public class Main {
                     } else {
                         gameID = Integer.parseInt(args[1]);
 //                        System.out.println(gameID + " = game ID");
+                        //default color to observe is white
+                        color = ChessGame.TeamColor.WHITE;
                         gameUI(gameID, color);
                         break;
                     }

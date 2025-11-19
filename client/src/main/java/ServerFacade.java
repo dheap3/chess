@@ -41,6 +41,11 @@ public class ServerFacade {
         LoginRequest loginRequest = new LoginRequest(username, password);
         var request = buildRequest("POST", "/session", loginRequest);
         var response = sendRequest(request);
+        //if it returned an auth token we need to update our authToken
+        JsonObject obj = JsonParser.parseString(response.body()).getAsJsonObject();
+        if (obj.get("authToken") != null) {
+            authToken = obj.get("authToken").getAsString();
+        }
         return handleResponse(response, AuthData.class);
     }
     public void logout() {

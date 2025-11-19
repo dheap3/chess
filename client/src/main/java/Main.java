@@ -4,8 +4,13 @@ import static java.lang.System.exit;
 import ui.BoardText;
 
 public class Main {
+    static public ServerFacade facade;
+
     public static void main(String[] args) {
         System.out.println("♕ Welcome to CS 240 Chess! ♕\nEnter one of the following options:");
+        int port = 59802;
+        String url = "http://localhost:" + port;
+        facade = new ServerFacade(port);
         preloginUI();
 
     }
@@ -28,14 +33,17 @@ public class Main {
                     break;
                 case "quit", "exit":
                     exit = true;
+                    //stop server here?
                     break;
                 case "login":
                     if (args.length != 3) {
-                        System.out.println("[LOGGED OUT] ->> Login failed. Please enter a valid USERNAME/PASSWORD");
+                        System.out.println("Login failed. Please enter a valid USERNAME/PASSWORD");
                         break;
                     } else {
-                        System.out.println(args[1] + " = username");
-                        System.out.println(args[2] + " = password");
+//                        System.out.println(args[1] + " = username");
+//                        System.out.println(args[2] + " = password");
+
+                        facade.login(args[1], args[2]);
                         postLoginUI();
                         break;
                     }
@@ -55,6 +63,7 @@ public class Main {
             }
 
         }
+//        server.stop();
     }
 
     static void postLoginUI() {
@@ -170,5 +179,28 @@ public class Main {
                 "list - list all games\n" +
                 "join <ID> [WHITE|BLACK] - join the game with game id ID as color WHITE|BLACK\n" +
                 "observe <ID> - observe the game with the game id ID\n");
+    }
+
+    String facadeResponseHandler(String args[], String option) {
+        try {
+            switch (option) {
+                case "register":
+                    ;
+                case "login":
+                    ;
+                case "logout":
+                    ;
+                case "create":
+                    ;
+                case "join":
+                    ;
+                case "list":
+                    ;
+            }
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+            return e.getMessage();
+        }
+        return "";
     }
 }

@@ -1,4 +1,7 @@
 import chess.ChessGame;
+
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Scanner;
 import static java.lang.System.exit;
 import ui.BoardText;
@@ -9,7 +12,7 @@ public class Main {
 
     public static void main(String[] args) {
         System.out.println("♕ Welcome to CS 240 Chess! ♕\nEnter one of the following options:");
-        int port = 61574;
+        int port = 54350;
         String url = "http://localhost:" + port;
         facade = new ServerFacade(port);
         preloginUI();
@@ -80,6 +83,7 @@ public class Main {
         boolean exit = false;
         String line, input;
         ChessGame.TeamColor color = null;
+        Map<Integer, Integer> numGameID = new HashMap<Integer, Integer>();
         System.out.println("You are logged in!");
         printPostOptions();
         while (!exit) {
@@ -114,10 +118,13 @@ public class Main {
                 case "list":
                     try {
                         var list = facade.listGames().getGames();
+                        numGameID = new HashMap<Integer, Integer>();//reset our num to gameID map
                         System.out.println("# : Game ID : Game Name : Users In Game WHITE|BLACK");
                         for (int i = 0; i < list.size(); i++) {
                             var game = list.get(i);
-                            System.out.print((i + 1) + ". : " + game.gameID() + " : " + game.gameName() + " : ");
+                            int num = i + 1;
+                            numGameID.put(num, game.gameID());
+                            System.out.print(num + ". : " + game.gameName() + " : ");
                             String whiteUser = (game.whiteUsername() != null) ? game.whiteUsername() : "(No User)";
                             String blackUser = (game.blackUsername() != null) ? game.blackUsername() : "(No User)";
                             System.out.print(whiteUser + " | " + blackUser + "\n");
@@ -131,7 +138,8 @@ public class Main {
                     break;
                 case "join":
                     try {
-                        int gameID = Integer.parseInt(args[1]);
+                        int num = Integer.parseInt(args[1]);
+                        int gameID = numGameID.get(num);
                         if (args[2].equalsIgnoreCase("WHITE")) {
                             color = ChessGame.TeamColor.WHITE;
                         } else if (args[2].equalsIgnoreCase("BLACK")) {
@@ -152,7 +160,8 @@ public class Main {
                         System.out.println("Observe failed. Please enter a valid game ID");
                         break;
                     } else {
-                        int gameID = Integer.parseInt(args[1]);
+                        int num = Integer.parseInt(args[1]);
+                        int gameID = numGameID.get(num);
 //                        System.out.println(gameID + " = game ID");
                         //default color to observe is white
                         color = ChessGame.TeamColor.WHITE;

@@ -10,7 +10,7 @@ public class Main {
 
     public static void main(String[] args) {
         System.out.println("♕ Welcome to CS 240 Chess! ♕\nEnter one of the following options:");
-        int port = 53414;
+        int port = 61574;
         String url = "http://localhost:" + port;
         facade = new ServerFacade(port);
         preloginUI();
@@ -121,13 +121,17 @@ public class Main {
                         System.out.println("# : Game ID : Game Name : Users In Game WHITE|BLACK");
                         for (int i = 0; i < list.size(); i++) {
                             var game = list.get(i);
-                            System.out.print((i + 1) + ". : " + game.gameID() + " : " + game.gameName());
+                            System.out.print((i + 1) + ". : " + game.gameID() + " : " + game.gameName() + " : ");
                             if (game.whiteUsername() != null) {
-                                System.out.print(" : " + game.whiteUsername());
+                                System.out.print(game.whiteUsername());
+                            } else {
+                                System.out.print("(No User)");
                             }
                             System.out.print(" | ");
                             if (game.blackUsername() != null) {
                                 System.out.print(game.blackUsername());
+                            } else {
+                                System.out.print("(No User)");
                             }
                             System.out.print("\n");
                         }

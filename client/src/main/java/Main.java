@@ -53,10 +53,20 @@ public class Main {
                         facade.register(args[1], args[2], args[3]);
                     } catch (Exception e) {
                         System.out.println("Register failed, please enter a valid USERNAME/PASSWORD/EMAIL");
-//                            System.out.println(e.toString());
+                        System.out.println(e.toString());
                         break;
                     }
                     postLoginUI();
+                    break;
+                case "admin":
+                    System.out.println("You can now clear the database. Only use for testing purposes. There is no going back");
+                    System.out.println("would you like to clear the database? (Y/N)");
+                    String answer = scanner.nextLine();
+                    if (answer.equalsIgnoreCase("y")) {
+                        facade.clear();
+                    } else {
+                        System.out.println("returning to normal menu");
+                    }
                     break;
                 default:
                     System.out.println("option not valid. please try again");
@@ -92,7 +102,8 @@ public class Main {
                     break;
                 case "create":
                     try {
-                        facade.createGame(args[1]);
+                        var game = facade.createGame(args[1]);
+                        System.out.println(game);
                     } catch (Exception e) {
                         System.out.println("Create failed. Please enter a valid GAMENAME");
 //                            System.out.println(e.toString());
@@ -101,7 +112,8 @@ public class Main {
                     break;
                 case "list":
                     try {
-                        facade.listGames();
+                        var list = facade.listGames();
+                        System.out.println(list);
                     } catch (Exception e) {
                         System.out.println("List failed. Talk to the administrator :(");
 //                            System.out.println(e.toString());

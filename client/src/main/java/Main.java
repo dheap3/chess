@@ -1,6 +1,8 @@
 import chess.ChessGame;
 import java.util.Scanner;
 import static java.lang.System.exit;
+
+import datamodel.ErrorResponse;
 import ui.BoardText;
 
 public class Main {
@@ -8,7 +10,7 @@ public class Main {
 
     public static void main(String[] args) {
         System.out.println("♕ Welcome to CS 240 Chess! ♕\nEnter one of the following options:");
-        int port = 59802;
+        int port = 55920;
         String url = "http://localhost:" + port;
         facade = new ServerFacade(port);
         preloginUI();
@@ -36,28 +38,26 @@ public class Main {
                     //stop server here?
                     break;
                 case "login":
-                    if (args.length != 3) {
-                        System.out.println("Login failed. Please enter a valid USERNAME/PASSWORD");
-                        break;
-                    } else {
-//                        System.out.println(args[1] + " = username");
-//                        System.out.println(args[2] + " = password");
-
+                    try {
                         facade.login(args[1], args[2]);
-                        postLoginUI();
+                    } catch (Exception e) {
+                        System.out.println("Login failed. Please enter a valid USERNAME/PASSWORD");
+//                            System.out.println(e.toString());
                         break;
                     }
+//                        facadeResponseHandler(args, "login");
+                    postLoginUI();
+                    break;
                 case "register":
-                    if (args.length != 4) {
+                    try {
+                        facade.register(args[1], args[2], args[3]);
+                    } catch (Exception e) {
                         System.out.println("Register failed, please enter a valid USERNAME/PASSWORD/EMAIL");
-                        break;
-                    }  else {
-                        System.out.println(args[1] + " = username");
-                        System.out.println(args[2] + " = password");
-                        System.out.println(args[3] + " = email");
-                        postLoginUI();
+//                            System.out.println(e.toString());
                         break;
                     }
+                    postLoginUI();
+                    break;
                 default:
                     System.out.println("option not valid. please try again");
             }
@@ -91,43 +91,48 @@ public class Main {
                     exit = true;
                     break;
                 case "create":
-                    if (args.length != 2) {
+                    try {
+                        facade.createGame(args[1]);
+                    } catch (Exception e) {
                         System.out.println("Create failed. Please enter a valid GAMENAME");
-                        break;
-                    } else {
-                        gameName = args[1];
-                        System.out.println(gameName + " = gamename");
+//                            System.out.println(e.toString());
                         break;
                     }
+                    break;
                 case "list":
-                    System.out.println("heres all the games you need:");
+                    try {
+                        facade.listGames();
+                    } catch (Exception e) {
+                        System.out.println("List failed. Talk to the administrator :(");
+//                            System.out.println(e.toString());
+                        break;
+                    }
                     break;
                 case "join":
-                    if (args.length != 3) {
-                        System.out.println("Join failed. Please enter a valid game ID/COLOR");
-                        break;
-                    } else {
+                    try {
                         gameID = Integer.parseInt(args[1]);
-                        if (args[2].equals("WHITE")) {
+                        if (args[2].equalsIgnoreCase("WHITE")) {
                             color = ChessGame.TeamColor.WHITE;
-                        } else if (args[2].equals("BLACK")){
+                        } else if (args[2].equalsIgnoreCase("BLACK")){
                             color = ChessGame.TeamColor.BLACK;
                         } else {
-                            System.out.println("Join failed. Please enter a valid game ID/COLOR (COLOR must be all caps)");
+                            System.out.println("Join failed. Please enter a valid game ID/COLOR");
                             break;
                         }
-                        System.out.println(gameID + " = gameID");
-                        System.out.println(color + " = color");
-                        gameUI(gameID, color);
+                        facade.joinGame(color, gameID);
+                    } catch (Exception e) {
+                        System.out.println("Join failed. Please enter a valid game ID/COLOR");
+//                            System.out.println(e.toString());
                         break;
                     }
+                    break;
                 case "observe":
                     if (args.length != 2) {
-                        System.out.println("Create failed. Please enter a valid game ID");
+                        System.out.println("Observe failed. Please enter a valid game ID");
                         break;
                     } else {
                         gameID = Integer.parseInt(args[1]);
-                        System.out.println(gameID + " = game ID");
+//                        System.out.println(gameID + " = game ID");
                         gameUI(gameID, color);
                         break;
                     }
@@ -181,25 +186,26 @@ public class Main {
                 "observe <ID> - observe the game with the game id ID\n");
     }
 
-    String facadeResponseHandler(String args[], String option) {
+    static String facadeResponseHandler(String args[], String option) {
         try {
             switch (option) {
                 case "register":
-                    ;
+                    facade.register(args[1], args[2], args[3]);
                 case "login":
-                    ;
+                    facade.login(args[1], args[2]);
                 case "logout":
-                    ;
+                    facade.logout();
                 case "create":
-                    ;
+                    facade.createGame(args[1]);
                 case "join":
-                    ;
+                    facade.joinGame(ChessGame.TeamColor.valueOf(args[1]), Integer.parseInt(args[2]));
                 case "list":
-                    ;
+                    facade.listGames();
             }
+//        } catch (ErrorResponse e) {
+//            return e.toString();
         } catch (Exception e) {
-            System.out.println(e.getMessage());
-            return e.getMessage();
+            return e.toString();
         }
         return "";
     }

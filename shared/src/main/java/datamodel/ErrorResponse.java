@@ -3,7 +3,7 @@ package datamodel;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 
-public class ErrorResponse {
+public class ErrorResponse extends Throwable {
     public int status;
     public String message;
 

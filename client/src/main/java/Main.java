@@ -1,9 +1,8 @@
 import chess.ChessGame;
 import java.util.Scanner;
 import static java.lang.System.exit;
-
-import datamodel.ErrorResponse;
 import ui.BoardText;
+import ui.ServerFacade;
 
 public class Main {
     static public ServerFacade facade;
@@ -79,10 +78,8 @@ public class Main {
     static void postLoginUI() {
         Scanner scanner = new Scanner(System.in);
         boolean exit = false;
-        String line;
-        String input;
+        String line, input;
         ChessGame.TeamColor color = null;
-
         System.out.println("You are logged in!");
         printPostOptions();
         while (!exit) {
@@ -103,9 +100,8 @@ public class Main {
                         String gameName = "";
                         for (int i = 1; i < args.length; i++) {
                             gameName += args[i];
-                            if (i != args.length - 1) {
-                                gameName += " ";
-                            }
+                            String valAdded = ((i != (args.length - 1)) ? (" ") : (""));
+                            gameName += valAdded;
                         }
                         var game = facade.createGame(gameName);
                         System.out.println("Created game " + gameName);
@@ -122,18 +118,9 @@ public class Main {
                         for (int i = 0; i < list.size(); i++) {
                             var game = list.get(i);
                             System.out.print((i + 1) + ". : " + game.gameID() + " : " + game.gameName() + " : ");
-                            if (game.whiteUsername() != null) {
-                                System.out.print(game.whiteUsername());
-                            } else {
-                                System.out.print("(No User)");
-                            }
-                            System.out.print(" | ");
-                            if (game.blackUsername() != null) {
-                                System.out.print(game.blackUsername());
-                            } else {
-                                System.out.print("(No User)");
-                            }
-                            System.out.print("\n");
+                            String whiteUser = (game.whiteUsername() != null) ? game.whiteUsername() : "(No User)";
+                            String blackUser = (game.blackUsername() != null) ? game.blackUsername() : "(No User)";
+                            System.out.print(whiteUser + " | " + blackUser + "\n");
                         }
 //                        System.out.println(list.toString());
                     } catch (Exception e) {
@@ -147,7 +134,7 @@ public class Main {
                         int gameID = Integer.parseInt(args[1]);
                         if (args[2].equalsIgnoreCase("WHITE")) {
                             color = ChessGame.TeamColor.WHITE;
-                        } else if (args[2].equalsIgnoreCase("BLACK")){
+                        } else if (args[2].equalsIgnoreCase("BLACK")) {
                             color = ChessGame.TeamColor.BLACK;
                         } else {
                             System.out.println("Join failed. Please enter a valid game ID/COLOR");
@@ -177,7 +164,6 @@ public class Main {
 
             }
         }
-
     }
 
     static void gameUI(int gameID, ChessGame.TeamColor color) {
@@ -213,6 +199,7 @@ public class Main {
                 "register <username> <password> <email>\n" +
                 "quit - exit chess\n");
     }
+
     static void printPostOptions() {
         System.out.print("help - display this help menu\n" +
                 "logout - to log out\n" +
@@ -220,29 +207,5 @@ public class Main {
                 "list - list all games\n" +
                 "join <ID> [WHITE|BLACK] - join the game with game id ID as color WHITE|BLACK\n" +
                 "observe <ID> - observe the game with the game id ID\n");
-    }
-
-    static String facadeResponseHandler(String args[], String option) {
-        try {
-            switch (option) {
-                case "register":
-                    facade.register(args[1], args[2], args[3]);
-                case "login":
-                    facade.login(args[1], args[2]);
-                case "logout":
-                    facade.logout();
-                case "create":
-                    facade.createGame(args[1]);
-                case "join":
-                    facade.joinGame(ChessGame.TeamColor.valueOf(args[1]), Integer.parseInt(args[2]));
-                case "list":
-                    facade.listGames();
-            }
-//        } catch (ErrorResponse e) {
-//            return e.toString();
-        } catch (Exception e) {
-            return e.toString();
-        }
-        return "";
     }
 }

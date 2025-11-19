@@ -4,8 +4,7 @@ import chess.ChessGame;
 import datamodel.*;
 import org.junit.jupiter.api.*;
 import server.Server;
-
-import java.util.Objects;
+import ui.ServerFacade;
 
 import static org.junit.jupiter.api.Assertions.*;
 

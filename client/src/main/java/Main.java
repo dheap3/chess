@@ -108,7 +108,7 @@ public class Main {
                             }
                         }
                         var game = facade.createGame(gameName);
-                        System.out.println(game);
+                        System.out.println("Created game " + gameName);
                     } catch (Exception e) {
                         System.out.println("Create failed. Please enter a valid GAMENAME");
 //                            System.out.println(e.toString());
@@ -118,10 +118,18 @@ public class Main {
                 case "list":
                     try {
                         var list = facade.listGames().getGames();
-                        System.out.println("# : Game ID : Game Name");
+                        System.out.println("# : Game ID : Game Name : Users In Game WHITE|BLACK");
                         for (int i = 0; i < list.size(); i++) {
                             var game = list.get(i);
-                            System.out.println((i + 1) + ". : " + game.gameID() + " : " + game.gameName());
+                            System.out.print((i + 1) + ". : " + game.gameID() + " : " + game.gameName());
+                            if (game.whiteUsername() != null) {
+                                System.out.print(" : " + game.whiteUsername());
+                            }
+                            System.out.print(" | ");
+                            if (game.blackUsername() != null) {
+                                System.out.print(game.blackUsername());
+                            }
+                            System.out.print("\n");
                         }
 //                        System.out.println(list.toString());
                     } catch (Exception e) {

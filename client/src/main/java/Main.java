@@ -81,8 +81,6 @@ public class Main {
         boolean exit = false;
         String line;
         String input;
-        int gameID = 123;
-        String gameName = "";
         ChessGame.TeamColor color = null;
 
         System.out.println("You are logged in!");
@@ -102,7 +100,14 @@ public class Main {
                     break;
                 case "create":
                     try {
-                        var game = facade.createGame(args[1]);
+                        String gameName = "";
+                        for (int i = 1; i < args.length; i++) {
+                            gameName += args[i];
+                            if (i != args.length - 1) {
+                                gameName += " ";
+                            }
+                        }
+                        var game = facade.createGame(gameName);
                         System.out.println(game);
                     } catch (Exception e) {
                         System.out.println("Create failed. Please enter a valid GAMENAME");
@@ -127,7 +132,7 @@ public class Main {
                     break;
                 case "join":
                     try {
-                        gameID = Integer.parseInt(args[1]);
+                        int gameID = Integer.parseInt(args[1]);
                         if (args[2].equalsIgnoreCase("WHITE")) {
                             color = ChessGame.TeamColor.WHITE;
                         } else if (args[2].equalsIgnoreCase("BLACK")){
@@ -148,7 +153,7 @@ public class Main {
                         System.out.println("Observe failed. Please enter a valid game ID");
                         break;
                     } else {
-                        gameID = Integer.parseInt(args[1]);
+                        int gameID = Integer.parseInt(args[1]);
 //                        System.out.println(gameID + " = game ID");
                         //default color to observe is white
                         color = ChessGame.TeamColor.WHITE;

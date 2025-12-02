@@ -12,7 +12,7 @@ public class Main {
 
     public static void main(String[] args) {
         System.out.println("♕ Welcome to CS 240 Chess! ♕\nEnter one of the following options:");
-        int port = 56748;
+        int port = 55357;
         String url = "http://localhost:" + port;
         facade = new ServerFacade(port);
         preloginUI();
@@ -105,6 +105,9 @@ public class Main {
                         }
                         var game = facade.createGame(gameName);
                         System.out.println("Created game " + gameName);
+                        //automatically list the games here?
+                        System.out.println("Please list the games to see the gameID to join");
+                        //need to list the games before the game can be joined. FIX
                     } catch (Exception e) {
                         printError(e, "create");
                         break;
@@ -163,23 +166,61 @@ public class Main {
 
             }
         }
-    }//81
+    }
 
     static void gameUI(int gameID, ChessGame.TeamColor color) {
         Scanner scanner = new Scanner(System.in);
         String input;
         boolean exit = false;
-        System.out.println("welcome to the game!");
-        if (color == ChessGame.TeamColor.BLACK) {
-            printBlackBoard();
-        } else if (color == ChessGame.TeamColor.WHITE) {
-            printWhiteBoard();
-        } else {
-            System.out.println("color error");
-            exit(0);
-        }
-        //loop here to continue the game
+        String gameName = "JOINED";
+        System.out.println("Joined Successfully!");
+        printGameOptions();
+        while (!exit) {
+            System.out.print("[GAME " + gameName + "] ->>");
+            input = scanner.nextLine();
+            var args = input.split(" ");
+            switch (args[0].toLowerCase()) {
+                case "help":
+                    printGameOptions();
+                    break;
+                case "leave":
+                    //need to leave the game
+                    //if i leave can i rejoin? as the /same player/ or different player?
+                    exit = true;
+                    break;
+                case "redraw":
+                    if (color == ChessGame.TeamColor.BLACK) {
+                        printBlackBoard();
+                    } else if (color == ChessGame.TeamColor.WHITE) {
+                        printWhiteBoard();
+                    } else {
+                        System.out.println("color error");
+                        exit(0);
+                    }
+                    break;
+                case "move":
+                    //takes in a move and moves the piece
+                    printGameOptions();
+                    break;
+                case "resign":
+                    System.out.println("Are you sure? y/n");
+                    String answer = scanner.nextLine();
+                    if (answer.toLowerCase().equals("y")) {
+                        System.out.println("You forfeit. Game Over!");
+                        //end game
+                    } else {
+                        //do nothing and return to normal input
+                    }
+                    break;
+                case "moves":
+                    //highlight the legal moves
+                    printGameOptions();
+                    break;
+                default:
+                    System.out.println("option not valid. please try again");
 
+            }
+        }
     }
 
     static void printBlackBoard() {
@@ -208,6 +249,15 @@ public class Main {
                 "observe <GAMENUM> - observe the game with the game number GAMENUM\n");
     }
 
+    static void printGameOptions() {
+        System.out.print("help - display this help menu\n" +
+                "leave - leave the current game\n" +
+                "redraw - redraw the chess board\n" +
+                "move <MOVE> - make a move with notation <asdf>\n" +
+                "resign - forfeit the current game\n" +//doesn't leave the game
+                "moves <PIECE> - highlight the legal moves for PIECE\n");
+    }
+
     static void printError(Exception e, String method) {
         switch (method) {
             case "create":
@@ -232,18 +282,18 @@ public class Main {
                     } else if (e.getMessage().endsWith("2")) {
                         System.out.println("Join failed. Please enter a valid COLOR");
                     }
-                }
-                if (e.getMessage().startsWith("400")) {
+                } else if (e.getMessage().startsWith("400")) {
                     System.out.println("Join failed. Invalid GAMENUM");
-                }
-                if (e.getMessage().startsWith("401")) {
+                } else if (e.getMessage().startsWith("401")) {
                     System.out.println("Join failed. You are not authorized for that");
-                }
-                if (e.getMessage().startsWith("403")) {
+                } else if (e.getMessage().startsWith("403")) {
                     System.out.println("Join failed. COLOR already taken");
-                }
-                if (e instanceof java.lang.NullPointerException ) {
+                } else if (e instanceof java.lang.NullPointerException ) {
                     System.out.println("Join failed. Game does not exist");
+                } else if (e instanceof java.lang.NumberFormatException ) {
+                    System.out.println("Join failed. Invalid GAMENUM");
+                } else {
+                    System.out.println("Join failed. Error: " + e.getMessage());
                 }
                 break;
             case "observe":

@@ -16,7 +16,7 @@ import java.net.http.HttpResponse.BodyHandlers;
 
 public class ServerFacade {
     private final HttpClient client = HttpClient.newHttpClient();
-    private final String serverUrl;
+    static public String serverUrl;
     private String authToken = "";
 
     public ServerFacade(int port) {

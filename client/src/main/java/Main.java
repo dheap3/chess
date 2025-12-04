@@ -4,17 +4,23 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Scanner;
 import static java.lang.System.exit;
+
+import datamodel.AuthData;
 import ui.BoardText;
 import ui.ServerFacade;
+import ui.WebSocketFacade;
+import websocket.commands.UserGameCommand;
 
 public class Main {
-    static public ServerFacade facade;
+    static public ServerFacade serverFacade;
+    static public WebSocketFacade wsFacade = null;
+    static public String authToken = "";
 
     public static void main(String[] args) {
         System.out.println("♕ Welcome to CS 240 Chess! ♕\nEnter one of the following options:");
-        int port = 55357;
+        int port = 60898;
         String url = "http://localhost:" + port;
-        facade = new ServerFacade(port);
+        serverFacade = new ServerFacade(port);
         preloginUI();
 
     }
@@ -40,7 +46,8 @@ public class Main {
                     break;
                 case "login":
                     try {
-                        facade.login(args[1], args[2]);
+                        AuthData auth = serverFacade.login(args[1], args[2]);
+                        authToken = auth.authToken();
                     } catch (Exception e) {
                         printError(e, "login");
                         break;
@@ -49,7 +56,8 @@ public class Main {
                     break;
                 case "register":
                     try {
-                        facade.register(args[1], args[2], args[3]);
+                        AuthData auth = serverFacade.register(args[1], args[2], args[3]);
+                        authToken = auth.authToken();
                     } catch (Exception e) {
                         printError(e, "register");
                         break;
@@ -61,7 +69,7 @@ public class Main {
                     System.out.println("Would you like to clear the database? (Y/N)\n:");
                     String answer = scanner.nextLine();
                     if (answer.equalsIgnoreCase("y")) {
-                        facade.clear();
+                        serverFacade.clear();
                     } else {
                         System.out.println("returning to normal menu");
                     }
@@ -103,7 +111,7 @@ public class Main {
                             String valAdded = ((i != (args.length - 1)) ? (" ") : (""));
                             gameName += valAdded;
                         }
-                        var game = facade.createGame(gameName);
+                        var game = serverFacade.createGame(gameName);
                         System.out.println("Created game " + gameName);
                         //automatically list the games here?
                         System.out.println("Please list the games to see the gameID to join");
@@ -115,7 +123,7 @@ public class Main {
                     break;
                 case "list":
                     try {
-                        var list = facade.listGames().getGames();
+                        var list = serverFacade.listGames().getGames();
                         numGameID = new HashMap<Integer, Integer>();//reset our num to gameID map
                         System.out.println("# : Game Name : Users In Game WHITE|BLACK");
                         for (int i = 0; i < list.size(); i++) {
@@ -144,7 +152,14 @@ public class Main {
                             System.out.println("Join failed. Please enter a valid game ID/COLOR");
                             break;
                         }
-                        facade.joinGame(color, gameID);
+                        serverFacade.joinGame(color, gameID);
+                        String url = ServerFacade.serverUrl;
+                        System.out.println(url);
+                        wsFacade = new WebSocketFacade(url);
+                        UserGameCommand command = new UserGameCommand(UserGameCommand.CommandType.CONNECT, authToken, gameID);
+                        wsFacade.send(command);
+                        //Open a WebSocket connection with the server (using the /ws endpoint) in order to send and receive gameplay messages.
+                        //Send a CONNECT WebSocket message to the server.
                         gameUI(gameID, color);
                     } catch (Exception e) {
                         printError(e, "join");
@@ -200,6 +215,7 @@ public class Main {
                     break;
                 case "move":
                     //takes in a move and moves the piece
+
                     printGameOptions();
                     break;
                 case "resign":

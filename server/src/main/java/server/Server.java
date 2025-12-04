@@ -8,6 +8,7 @@ import dataaccess.MySQLAuthDAO;
 import datamodel.GameData;
 import io.javalin.*;
 import io.javalin.http.Context;
+import org.jetbrains.annotations.NotNull;
 import service.GameService;
 import service.UserService;
 
@@ -42,6 +43,15 @@ public class Server {
         server.post("game", this::createGame);
         server.put("game", this::joinGame);
 
+        server.ws("/ws", ws -> {
+            ws.onConnect(ctx -> {
+                System.out.println("WS connected");
+            });
+            ws.onMessage(ctx -> {
+                System.out.println("Got: " + ctx.message());
+                ctx.send(ctx.message());
+            });
+        });
     }
     //helper functions for http endpoints
     private void clear(Context ctx) {

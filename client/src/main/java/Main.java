@@ -18,7 +18,7 @@ public class Main {
 
     public static void main(String[] args) {
         System.out.println("♕ Welcome to CS 240 Chess! ♕\nEnter one of the following options:");
-        int port = 60898;
+        int port = 55545;
         String url = "http://localhost:" + port;
         serverFacade = new ServerFacade(port);
         preloginUI();
@@ -154,12 +154,12 @@ public class Main {
                         }
                         serverFacade.joinGame(color, gameID);
                         String url = ServerFacade.serverUrl;
-                        System.out.println(url);
+//                        System.out.println(url);
+                        //Open a WebSocket connection with the server
                         wsFacade = new WebSocketFacade(url);
+                        //Send a CONNECT WebSocket message to the server.
                         UserGameCommand command = new UserGameCommand(UserGameCommand.CommandType.CONNECT, authToken, gameID);
                         wsFacade.send(command);
-                        //Open a WebSocket connection with the server (using the /ws endpoint) in order to send and receive gameplay messages.
-                        //Send a CONNECT WebSocket message to the server.
                         gameUI(gameID, color);
                     } catch (Exception e) {
                         printError(e, "join");
@@ -171,6 +171,13 @@ public class Main {
                         int num = Integer.parseInt(args[1]);
                         int gameID = numGameID.get(num);
                         color = ChessGame.TeamColor.WHITE;//default color to observe is white
+
+                        String url = ServerFacade.serverUrl;
+                        //Open a WebSocket connection with the server
+                        wsFacade = new WebSocketFacade(url);
+                        //Send a CONNECT WebSocket message to the server.
+                        UserGameCommand command = new UserGameCommand(UserGameCommand.CommandType.CONNECT, authToken, gameID);
+                        wsFacade.send(command);
                         gameUI(gameID, color);
                         break;
                     } catch (Exception e) {

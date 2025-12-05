@@ -1,0 +1,37 @@
+<component name="libraryTable">
+  <library name="eclipse.jetty.websocket.jakarta.server" type="repository">
+    <properties maven-id="org.eclipse.jetty.websocket:websocket-jakarta-server:11.0.24" />
+    <CLASSES>
+      <root url="jar://$PROJECT_DIR$/lib/websocket-jakarta-server-11.0.24.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/jetty-annotations-11.0.24.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/jakarta.annotation-api-2.1.1.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/jetty-plus-11.0.24.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/jakarta.transaction-api-2.0.0.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/jetty-jndi-11.0.24.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/jetty-util-11.0.24.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/jetty-webapp-11.0.24.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/jetty-xml-11.0.24.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/jetty-jakarta-servlet-api-5.0.2.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/asm-9.7.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/asm-commons-9.7.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/asm-tree-9.7.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/jetty-jakarta-websocket-api-2.0.0.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/websocket-jakarta-client-11.0.24.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/jetty-client-11.0.24.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/jetty-alpn-client-11.0.24.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/jetty-http-11.0.24.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/jetty-io-11.0.24.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/websocket-core-client-11.0.24.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/websocket-core-common-11.0.24.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/websocket-jakarta-common-11.0.24.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/websocket-servlet-11.0.24.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/jetty-servlet-11.0.24.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/jetty-security-11.0.24.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/websocket-core-server-11.0.24.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/jetty-server-11.0.24.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/slf4j-api-2.0.9.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>

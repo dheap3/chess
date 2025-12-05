@@ -1,0 +1,15 @@
+<component name="libraryTable">
+  <library name="eclipse.jetty.server" type="repository">
+    <properties maven-id="org.eclipse.jetty:jetty-server:11.0.24" />
+    <CLASSES>
+      <root url="jar://$PROJECT_DIR$/lib/jetty-server-11.0.24.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/jetty-http-11.0.24.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/jetty-util-11.0.24.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/jetty-io-11.0.24.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/jetty-jakarta-servlet-api-5.0.2.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/slf4j-api-2.0.9.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>

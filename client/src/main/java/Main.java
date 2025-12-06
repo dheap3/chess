@@ -291,15 +291,18 @@ public class Main {
             case "create":
                 if (e.getMessage().startsWith("400")) {
                     System.out.println("Create failed. Invalid GAMENAME");
-                }
-                if (e.getMessage().startsWith("401")) {
+                } else if (e.getMessage().startsWith("401")) {
                     System.out.println("Create failed. You are not authorized for that");
+                } else {
+                    System.out.println("Create failed. Error: " + e.getMessage());
                 }
                 break;
             case "list":
 //                System.out.println("List failed. Talk to the administrator :(");
                 if (e.getMessage().startsWith("401")) {
                     System.out.println("List failed. You are not authorized for that");
+                } else {
+                    System.out.println("List failed. Error: " + e.getMessage());
                 }
                 break;
             case "join":
@@ -329,9 +332,10 @@ public class Main {
                     if (e.getMessage().endsWith("1")) {//length of the args should be 2
                         System.out.println("Observe failed. Please enter a valid GAMENUM");
                     }
-                }
-                if (e instanceof java.lang.NullPointerException ) {
+                } else if (e instanceof java.lang.NullPointerException ) {
                     System.out.println("Observe failed. Game does not exist");
+                } else {
+                    System.out.println("Observe failed. Error: " + e.getMessage());
                 }
                 break;
             case "login":
@@ -341,11 +345,12 @@ public class Main {
                     } else if (e.getMessage().endsWith("2")) {
                         System.out.println("Login failed. Please enter a valid PASSWORD");
                     }
-                }
-                if (e instanceof java.lang.RuntimeException ) {
+                } else if (e instanceof java.lang.RuntimeException ) {
                     if (e.getMessage().startsWith("401")) {
                         System.out.println("Login failed. Invalid credentials");
                     }
+                } else {
+                    System.out.println("Login failed. Error: " + e.getMessage());
                 }
                 break;
             case "register":
@@ -357,11 +362,12 @@ public class Main {
                     } else if (e.getMessage().endsWith("3")) {
                         System.out.println("Register failed, please enter a valid EMAIL");
                     }
-                }
-                if (e instanceof java.lang.RuntimeException ) {
+                } else if (e instanceof java.lang.RuntimeException ) {
                     if (e.getMessage().startsWith("403")) {
                         System.out.println("Register failed. Username already taken");
                     }
+                } else {
+                    System.out.println("Register failed. Error: " + e.getMessage());
                 }
                 break;
             default:

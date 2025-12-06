@@ -18,7 +18,7 @@ public class Main {
 
     public static void main(String[] args) {
         System.out.println("♕ Welcome to CS 240 Chess! ♕\nEnter one of the following options:");
-        int port = 55545;
+        int port = 49218;
         String url = "http://localhost:" + port;
         serverFacade = new ServerFacade(port);
         preloginUI();
@@ -88,6 +88,12 @@ public class Main {
         String line, input;
         ChessGame.TeamColor color = null;
         Map<Integer, Integer> numGameID = new HashMap<Integer, Integer>();
+        var list = serverFacade.listGames().getGames();
+        for (int i = 0; i < list.size(); i++) {
+            var game = list.get(i);
+            int num = i + 1;
+            numGameID.put(num, game.gameID());
+        }
         System.out.println("You are logged in!");
         printPostOptions();
         while (!exit) {
@@ -112,24 +118,23 @@ public class Main {
                             gameName += valAdded;
                         }
                         var game = serverFacade.createGame(gameName);
-                        System.out.println("Created game " + gameName);
-                        //automatically list the games here?
-                        System.out.println("Please list the games to see the gameID to join");
-                        //need to list the games before the game can be joined. FIX
+                        var num =  numGameID.size() + 1;
+                        numGameID.put(num, game.gameID());
+                        System.out.println("Created game " + num + ". " + gameName);
+                        //automatically list the games here?//could add a feature here later
                     } catch (Exception e) {
                         printError(e, "create");
                         break;
                     }
                     break;
                 case "list":
+                    //print out the list of games
                     try {
-                        var list = serverFacade.listGames().getGames();
-                        numGameID = new HashMap<Integer, Integer>();//reset our num to gameID map
+                        list = serverFacade.listGames().getGames();
                         System.out.println("# : Game Name : Users In Game WHITE|BLACK");
                         for (int i = 0; i < list.size(); i++) {
                             var game = list.get(i);
                             int num = i + 1;
-                            numGameID.put(num, game.gameID());
                             System.out.print(num + ". : " + game.gameName() + " : ");
                             String whiteUser = (game.whiteUsername() != null) ? game.whiteUsername() : "(No User)";
                             String blackUser = (game.blackUsername() != null) ? game.blackUsername() : "(No User)";

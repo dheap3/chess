@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<module type="JAVA_MODULE" version="4">
+<module external.linked.project.id="$MODULE_DIR$/pom.xml" external.system.module.type="SINGLE_MODULE" external.system.module.version="223-2" org.jetbrains.idea.maven.project.MavenProjectsManager.isMavenModule="true" type="JAVA_MODULE" version="4">
   <component name="CheckStyle-IDEA-Module" serialisationVersion="2">
     <option name="activeLocationsIds" />
   </component>
@@ -23,5 +23,8 @@
     <orderEntry type="library" name="jakarta.websocket.api" level="project" />
     <orderEntry type="library" name="eclipse.jetty.websocket.jakarta.server" level="project" />
     <orderEntry type="library" name="eclipse.jetty.server" level="project" />
+    <orderEntry type="library" name="eclipse.jetty.websocket.server" level="project" />
+    <orderEntry type="library" name="eclipse.jetty.websocket.common" level="project" />
+    <orderEntry type="library" name="eclipse.jetty.websocket.servlet" level="project" />
   </component>
 </module>

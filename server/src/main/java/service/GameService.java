@@ -21,7 +21,8 @@ public class GameService {
             throw new RuntimeException(e);
         }
     }
-    public int numGames = 1;
+    //accurate number of games
+    public int numGames = gameDAO.getGames().size();
 
     public Map<Integer, String> listGames(String authToken) {
         Map<String, String> statusString = new HashMap<>();
@@ -45,6 +46,10 @@ public class GameService {
         int statusCode;
 
         int gameID = numGames++;
+        //double checks that the gameID isn't already taken
+        while (gameDAO.getGame(gameID) != null) {
+            gameID+= 1;
+        }
         String whiteUsername = null;
         String blackUsername = null;
         ChessGame game = new ChessGame();

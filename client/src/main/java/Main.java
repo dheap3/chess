@@ -4,6 +4,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Scanner;
 import static java.lang.System.exit;
+import static java.lang.Thread.sleep;
 
 import datamodel.AuthData;
 import ui.BoardText;
@@ -18,7 +19,7 @@ public class Main {
 
     public static void main(String[] args) {
         System.out.println("♕ Welcome to CS 240 Chess! ♕\nEnter one of the following options:");
-        int port = 49218;
+        int port = 50143;
         String url = "http://localhost:" + port;
         serverFacade = new ServerFacade(port);
         preloginUI();
@@ -104,7 +105,6 @@ public class Main {
             switch (input) {
                 case "help":
                     printPostOptions();
-                    System.out.print("[LOGGED IN] ->> ");
                     break;
                 case "logout":
                     exit = true;
@@ -195,7 +195,7 @@ public class Main {
         }
     }
 
-    static void gameUI(int gameID, ChessGame.TeamColor color) {
+    static void gameUI(int gameID, ChessGame.TeamColor color) throws InterruptedException {
         Scanner scanner = new Scanner(System.in);
         String input;
         boolean exit = false;
@@ -203,19 +203,22 @@ public class Main {
         System.out.println("Joined Successfully!");
         printGameOptions();
         while (!exit) {
-            System.out.print("[GAME " + gameName + "] ->>");
+            sleep(1000);
+            System.out.print("[GAME " + gameName + "] ->> ");
             input = scanner.nextLine();
             var args = input.split(" ");
             switch (args[0].toLowerCase()) {
-                case "help":
+                case "help" -> {
                     printGameOptions();
-                    break;
-                case "leave":
+                }
+                case "leave" -> {
                     //need to leave the game
-                    //if i leave can i rejoin? as the /same player/ or different player?
+                    //if i leave i can rejoin as a different player
+                    UserGameCommand command = new UserGameCommand(UserGameCommand.CommandType.LEAVE, authToken, gameID);
+                    wsFacade.send(command);
                     exit = true;
-                    break;
-                case "redraw":
+                }
+                case "redraw" -> {
                     if (color == ChessGame.TeamColor.BLACK) {
                         printBlackBoard();
                     } else if (color == ChessGame.TeamColor.WHITE) {
@@ -224,28 +227,32 @@ public class Main {
                         System.out.println("color error");
                         exit(0);
                     }
-                    break;
-                case "move":
-                    //takes in a move and moves the piece
-
+                }
+                case "move" -> {
+                    UserGameCommand command = new UserGameCommand(UserGameCommand.CommandType.MAKE_MOVE, authToken, gameID);
+                    wsFacade.send(command);
+                    //need more code here?
                     printGameOptions();
-                    break;
-                case "resign":
+                }
+                case "resign" -> {
                     System.out.println("Are you sure? y/n");
                     String answer = scanner.nextLine();
                     if (answer.toLowerCase().equals("y")) {
+                        UserGameCommand command = new UserGameCommand(UserGameCommand.CommandType.RESIGN, authToken, gameID);
+                        wsFacade.send(command);
                         System.out.println("You forfeit. Game Over!");
                         //end game
                     } else {
                         //do nothing and return to normal input
                     }
-                    break;
-                case "moves":
+                }
+                case "moves" -> {
                     //highlight the legal moves
                     printGameOptions();
-                    break;
-                default:
+                }
+                default -> {
                     System.out.println("option not valid. please try again");
+                }
 
             }
         }

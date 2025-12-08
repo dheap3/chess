@@ -3,6 +3,7 @@ package server;
 import com.google.gson.Gson;
 import io.javalin.websocket.*;
 import websocket.commands.UserGameCommand;
+import websocket.messages.ServerMessage;
 
 import java.util.function.Consumer;
 
@@ -34,13 +35,69 @@ public class WebSocketHandler implements Consumer<WsConfig> {
     private void handle(WsMessageContext ctx, UserGameCommand cmd) {
 
         switch (cmd.getCommandType()) {
-            case CONNECT -> System.out.println("CONNECT command received");
-            case MAKE_MOVE -> System.out.println("MAKE_MOVE received");
-            case LEAVE -> System.out.println("LEAVE received");
-            case RESIGN -> System.out.println("RESIGN received");
+            case CONNECT -> {
+                //Server sends a LOAD_GAME message back to the root client.
+                //Server sends a Notification message to all other clients in that game informing them the root
+                // client connected to the game, either as a player (in which case their color must be specified)
+                // or as an observer.
+                ServerMessage msg = new ServerMessage(ServerMessage.ServerMessageType.LOAD_GAME);
+                String json = gson.toJson(msg);
+                ctx.send(json);
+                System.out.println("LOAD_GAME sent back");
+                msg = new ServerMessage(ServerMessage.ServerMessageType.NOTIFICATION);
+                json = gson.toJson(msg);
+                ctx.send(json);
+                System.out.println("NOTIFICATION sent back");
+            }
+            case MAKE_MOVE -> {
+                //Server verifies the validity of the move. TODO
+                //Game is updated to represent the move. Game is updated in the database.
+                //Server sends a LOAD_GAME message to all clients in the game (including
+                // the root client) with an updated game.
+                ServerMessage msg = new ServerMessage(ServerMessage.ServerMessageType.LOAD_GAME);
+                String json = gson.toJson(msg);
+                ctx.send(json);
+                System.out.println("LOAD_GAME sent back");
+                //Server sends a Notification message to all other clients in that game informing them what move was made.
+                msg = new ServerMessage(ServerMessage.ServerMessageType.NOTIFICATION);
+                json = gson.toJson(msg);
+                ctx.send(json);
+                System.out.println("NOTIFICATION sent back");
+                //If the move results in check, checkmate or stalemate the server sends a
+                // Notification message to all clients.
+                if (false) {
+                    msg = new ServerMessage(ServerMessage.ServerMessageType.NOTIFICATION);
+                    json = gson.toJson(msg);
+                    ctx.send(json);
+                    System.out.println("NOTIFICATION sent back");
+                }
+
+            }
+            case LEAVE -> {
+                //If a player is leaving, then the game is updated to remove the root client. Game is updated in the database.
+                //Server sends a Notification message to all other clients in that game informing them that
+                // the root client left. This applies to both players and observers.
+                //update game TODO
+                System.out.println("Game removed root client and updated");
+                ServerMessage msg = new ServerMessage(ServerMessage.ServerMessageType.NOTIFICATION);
+                String json = gson.toJson(msg);
+                ctx.send(json);
+                System.out.println("NOTIFICATION sent back");
+            }
+            case RESIGN -> {
+                //Server marks the game as over (no more moves can be made). Game is updated in the database.
+                //Server sends a Notification message to all clients in that game informing them that the
+                // root client resigned. This applies to both players and observers.
+                //update game TODO
+                System.out.println("Game marked as over and updated");
+                ServerMessage msg = new ServerMessage(ServerMessage.ServerMessageType.NOTIFICATION);
+                String json = gson.toJson(msg);
+                ctx.send(json);
+                System.out.println("NOTIFICATION sent back");
+            }
         }
 
         // respond minimally so handshake doesn’t break
-        ctx.send("ok");
+        ctx.send("finished handling "+ cmd.getCommandType());
     }
 }

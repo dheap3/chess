@@ -15,6 +15,7 @@ public class WebSocketHandler implements Consumer<WsConfig> {
     public void accept(WsConfig ws) {
 
         ws.onConnect(ctx -> {
+            ctx.enableAutomaticPings();
             System.out.println("connect");
         });
 
@@ -33,7 +34,7 @@ public class WebSocketHandler implements Consumer<WsConfig> {
     }
 
     private void handle(WsMessageContext ctx, UserGameCommand cmd) {
-
+        //this switch statement uses the nicer syntax, update other switches to match this one
         switch (cmd.getCommandType()) {
             case CONNECT -> {
                 //Server sends a LOAD_GAME message back to the root client.
@@ -96,8 +97,7 @@ public class WebSocketHandler implements Consumer<WsConfig> {
                 System.out.println("NOTIFICATION sent back");
             }
         }
-
-        // respond minimally so handshake doesn’t break
-        ctx.send("finished handling "+ cmd.getCommandType());
+//        breaks the handshake
+//        ctx.send("finished handling "+ cmd.getCommandType());
     }
 }

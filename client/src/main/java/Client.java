@@ -6,16 +6,21 @@ import java.util.Scanner;
 import static java.lang.System.exit;
 import static java.lang.Thread.sleep;
 
+import com.google.gson.Gson;
 import datamodel.AuthData;
+import datamodel.GameData;
 import ui.BoardText;
 import ui.ServerFacade;
+import ui.ServerObserver;
 import ui.WebSocketFacade;
 import websocket.commands.UserGameCommand;
+import websocket.messages.ServerMessage;
 
-public class Main {
+public class Client implements ServerObserver {
     static public ServerFacade serverFacade;
     static public WebSocketFacade wsFacade = null;
     static public String authToken = "";
+    static ServerObserver observer;
 
     public static void main(String[] args) {
         System.out.println("♕ Welcome to CS 240 Chess! ♕\nEnter one of the following options:");
@@ -161,7 +166,7 @@ public class Main {
                         String url = ServerFacade.serverUrl;
 //                        System.out.println(url);
                         //Open a WebSocket connection with the server
-                        wsFacade = new WebSocketFacade(url);
+                        wsFacade = new WebSocketFacade(url, observer);
                         //Send a CONNECT WebSocket message to the server.
                         UserGameCommand command = new UserGameCommand(UserGameCommand.CommandType.CONNECT, authToken, gameID);
                         wsFacade.send(command);
@@ -179,7 +184,7 @@ public class Main {
 
                         String url = ServerFacade.serverUrl;
                         //Open a WebSocket connection with the server
-                        wsFacade = new WebSocketFacade(url);
+                        wsFacade = new WebSocketFacade(url, observer);
                         //Send a CONNECT WebSocket message to the server.
                         UserGameCommand command = new UserGameCommand(UserGameCommand.CommandType.CONNECT, authToken, gameID);
                         wsFacade.send(command);
@@ -195,11 +200,14 @@ public class Main {
         }
     }
 
-    static void gameUI(int gameID, ChessGame.TeamColor color) throws InterruptedException {
+    static void gameUI(int gameID, ChessGame.TeamColor color) throws Exception {
         Scanner scanner = new Scanner(System.in);
         String input;
         boolean exit = false;
         String gameName = "JOINED";
+        GameData data = serverFacade.listGames().getGames().get(gameID);
+        ChessGame game = data.game();
+
         System.out.println("Joined Successfully!");
         printGameOptions();
         while (!exit) {
@@ -231,6 +239,7 @@ public class Main {
                 case "move" -> {
                     UserGameCommand command = new UserGameCommand(UserGameCommand.CommandType.MAKE_MOVE, authToken, gameID);
                     wsFacade.send(command);
+//                    wsFacade.onText()
                     //need more code here?
                     printGameOptions();
                 }
@@ -382,5 +391,24 @@ public class Main {
                 break;
         }
 //        System.out.println("error: " + e.getMessage());
+    }
+
+    @Override
+    public void notify(ServerMessage data) {
+        System.out.println("Received WS message: " + data);
+        String dataString = data.toString();
+        ServerMessage msg = new Gson().fromJson(dataString, ServerMessage.class);
+        switch (msg.getServerMessageType()) {
+            case LOAD_GAME -> {
+                //redraw the chessboard
+                //boardText.printBoard()
+            }
+            case ERROR -> {
+
+            }
+            case NOTIFICATION -> {
+
+            }
+        }
     }
 }

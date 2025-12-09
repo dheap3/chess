@@ -8,7 +8,8 @@ public class Main {
     public static void main(String[] args) {
         var piece = new ChessPiece(ChessGame.TeamColor.WHITE, ChessPiece.PieceType.PAWN);
         server = new Server();
-        var port = server.run(0);
+//        var port = server.run(0);
+        var port = server.run(50143);
         System.out.println("♕ 240 Chess Server: " + port);
     }
 }

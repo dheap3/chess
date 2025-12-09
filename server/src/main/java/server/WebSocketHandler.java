@@ -16,7 +16,7 @@ public class WebSocketHandler implements Consumer<WsConfig> {
 
         ws.onConnect(ctx -> {
             ctx.enableAutomaticPings();
-            System.out.println("connect");
+//            System.out.println("connect");
         });
 
         ws.onMessage(ctx -> {
@@ -25,7 +25,7 @@ public class WebSocketHandler implements Consumer<WsConfig> {
         });
 
         ws.onClose(ctx -> {
-            System.out.println("close");
+//            System.out.println("close");
         });
 
         ws.onError(ctx -> {

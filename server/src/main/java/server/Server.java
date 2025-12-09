@@ -26,6 +26,7 @@ public class Server {
 
     public Server() {
         server = Javalin.create(config -> config.staticFiles.add("web"));
+        WebSocketHandler wsHandler = new WebSocketHandler();
         try {
             myAuthDAO = new MySQLAuthDAO();
             userService = new UserService(myAuthDAO);
@@ -43,7 +44,7 @@ public class Server {
         server.post("game", this::createGame);
         server.put("game", this::joinGame);
 
-        server.ws("/ws", new WebSocketHandler());
+        server.ws("/ws", wsHandler);
     }
     //helper functions for http endpoints
     private void clear(Context ctx) {

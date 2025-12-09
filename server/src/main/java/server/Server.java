@@ -26,7 +26,7 @@ public class Server {
 
     public Server() {
         server = Javalin.create(config -> config.staticFiles.add("web"));
-        WebSocketHandler wsHandler = new WebSocketHandler();
+        WebSocketHandler wsHandler = new WebSocketHandler(gameService);
         try {
             myAuthDAO = new MySQLAuthDAO();
             userService = new UserService(myAuthDAO);

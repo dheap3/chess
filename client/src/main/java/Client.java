@@ -21,6 +21,8 @@ public class Client implements ServerObserver {
     static public WebSocketFacade wsFacade = null;
     static public String authToken = "";
     static ServerObserver observer;
+    static public BoardText printer = null;
+    static public ChessGame.TeamColor currentColor = null;
 
     public static void main(String[] args) {
         System.out.println("♕ Welcome to CS 240 Chess! ♕\nEnter one of the following options:");
@@ -207,6 +209,8 @@ public class Client implements ServerObserver {
         String gameName = "JOINED";
         GameData data = serverFacade.listGames().getGames().get(gameID);
         ChessGame game = data.game();
+        currentColor = color;
+        printer = new BoardText(game, color);
 
         System.out.println("Joined Successfully!");
         printGameOptions();
@@ -224,6 +228,7 @@ public class Client implements ServerObserver {
                     //if i leave i can rejoin as a different player
                     UserGameCommand command = new UserGameCommand(UserGameCommand.CommandType.LEAVE, authToken, gameID);
                     wsFacade.send(command);
+                    currentColor = null;
                     exit = true;
                 }
                 case "redraw" -> {
@@ -268,12 +273,12 @@ public class Client implements ServerObserver {
     }
 
     static void printBlackBoard() {
-        BoardText blackBoard = new BoardText(true);
+        BoardText blackBoard = new BoardText(new ChessGame(), ChessGame.TeamColor.BLACK);
         blackBoard.printBoard();
     }
 
     static void printWhiteBoard() {
-        BoardText whiteBoard = new BoardText(false);
+        BoardText whiteBoard = new BoardText(new ChessGame(), ChessGame.TeamColor.WHITE);
         whiteBoard.printBoard();
     }
 
@@ -400,8 +405,10 @@ public class Client implements ServerObserver {
         ServerMessage msg = new Gson().fromJson(dataString, ServerMessage.class);
         switch (msg.getServerMessageType()) {
             case LOAD_GAME -> {
-                //redraw the chessboard
-                //boardText.printBoard()
+                ChessGame game = serverFacade.listGames().getGames().get(data.getGameID()).game();
+                printer = new BoardText(game, currentColor);
+                printer.printBoard();
+
             }
             case ERROR -> {
 

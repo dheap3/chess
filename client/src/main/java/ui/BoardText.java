@@ -1,5 +1,8 @@
 package ui;
 
+import chess.ChessBoard;
+import chess.ChessGame;
+
 import java.io.PrintStream;
 import java.nio.charset.StandardCharsets;
 
@@ -8,7 +11,7 @@ import static ui.EscapeSequences.*;
 
 public class BoardText {
     //POV of board
-    private static Boolean blackPOV = null;
+    public static Boolean blackPOV = null;
 
     //iterators
     private static int timesRowNameCalled = 0;
@@ -43,8 +46,13 @@ public class BoardText {
 
     public static final String SNOWMAN = " \u2603 ";
 
-    public BoardText(boolean pov) {
-        blackPOV = pov;
+    public BoardText(ChessGame game, ChessGame.TeamColor color) {
+        ChessBoard board = game.getBoard();
+        if (color == ChessGame.TeamColor.BLACK) {
+            blackPOV = true;
+        } else {
+            blackPOV = false;
+        }
         timesRowNameCalled = 0;
         boardRow = 0;
         timesPrintPieceCalled = 0;

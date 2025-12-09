@@ -1,7 +1,11 @@
 package server;
 
+import chess.ChessGame;
 import com.google.gson.Gson;
+import datamodel.GameData;
+import datamodel.ListGamesResponse;
 import io.javalin.websocket.*;
+import service.GameService;
 import websocket.commands.UserGameCommand;
 import websocket.messages.ServerMessage;
 
@@ -10,6 +14,11 @@ import java.util.function.Consumer;
 public class WebSocketHandler implements Consumer<WsConfig> {
 
     private final Gson gson = new Gson();
+    private GameService gameService = null;   // add this
+
+    public WebSocketHandler(GameService gameService) {
+        this.gameService = gameService;
+    }
 
     @Override
     public void accept(WsConfig ws) {
@@ -42,13 +51,17 @@ public class WebSocketHandler implements Consumer<WsConfig> {
                 // client connected to the game, either as a player (in which case their color must be specified)
                 // or as an observer.
                 ServerMessage msg = new ServerMessage(ServerMessage.ServerMessageType.LOAD_GAME);
+                ChessGame game = gameService.getGame(cmd.getGameID()).game();
+                msg.setGame(game);
                 String json = gson.toJson(msg);
                 ctx.send(json);
                 System.out.println("LOAD_GAME sent back");
-                msg = new ServerMessage(ServerMessage.ServerMessageType.NOTIFICATION);
-                json = gson.toJson(msg);
-                ctx.send(json);
-                System.out.println("NOTIFICATION sent back");
+                if (false) {//send it to other clients, not the root client
+                    msg = new ServerMessage(ServerMessage.ServerMessageType.NOTIFICATION);
+                    json = gson.toJson(msg);
+                    ctx.send(json);
+                    System.out.println("NOTIFICATION sent back");
+                }
             }
             case MAKE_MOVE -> {
                 //Server verifies the validity of the move. TODO

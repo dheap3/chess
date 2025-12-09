@@ -95,13 +95,7 @@ public class Client implements ServerObserver {
         boolean exit = false;
         String line, input;
         ChessGame.TeamColor color = null;
-        Map<Integer, Integer> numGameID = new HashMap<Integer, Integer>();
-        var list = serverFacade.listGames().getGames();
-        for (int i = 0; i < list.size(); i++) {
-            var game = list.get(i);
-            int num = i + 1;
-            numGameID.put(num, game.gameID());
-        }
+        Map<Integer, Integer> numGameID = null;
         System.out.println("You are logged in!");
         printPostOptions();
         while (!exit) {
@@ -109,6 +103,16 @@ public class Client implements ServerObserver {
             line = scanner.nextLine();
             var args = line.split(" ");
             input = args[0].toLowerCase();
+
+            //update the numGameID list consistently
+            numGameID = new HashMap<Integer, Integer>();
+            var list = serverFacade.listGames().getGames();
+            for (int i = 0; i < list.size(); i++) {
+                var game = list.get(i);
+                int num = i + 1;
+                numGameID.put(num, game.gameID());
+            }
+
             switch (input) {
                 case "help":
                     printPostOptions();

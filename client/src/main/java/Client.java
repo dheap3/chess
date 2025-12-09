@@ -405,7 +405,7 @@ public class Client implements ServerObserver {
         ServerMessage msg = new Gson().fromJson(dataString, ServerMessage.class);
         switch (msg.getServerMessageType()) {
             case LOAD_GAME -> {
-                ChessGame game = serverFacade.listGames().getGames().get(data.getGameID()).game();
+                ChessGame game = data.getGame();
                 printer = new BoardText(game, currentColor);
                 printer.printBoard();
 

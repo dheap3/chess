@@ -17,11 +17,13 @@ public class WebSocketHandler implements Consumer<WsConfig> {
 
     private final Gson gson = new Gson();
     private GameService gameService = null;
+    private UserService userService = null;
     //create of list of contexts to save (new context for each client)
     Map<Integer, ArrayList<WsContext>> gameSessions = new HashMap<>();
 
-    public WebSocketHandler(GameService gameService) {
+    public WebSocketHandler(GameService gameService, UserService userService) {
         this.gameService = gameService;
+        this.userService = userService;
     }
 
     @Override
@@ -48,22 +50,30 @@ public class WebSocketHandler implements Consumer<WsConfig> {
     }
 
     private void handle(WsMessageContext ctx, UserGameCommand cmd) {
-        //this switch statement uses the nicer syntax, update other switches to match this one
         switch (cmd.getCommandType()) {
             case CONNECT -> {
-                //add the session to the gameSessions
                 int gameID = cmd.getGameID();
+                String auth = cmd.getAuthToken();
+                //verify if the info received is in the database
+                if (gameService.getGame(gameID) == null) {
+                    ServerMessage msg = new ServerMessage(ServerMessage.ServerMessageType.ERROR);
+                    msg.setErrorMessage("Game not found");
+                    ctx.send(gson.toJson(msg));
+                    break;
+                }
+                if (userService.authDAO.getAuth(auth) == null) {
+                    ServerMessage msg = new ServerMessage(ServerMessage.ServerMessageType.ERROR);
+                    msg.setErrorMessage("You are not authorized to access this game");
+                    ctx.send(gson.toJson(msg));
+                    break;
+                }
                 gameSessions.putIfAbsent(gameID, new ArrayList<>());
-                gameSessions.get(gameID).add(ctx);
-                //Server sends a LOAD_GAME message back to the root client.
-                //Server sends a Notification message to all other clients in that game informing them the root
-                // client connected to the game, either as a player (in which case their color must be specified)
-                // or as an observer.
+                gameSessions.get(gameID).add(ctx);//add the session to the gameSessions
+
                 ServerMessage msg = new ServerMessage(ServerMessage.ServerMessageType.LOAD_GAME);
                 ChessGame game = gameService.getGame(cmd.getGameID()).game();
                 msg.setGame(game);
-                String json = gson.toJson(msg);
-                ctx.send(json);
+                ctx.send(gson.toJson(msg));
                 System.out.println("LOAD_GAME sent back");
                 for (WsContext context : gameSessions.get(cmd.getGameID())) {
                     if (context != ctx) {//send it to other clients, not the root client
@@ -71,8 +81,7 @@ public class WebSocketHandler implements Consumer<WsConfig> {
                         String user = cmd.getUser();
                         String type = cmd.getUserType();
                         msg.setMessage("User " + user + " connected (" + type + ")");
-                        json = gson.toJson(msg);
-                        context.send(json);
+                        context.send(gson.toJson(msg));
                         System.out.println("NOTIFICATION sent back");
                     }
                 }
@@ -83,20 +92,17 @@ public class WebSocketHandler implements Consumer<WsConfig> {
                 //Server sends a LOAD_GAME message to all clients in the game (including
                 // the root client) with an updated game.
                 ServerMessage msg = new ServerMessage(ServerMessage.ServerMessageType.LOAD_GAME);
-                String json = gson.toJson(msg);
-                ctx.send(json);
+                ctx.send(gson.toJson(msg));
                 System.out.println("LOAD_GAME sent back");
                 //Server sends a Notification message to all other clients in that game informing them what move was made.
                 msg = new ServerMessage(ServerMessage.ServerMessageType.NOTIFICATION);
-                json = gson.toJson(msg);
-                ctx.send(json);
+                ctx.send(gson.toJson(msg));
                 System.out.println("NOTIFICATION sent back");
                 //If the move results in check, checkmate or stalemate the server sends a
                 // Notification message to all clients.
                 if (false) {
                     msg = new ServerMessage(ServerMessage.ServerMessageType.NOTIFICATION);
-                    json = gson.toJson(msg);
-                    ctx.send(json);
+                    ctx.send(gson.toJson(msg));
                     System.out.println("NOTIFICATION sent back");
                 }
 
@@ -108,8 +114,7 @@ public class WebSocketHandler implements Consumer<WsConfig> {
                 //update game TODO
                 System.out.println("Game removed root client and updated");
                 ServerMessage msg = new ServerMessage(ServerMessage.ServerMessageType.NOTIFICATION);
-                String json = gson.toJson(msg);
-                ctx.send(json);
+                ctx.send(gson.toJson(msg));
                 System.out.println("NOTIFICATION sent back");
             }
             case RESIGN -> {
@@ -119,8 +124,7 @@ public class WebSocketHandler implements Consumer<WsConfig> {
                 //update game TODO
                 System.out.println("Game marked as over and updated");
                 ServerMessage msg = new ServerMessage(ServerMessage.ServerMessageType.NOTIFICATION);
-                String json = gson.toJson(msg);
-                ctx.send(json);
+                ctx.send(gson.toJson(msg));
                 System.out.println("NOTIFICATION sent back");
             }
         }

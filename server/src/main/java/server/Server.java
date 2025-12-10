@@ -26,7 +26,6 @@ public class Server {
 
     public Server() {
         server = Javalin.create(config -> config.staticFiles.add("web"));
-        WebSocketHandler wsHandler = new WebSocketHandler(gameService);
         try {
             myAuthDAO = new MySQLAuthDAO();
             userService = new UserService(myAuthDAO);
@@ -34,6 +33,7 @@ public class Server {
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
+        WebSocketHandler wsHandler = new WebSocketHandler(gameService, userService);
         // Register your endpoints and exception handlers here.
 //        server.delete("db", ctx ->ctx.result("{}"));
         server.delete("db", this::clear);

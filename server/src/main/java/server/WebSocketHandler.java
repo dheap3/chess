@@ -152,4 +152,35 @@ public class WebSocketHandler implements Consumer<WsConfig> {
 //        breaks the handshake
 //        ctx.send("finished handling "+ cmd.getCommandType());
     }
+
+    private ChessGame.TeamColor getUserColor(GameData gameData, String user) {
+        if (gameData.whiteUsername() == user) {
+            return ChessGame.TeamColor.WHITE;
+        } else if (gameData.blackUsername() == user) {
+            return ChessGame.TeamColor.BLACK;
+        } else {
+            System.out.println("User " + user + " not in game");
+        }
+        return null;
+    }
+
+    void notifyEveryone(UserGameCommand cmd, String message) {
+        for (WsContext context : gameSessions.get(cmd.getGameID())) {//to everyone
+            ServerMessage msg = new ServerMessage(ServerMessage.ServerMessageType.NOTIFICATION);
+            msg.setMessage(message);
+            context.send(gson.toJson(msg));
+            System.out.println("NOTIFICATION sent back");
+        }
+    }
+
+    void notifyEveryoneElse(UserGameCommand cmd, String message, WsContext currentContext) {
+        for (WsContext context : gameSessions.get(cmd.getGameID())) {
+            if (!context.sessionId().equals(currentContext.sessionId())) {//send it to other clients, not the root client
+                ServerMessage msg = new ServerMessage(ServerMessage.ServerMessageType.NOTIFICATION);
+                msg.setMessage(message);
+                context.send(gson.toJson(msg));
+//                        System.out.println("NOTIFICATION sent back");
+            }
+        }
+    }
 }

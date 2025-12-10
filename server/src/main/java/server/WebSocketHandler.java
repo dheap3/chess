@@ -58,20 +58,16 @@ public class WebSocketHandler implements Consumer<WsConfig> {
                 String auth = cmd.getAuthToken();
                 //verify if the info received is in the database
                 if (gameService.getGame(gameID) == null) {
-                    sendError("Game not found", ctx);
-                    break;
+                    sendError("Game not found", ctx); break;
                 }
                 if (userService.authDAO.getAuth(auth) == null) {
-                    sendError("You are not authorized to access this game", ctx);
-                    break;
+                    sendError("You are not authorized to access this game", ctx); break;
                 }
                 gameSessions.putIfAbsent(gameID, new ArrayList<>());
                 if (!gameSessions.get(gameID).contains(ctx)) {
                     gameSessions.get(gameID).add(ctx);//add the session to the gameSessions
                 }
-
                 loadMyGame(cmd.getGameID(), ctx);
-
                 String user = cmd.getUser();
                 String type = cmd.getUserType();
                 notifyEveryoneElse("User " + user + " connected (" + type + ")", cmd.getGameID(), ctx);
@@ -79,38 +75,28 @@ public class WebSocketHandler implements Consumer<WsConfig> {
             case MAKE_MOVE -> {
                 ChessMove move = cmd.getMove();
                 ChessGame game = gameService.getGame(cmd.getGameID()).game();
-                //checks if the game can be updated (if the state of the game isOver)
-                if (game.isOver()) {
+                if (game.isOver()) {//checks if the game can be updated (if the state of the game isOver)
                     String message = "Game already over";
-                    sendError(message, ctx);
-                    break;
+                    sendError(message, ctx); break;
                 }
-                //Checks if the user sending the command is authorized
-                String rootAuth = cmd.getAuthToken();
+                String rootAuth = cmd.getAuthToken();//Checks if the user sending the command is authorized
                 if (!userService.authDAO.dbContains(rootAuth)) {//rootClient's auth is in the db
-                    sendError("You are not authorized", ctx);
-                    break;
+                    sendError("You are not authorized", ctx); break;
                 }
                 //Server verifies the validity of the move.
                 String rootUsername = userService.authDAO.getAuth(rootAuth).username();
                 String whiteUsername = gameService.getGame(cmd.getGameID()).whiteUsername();
                 String blackUsername = gameService.getGame(cmd.getGameID()).blackUsername();
-                //need to check if observer can make a move TODO
+                //need to check if observer can make a move
                 if (!game.validMoves(move.getStartPosition()).contains(move) ||//invalid move
                         (game.getTeamTurn() == ChessGame.TeamColor.WHITE && !rootUsername.equals(whiteUsername)) ||//black moves on white turn
                         (game.getTeamTurn() == ChessGame.TeamColor.BLACK && !rootUsername.equals(blackUsername))) {//white moves on black turn
-                    sendError("Move not valid", ctx);
-                    break;
+                    sendError("Move not valid", ctx); break;
                 }
-
-                //Game is updated to represent the move. Game is updated in the database.
                 game.makeMove(move);
                 updateChessGame(game, gameService, cmd.getGameID());
-                //Server sends a LOAD_GAME message to all clients in the game (including
-                // the root client) with an updated game.
                 loadEveryonesGame(cmd.getGameID());
 
-                //Server sends a Notification message to all other clients in that game informing them what move was made.
                 String user = cmd.getUser();
                 String moveString;
                 if (move.getPromotionPiece() != null) {
@@ -119,22 +105,13 @@ public class WebSocketHandler implements Consumer<WsConfig> {
                     moveString = move.toString();
                 }
                 notifyEveryoneElse("User " + user + " made move " + moveString, cmd.getGameID(), ctx);
-
-                //If the move results in check, checkmate or stalemate the server sends a
-                // Notification message to all clients.
-                //notify if a move results in check, checkmate, or stalemate
-
-                //will affect the new user's turn, not the current user
-                ChessGame.TeamColor color = game.getTeamTurn();
+                ChessGame.TeamColor color = game.getTeamTurn();//will affect the new user's turn, not the current user
                 if (game.isInCheckmate(color)) {
                     game.endGame();
                     updateChessGame(game, gameService, cmd.getGameID());
                     ChessGame.TeamColor checkmatee;
-                    if (color == ChessGame.TeamColor.WHITE) {
-                        checkmatee = ChessGame.TeamColor.BLACK;
-                    } else {
-                        checkmatee = ChessGame.TeamColor.WHITE;
-                    }
+                    if (color == ChessGame.TeamColor.WHITE) { checkmatee = ChessGame.TeamColor.BLACK;
+                    } else { checkmatee = ChessGame.TeamColor.WHITE; }
                     String message = checkmatee + " has been checkmated!";
                     notifyEveryone(message, cmd.getGameID());
                 } else if (game.isInStalemate(color)) {
@@ -144,50 +121,33 @@ public class WebSocketHandler implements Consumer<WsConfig> {
                     notifyEveryone(message, cmd.getGameID());
                 } else if (game.isInCheck(color)) {
                     ChessGame.TeamColor checkee;
-                    if (color == ChessGame.TeamColor.WHITE) {
-                        checkee = ChessGame.TeamColor.BLACK;
-                    } else {
-                        checkee = ChessGame.TeamColor.WHITE;
-                    }
+                    if (color == ChessGame.TeamColor.WHITE) { checkee = ChessGame.TeamColor.BLACK;
+                    } else { checkee = ChessGame.TeamColor.WHITE; }
                     String message = checkee + " is in check!";
                     notifyEveryone(message, cmd.getGameID());
                 }
-
-
             }
             case LEAVE -> {
                 ChessGame game = gameService.getGame(cmd.getGameID()).game();
-                //If a player is leaving, then the game is updated to remove the root client. Game is updated in the database.
-                //only remove if it's a player leaving TODO
                 leaveGameSession(cmd.getGameID(), ctx);
                 updateUser(null, game.getTeamTurn(), gameService, cmd.getGameID());
-                //Server sends a Notification message to all other clients in that game informing them that
-                // the root client left. This applies to both players and observers.
                 notifyEveryoneElse(game.getTeamTurn() + " left the game!", cmd.getGameID(), ctx);
             }
             case RESIGN -> {
                 ChessGame game = gameService.getGame(cmd.getGameID()).game();
                 if (game.isOver()) {
-                    sendError("Game is already over. Can't resign.", ctx);
-                    break;
+                    sendError("Game is already over. Can't resign.", ctx); break;
                 }
                 String rootAuth = cmd.getAuthToken();
                 String rootUsername = userService.authDAO.getAuth(rootAuth).username();
                 String whiteUsername = gameService.getGame(cmd.getGameID()).whiteUsername();
                 String blackUsername = gameService.getGame(cmd.getGameID()).blackUsername();
                 if (!rootUsername.equals(whiteUsername) && !rootUsername.equals(blackUsername)) {
-                    //then it must be an ovserver
-                    sendError("You are observing not playing. Be patient and watch. (Enter leave to leave the game)", ctx);
-                    break;
-                }
-                //Server marks the game as over (no more moves can be made). Game is updated in the database.
+                    sendError("You are observing not playing", ctx); break; }
                 game.endGame();
                 updateChessGame(game, gameService, cmd.getGameID());
-                //Server sends a Notification message to all clients in that game informing them that the
-                // root client resigned. This applies to both players and observers.
                 ChessGame.TeamColor color = game.getTeamTurn();
                 notifyEveryone(color + " resigned! Game is over.", cmd.getGameID());
-                //update game
                 updateChessGame(game, gameService, cmd.getGameID());
             }
         }
@@ -215,21 +175,10 @@ public class WebSocketHandler implements Consumer<WsConfig> {
 
     private void updateChessGame(ChessGame updatedGame, GameService gameService, int gameID) {
         GameData oldGameData = gameService.getGame(gameID);
-        GameData newGameData = new GameData(oldGameData.gameID(), oldGameData.whiteUsername(), oldGameData.blackUsername(), oldGameData.gameName(), updatedGame);
+        GameData newGameData = new GameData(oldGameData.gameID(), oldGameData.whiteUsername(),
+                oldGameData.blackUsername(), oldGameData.gameName(), updatedGame);
         gameService.gameDAO.updateGame(newGameData);
 
-    }
-
-    //getUserColor(gameService.getGame(cmd.getGameID()), cmd.getUser());
-    private ChessGame.TeamColor getUserColor(GameData gameData, String user) {
-        if (gameData.whiteUsername() == user) {
-            return ChessGame.TeamColor.WHITE;
-        } else if (gameData.blackUsername() == user) {
-            return ChessGame.TeamColor.BLACK;
-        } else {
-            System.out.println("User " + user + " not in game");
-        }
-        return null;
     }
 
     void sendError(String errorMessage, WsContext context) {

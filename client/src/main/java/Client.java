@@ -24,7 +24,7 @@ public class Client implements ServerObserver {
     static public String authToken = "";
     static ServerObserver observer;
     static public BoardText printer = null;
-    static public ChessGame.TeamColor currentColor = null;
+    static public ChessGame.TeamColor cCol = null;//currentColor
     static public String user = null;
 
     public static void main(String[] args) {
@@ -156,57 +156,42 @@ public class Client implements ServerObserver {
                             String blackUser = (game.blackUsername() != null) ? game.blackUsername() : "(No User)";
                             System.out.print(whiteUser + " | " + blackUser + "\n");
                         }
-                    } catch (Exception e) {
-                        printError(e, "list");
-                        break;
-                    }
+                    } catch (Exception e) { printError(e, "list"); break; }
                     break;
                 case "join":
                     try {
                         int num = Integer.parseInt(args[1]);
                         int gameID = numGameID.get(num);
                         if (args[2].equalsIgnoreCase("WHITE")) {
-                            currentColor = ChessGame.TeamColor.WHITE;
+                            cCol = ChessGame.TeamColor.WHITE;
                         } else if (args[2].equalsIgnoreCase("BLACK")) {
-                            currentColor = ChessGame.TeamColor.BLACK;
+                            cCol = ChessGame.TeamColor.BLACK;
                         } else {
                             System.out.println("Join failed. Please enter a valid game ID/COLOR");
                             break;
                         }
-                        serverFacade.joinGame(currentColor, gameID);
+                        serverFacade.joinGame(cCol, gameID);
                         String url = ServerFacade.serverUrl;
-//                        System.out.println(url);
-                        //Open a WebSocket connection with the server
                         wsFacade = new WebSocketFacade(url, observer);
-                        //Send a CONNECT WebSocket message to the server.
-                        UserGameCommand command = new UserGameCommand(UserGameCommand.CommandType.CONNECT, authToken, gameID, user, currentColor.toString());
+                        UserGameCommand command = new UserGameCommand(UserGameCommand.CommandType.CONNECT, authToken, gameID, user, cCol.toString());
                         wsFacade.send(command);
-                        gameUI(gameID, currentColor);
-                    } catch (Exception e) {
-                        printError(e, "join");
-                        break;
-                    }
+                        gameUI(gameID, cCol);
+                    } catch (Exception e) { printError(e, "join"); break; }
                     break;
                 case "observe":
                     try {
                         int num = Integer.parseInt(args[1]);
                         int gameID = numGameID.get(num);
-                        currentColor = ChessGame.TeamColor.WHITE;//default color to observe is white
-
+                        cCol = ChessGame.TeamColor.WHITE;//default color to observe is white
                         String url = ServerFacade.serverUrl;
-                        //Open a WebSocket connection with the server
                         wsFacade = new WebSocketFacade(url, observer);
-                        //Send a CONNECT WebSocket message to the server.
-                        UserGameCommand command = new UserGameCommand(UserGameCommand.CommandType.CONNECT, authToken, gameID, user, "observer");
+                        UserGameCommand command = new UserGameCommand(UserGameCommand.CommandType.CONNECT,
+                                authToken, gameID, user, "observer");
                         wsFacade.send(command);
-                        gameUI(gameID, currentColor);
+                        gameUI(gameID, cCol);
                         break;
-                    } catch (Exception e) {
-                        printError(e, "observe");
-                    }
-                default:
-                    System.out.println("option not valid. please try again");
-
+                    } catch (Exception e) { printError(e, "observe"); }
+                default: System.out.println("option not valid. please try again");
             }
         }
     }
@@ -218,8 +203,8 @@ public class Client implements ServerObserver {
         String gameName = "JOINED";
         GameData data = serverFacade.listGames().getGames().get(gameID);
         ChessGame game = data.game();
-        currentColor = color;
-        printer = new BoardText(game, currentColor);
+        cCol = color;
+        printer = new BoardText(game, cCol);
 
         System.out.println("Joined Successfully!");
         printGameOptions();
@@ -235,15 +220,15 @@ public class Client implements ServerObserver {
                 case "leave" -> {
                     //need to leave the game
                     //if i leave i can rejoin as a different player
-                    UserGameCommand command = new UserGameCommand(UserGameCommand.CommandType.LEAVE, authToken, gameID, user, currentColor.toString());
+                    UserGameCommand command = new UserGameCommand(UserGameCommand.CommandType.LEAVE, authToken, gameID, user, cCol.toString());
                     wsFacade.send(command);
-                    currentColor = null;
+                    cCol = null;
                     exit = true;
                 }
                 case "redraw" -> {
-                    if (currentColor == ChessGame.TeamColor.BLACK) {
+                    if (cCol == ChessGame.TeamColor.BLACK) {
                         printBlackBoard();
-                    } else if (currentColor == ChessGame.TeamColor.WHITE) {
+                    } else if (cCol == ChessGame.TeamColor.WHITE) {
                         printWhiteBoard();
                     } else {
                         System.out.println("color error");
@@ -252,14 +237,14 @@ public class Client implements ServerObserver {
                 }
                 case "move" -> {
                     if ((args[1].length() != 2) || (args[2].length() != 2) ||//lenght of args
-                            !Character.isLetter(args[1].charAt(0)) || !Character.isDigit(args[1].charAt(1)) ||//starts with letter and ends with a number
+                            !Character.isLetter(args[1].charAt(0)) || !Character.isDigit(args[1].charAt(1)) ||//starts with letter, ends with a num
                             !Character.isLetter(args[2].charAt(0)) || !Character.isDigit(args[2].charAt(1))) {
                         System.out.println("Please enter a valid move");
                         break;
                     }
                     parsePosition(args[1]);
                     ChessMove move = new ChessMove(parsePosition(args[1]), parsePosition(args[2]), null);
-                    UserGameCommand command = new UserGameCommand(UserGameCommand.CommandType.MAKE_MOVE, authToken, gameID, user, currentColor.toString());
+                    UserGameCommand command = new UserGameCommand(UserGameCommand.CommandType.MAKE_MOVE, authToken, gameID, user, cCol.toString());
                     command.setMove(move);
                     wsFacade.send(command);
 
@@ -270,7 +255,7 @@ public class Client implements ServerObserver {
                     System.out.println("Are you sure? y/n");
                     String answer = scanner.nextLine();
                     if (answer.toLowerCase().equals("y")) {
-                        UserGameCommand command = new UserGameCommand(UserGameCommand.CommandType.RESIGN, authToken, gameID, user, currentColor.toString());
+                        UserGameCommand command = new UserGameCommand(UserGameCommand.CommandType.RESIGN, authToken, gameID, user, cCol.toString());
                         wsFacade.send(command);
                         System.out.println("You forfeit. Game Over!");
                         //end game
@@ -456,7 +441,7 @@ public class Client implements ServerObserver {
         switch (msg.getServerMessageType()) {
             case LOAD_GAME -> {
                 ChessGame game = data.getGame();
-                printer = new BoardText(game, currentColor);
+                printer = new BoardText(game, cCol);
                 printer.printBoard();
 
             }

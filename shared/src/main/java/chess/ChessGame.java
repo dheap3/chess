@@ -1,6 +1,5 @@
 package chess;
 
-import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Objects;
@@ -14,6 +13,7 @@ import java.util.Objects;
 public class ChessGame {
     private TeamColor teamTurn;
     private ChessBoard board;
+    public boolean gameOver = false;
     public ChessGame() {
         teamTurn = TeamColor.WHITE;
         board = new ChessBoard();
@@ -221,5 +221,12 @@ public class ChessGame {
     @Override
     public int hashCode() {
         return Objects.hash(teamTurn, board);
+    }
+
+    public boolean isOver() {
+        return gameOver;
+    }
+    public void endGame() {
+        gameOver = true;
     }
 }

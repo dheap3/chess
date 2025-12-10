@@ -3,6 +3,7 @@ package server;
 import chess.ChessGame;
 import chess.ChessMove;
 import com.google.gson.Gson;
+import datamodel.GameData;
 import io.javalin.websocket.*;
 import service.GameService;
 import service.UserService;
@@ -90,7 +91,6 @@ public class WebSocketHandler implements Consumer<WsConfig> {
                 }
             }
             case MAKE_MOVE -> {
-                //Server verifies the validity of the move.
                 ChessMove move = cmd.getMove();
                 ChessGame game = gameService.getGame(cmd.getGameID()).game();
                 //checks if the game can be updated (if the state of the game isOver)
@@ -104,11 +104,10 @@ public class WebSocketHandler implements Consumer<WsConfig> {
                     System.out.println("Move not valid");
                     break;
                 }
+
                 //Game is updated to represent the move. Game is updated in the database.
                 game.makeMove(move);
-                GameData oldGameData = gameService.getGame(cmd.getGameID());
-                GameData newGameData = new GameData(oldGameData.gameID(), oldGameData.whiteUsername(), oldGameData.blackUsername(), oldGameData.gameName(), game);
-                gameService.gameDAO.updateGame(newGameData);
+                updateGame(game, gameService, cmd.getGameID());
                 //Server sends a LOAD_GAME message to all clients in the game (including
                 // the root client) with an updated game.
                 ServerMessage msg = new ServerMessage(ServerMessage.ServerMessageType.LOAD_GAME);
@@ -135,6 +134,24 @@ public class WebSocketHandler implements Consumer<WsConfig> {
                 }
                 //If the move results in check, checkmate or stalemate the server sends a
                 // Notification message to all clients.
+                //notify if a move results in check, checkmate, or stalemate
+
+                //will affect the new user's turn, not the current user
+                ChessGame.TeamColor color = game.getTeamTurn();
+                if (game.isInCheckmate(color)) {
+                    game.endGame();
+                    updateGame(game, gameService, cmd.getGameID());
+                    String message = cmd.getUser() + " has been checkmated!";
+                    notifyEveryone(cmd, message);
+                } else if (game.isInStalemate(color)) {
+                    game.endGame();
+                    updateGame(game, gameService, cmd.getGameID());
+                    String message = "the game is a stalemate!";
+                    notifyEveryone(cmd, message);
+                } else if (game.isInCheck(color)) {
+                    String message = cmd.getUser() + " is in check!";
+                    notifyEveryone(cmd, message);
+                }
 
 
             }
@@ -168,6 +185,7 @@ public class WebSocketHandler implements Consumer<WsConfig> {
 
     }
 
+    //getUserColor(gameService.getGame(cmd.getGameID()), cmd.getUser());
     private ChessGame.TeamColor getUserColor(GameData gameData, String user) {
         if (gameData.whiteUsername() == user) {
             return ChessGame.TeamColor.WHITE;
@@ -190,7 +208,7 @@ public class WebSocketHandler implements Consumer<WsConfig> {
             ServerMessage msg = new ServerMessage(ServerMessage.ServerMessageType.NOTIFICATION);
             msg.setMessage(message);
             context.send(gson.toJson(msg));
-            System.out.println("NOTIFICATION sent back");
+//            System.out.println("NOTIFICATION sent back");
         }
     }
 

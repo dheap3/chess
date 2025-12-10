@@ -10,7 +10,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class GameService {
-    GameDAO gameDAO = new MemoryGameDAO();
+    public GameDAO gameDAO = new MemoryGameDAO();
     private AuthDAO authDAO = new MemoryAuthDAO();
 
     public GameService(AuthDAO authDAO) {

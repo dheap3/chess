@@ -22,7 +22,7 @@ public class GameService {
         }
     }
     //accurate number of games
-    public int numGames = gameDAO.getGames().size();
+    public int numGames = 1;
 
     public Map<Integer, String> listGames(String authToken) {
         Map<String, String> statusString = new HashMap<>();

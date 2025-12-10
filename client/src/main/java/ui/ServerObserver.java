@@ -3,6 +3,6 @@ package ui;
 import websocket.messages.ServerMessage;
 
 public interface ServerObserver {
-    public void notify(ServerMessage msg);
+    public void notifyMessage(String json);
 
 }

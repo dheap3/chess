@@ -1,9 +1,10 @@
+import chess.ChessBoard;
 import chess.ChessGame;
 
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Scanner;
-import static java.lang.System.exit;
+
 import static java.lang.Thread.sleep;
 
 import chess.ChessMove;
@@ -19,24 +20,27 @@ import websocket.commands.UserGameCommand;
 import websocket.messages.ServerMessage;
 
 public class Client implements ServerObserver {
-    static public ServerFacade serverFacade;
-    static public WebSocketFacade wsFacade = null;
-    static public String authToken = "";
-    static ServerObserver observer;
-    static public BoardText printer = null;
-    static public ChessGame.TeamColor cCol = null;//currentColor
-    static public String user = null;
+    public ServerFacade serverFacade;
+    public WebSocketFacade wsFacade = null;
+    public String authToken = "";
+    ServerObserver observer = this;
+    public BoardText printer = null;
+    public ChessGame.TeamColor currentColor = null;//currentColor
+    public String user = null;
 
     public static void main(String[] args) {
+        new Client().run();
+    }
+
+    public void run() {
         System.out.println("♕ Welcome to CS 240 Chess! ♕\nEnter one of the following options:");
         int port = 50143;
         String url = "http://localhost:" + port;
         serverFacade = new ServerFacade(port);
         preloginUI();
-
     }
 
-    static void preloginUI() {
+    void preloginUI() {
         Scanner scanner = new Scanner(System.in);
         boolean exit = false;
         String line;
@@ -95,7 +99,7 @@ public class Client implements ServerObserver {
 //        server.stop();
     }
 
-    static void postLoginUI() {
+    void postLoginUI() {
         Scanner scanner = new Scanner(System.in);
         boolean exit = false;
         String line, input;
@@ -163,32 +167,32 @@ public class Client implements ServerObserver {
                         int num = Integer.parseInt(args[1]);
                         int gameID = numGameID.get(num);
                         if (args[2].equalsIgnoreCase("WHITE")) {
-                            cCol = ChessGame.TeamColor.WHITE;
+                            currentColor = ChessGame.TeamColor.WHITE;
                         } else if (args[2].equalsIgnoreCase("BLACK")) {
-                            cCol = ChessGame.TeamColor.BLACK;
+                            currentColor = ChessGame.TeamColor.BLACK;
                         } else {
                             System.out.println("Join failed. Please enter a valid game ID/COLOR");
                             break;
                         }
-                        serverFacade.joinGame(cCol, gameID);
+                        serverFacade.joinGame(currentColor, gameID);
                         String url = ServerFacade.serverUrl;
-                        wsFacade = new WebSocketFacade(url, observer);
-                        UserGameCommand command = new UserGameCommand(UserGameCommand.CommandType.CONNECT, authToken, gameID, user, cCol.toString());
+                        wsFacade = new WebSocketFacade(url, this);
+                        UserGameCommand command = new UserGameCommand(UserGameCommand.CommandType.CONNECT, authToken, gameID, user, currentColor.toString());
                         wsFacade.send(command);
-                        gameUI(gameID, cCol);
+                        gameUI(gameID, currentColor);
                     } catch (Exception e) { printError(e, "join"); break; }
                     break;
                 case "observe":
                     try {
                         int num = Integer.parseInt(args[1]);
                         int gameID = numGameID.get(num);
-                        cCol = ChessGame.TeamColor.WHITE;//default color to observe is white
+                        currentColor = ChessGame.TeamColor.WHITE;//default color to observe is white
                         String url = ServerFacade.serverUrl;
-                        wsFacade = new WebSocketFacade(url, observer);
+                        wsFacade = new WebSocketFacade(url, this);
                         UserGameCommand command = new UserGameCommand(UserGameCommand.CommandType.CONNECT,
                                 authToken, gameID, user, "observer");
                         wsFacade.send(command);
-                        gameUI(gameID, cCol);
+                        gameUI(gameID, currentColor);
                         break;
                     } catch (Exception e) { printError(e, "observe"); }
                 default: System.out.println("option not valid. please try again");
@@ -196,20 +200,22 @@ public class Client implements ServerObserver {
         }
     }
 
-    static void gameUI(int gameID, ChessGame.TeamColor color) throws Exception {
+    void gameUI(int gameID, ChessGame.TeamColor color) throws Exception {
         Scanner scanner = new Scanner(System.in);
         String input;
         boolean exit = false;
-        String gameName = "JOINED";
-        GameData data = serverFacade.listGames().getGames().get(gameID);
-        ChessGame game = data.game();
-        cCol = color;
-        printer = new BoardText(game, cCol);
 
         System.out.println("Joined Successfully!");
         printGameOptions();
         while (!exit) {
-            sleep(1000);
+            //update all the game data every time
+            String gameName = "JOINED";
+            GameData data = serverFacade.listGames().getGames().get(gameID);
+            ChessGame game = data.game();
+            currentColor = color;
+            printer = new BoardText(game.getBoard(), currentColor);
+
+            sleep(1500);
             System.out.print("[GAME " + gameName + "] ->> ");
             input = scanner.nextLine();
             var args = input.split(" ");
@@ -219,24 +225,21 @@ public class Client implements ServerObserver {
                 }
                 case "leave" -> {
                     //need to leave the game
-                    //if i leave i can rejoin as a different player
-                    UserGameCommand command = new UserGameCommand(UserGameCommand.CommandType.LEAVE, authToken, gameID, user, cCol.toString());
+                    //if I leave I can rejoin as a different player
+                    UserGameCommand command = new UserGameCommand(UserGameCommand.CommandType.LEAVE, authToken, gameID, user, currentColor.toString());
                     wsFacade.send(command);
-                    cCol = null;
+                    currentColor = null;
                     exit = true;
                 }
                 case "redraw" -> {
-                    if (cCol == ChessGame.TeamColor.BLACK) {
-                        printBlackBoard();
-                    } else if (cCol == ChessGame.TeamColor.WHITE) {
-                        printWhiteBoard();
-                    } else {
-                        System.out.println("color error");
-                        exit(0);
+                    try {
+                        printer.printBoard(game.getBoard());
+                    } catch (Exception e) {
+                        printError(e, "redraw");
                     }
                 }
                 case "move" -> {
-                    if ((args[1].length() != 2) || (args[2].length() != 2) ||//lenght of args
+                    if ((args[1].length() != 2) || (args[2].length() != 2) ||//length of args
                             !Character.isLetter(args[1].charAt(0)) || !Character.isDigit(args[1].charAt(1)) ||//starts with letter, ends with a num
                             !Character.isLetter(args[2].charAt(0)) || !Character.isDigit(args[2].charAt(1))) {
                         System.out.println("Please enter a valid move");
@@ -244,28 +247,24 @@ public class Client implements ServerObserver {
                     }
                     parsePosition(args[1]);
                     ChessMove move = new ChessMove(parsePosition(args[1]), parsePosition(args[2]), null);
-                    UserGameCommand command = new UserGameCommand(UserGameCommand.CommandType.MAKE_MOVE, authToken, gameID, user, cCol.toString());
+                    UserGameCommand command = new UserGameCommand(UserGameCommand.CommandType.MAKE_MOVE, authToken, gameID, user, currentColor.toString());
                     command.setMove(move);
                     wsFacade.send(command);
-
-                    //need more code here?
-                    printGameOptions();
                 }
                 case "resign" -> {
                     System.out.println("Are you sure? y/n");
                     String answer = scanner.nextLine();
                     if (answer.toLowerCase().equals("y")) {
-                        UserGameCommand command = new UserGameCommand(UserGameCommand.CommandType.RESIGN, authToken, gameID, user, cCol.toString());
+                        UserGameCommand command = new UserGameCommand(UserGameCommand.CommandType.RESIGN, authToken, gameID, user, currentColor.toString());
                         wsFacade.send(command);
-                        System.out.println("You forfeit. Game Over!");
-                        //end game
+//                        System.out.println("You forfeit. Game Over!");
                     } else {
                         //do nothing and return to normal input
                     }
                 }
                 case "moves" -> {
                     //highlight the legal moves
-                    printGameOptions();
+                    printer.printBoard(game.getBoard());
                 }
                 default -> {
                     System.out.println("option not valid. please try again");
@@ -275,7 +274,7 @@ public class Client implements ServerObserver {
         }
     }
 
-    private static ChessPosition parsePosition(String move) throws Exception {
+    private ChessPosition parsePosition(String move) throws Exception {
         //move should be 2 characters, letter and number
         if (move.length() != 2) {
             System.out.println("Invalid move");
@@ -307,24 +306,24 @@ public class Client implements ServerObserver {
         return new ChessPosition(row, col);
     }
 
-    static void printBlackBoard() {
-        BoardText blackBoard = new BoardText(new ChessGame(), ChessGame.TeamColor.BLACK);
-        blackBoard.printBoard();
+    void printBlackBoard() {
+        BoardText blackBoard = new BoardText(new ChessGame().getBoard(), ChessGame.TeamColor.BLACK);
+        blackBoard.printBoard(new ChessBoard());
     }
 
-    static void printWhiteBoard() {
-        BoardText whiteBoard = new BoardText(new ChessGame(), ChessGame.TeamColor.WHITE);
-        whiteBoard.printBoard();
+    void printWhiteBoard() {
+        BoardText whiteBoard = new BoardText(new ChessGame().getBoard(), ChessGame.TeamColor.WHITE);
+        whiteBoard.printBoard(new ChessBoard());
     }
 
-    static void printPreOptions() {
+    void printPreOptions() {
         System.out.print("help - display this help menu\n" +
                 "login <username> <password> - to log in\n" +
                 "register <username> <password> <email>\n" +
                 "quit - exit chess\n");
     }
 
-    static void printPostOptions() {
+    void printPostOptions() {
         System.out.print("help - display this help menu\n" +
                 "logout - to log out\n" +
                 "create <GAMENAME> - create a game with the name GAMENAME\n" +
@@ -333,7 +332,7 @@ public class Client implements ServerObserver {
                 "observe <GAMENUM> - observe the game with the game number GAMENUM\n");
     }
 
-    static void printGameOptions() {
+    void printGameOptions() {
         System.out.print("help - display this help menu\n" +
                 "leave - leave the current game\n" +
                 "redraw - redraw the chess board\n" +
@@ -342,7 +341,7 @@ public class Client implements ServerObserver {
                 "moves <PIECE> - highlight the legal moves for PIECE\n");
     }
 
-    static void printError(Exception e, String method) {
+    void printError(Exception e, String method) {
         switch (method) {
             case "create":
                 if (e.getMessage().startsWith("400")) {
@@ -426,6 +425,9 @@ public class Client implements ServerObserver {
                     System.out.println("Register failed. Error: " + e.getMessage());
                 }
                 break;
+            case "redraw":
+                System.out.println("board printing error");
+                break;
             default:
                 System.out.println("option not valid. please try again");
                 break;
@@ -434,22 +436,20 @@ public class Client implements ServerObserver {
     }
 
     @Override
-    public void notify(ServerMessage data) {
-        System.out.println("Received WS message: " + data);
-        String dataString = data.toString();
-        ServerMessage msg = new Gson().fromJson(dataString, ServerMessage.class);
+    public void notifyMessage(String json) {
+        ServerMessage msg = new Gson().fromJson(json, ServerMessage.class);
         switch (msg.getServerMessageType()) {
             case LOAD_GAME -> {
-                ChessGame game = data.getGame();
-                printer = new BoardText(game, cCol);
-                printer.printBoard();
+                ChessGame game = msg.getGame();
+                printer = new BoardText(game.getBoard(), currentColor);
+                printer.printBoard(game.getBoard());
 
             }
             case ERROR -> {
-
+                System.out.println(msg.getErrorMessage());
             }
             case NOTIFICATION -> {
-
+                System.out.println(msg.getMessage());
             }
         }
     }

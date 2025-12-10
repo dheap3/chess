@@ -3,6 +3,7 @@ package ui;
 import com.google.gson.Gson;
 import jakarta.websocket.*;
 import websocket.commands.UserGameCommand;
+import websocket.messages.ServerMessage;
 
 import java.net.URI;
 
@@ -17,10 +18,11 @@ public class WebSocketFacade extends Endpoint {
         session = container.connectToServer(this, uri);
 
         this.session.addMessageHandler(new MessageHandler.Whole<String>() {
-            public void onMessage(String s) {
-                obs.notify();
+            public void onMessage(String json) {//coming form the server
+//                ServerMessage msg = gson.fromJson(json, ServerMessage.class);
+                obs.notifyMessage(json);
                 //handle message here
-                System.out.println(s);
+//                System.out.println(s);
             }
         });
     }

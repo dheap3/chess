@@ -85,8 +85,13 @@ public class WebSocketHandler implements Consumer<WsConfig> {
                     sendError(message, ctx);
                     break;
                 }
-                //Server verifies the validity of the move.
+                //Checks if the user sending the command is authorized
                 String rootAuth = cmd.getAuthToken();
+                if (!userService.authDAO.dbContains(rootAuth)) {//rootClient's auth is in the db
+                    sendError("You are not authorized", ctx);
+                    break;
+                }
+                //Server verifies the validity of the move.
                 String rootUsername = userService.authDAO.getAuth(rootAuth).username();
                 String whiteUsername = gameService.getGame(cmd.getGameID()).whiteUsername();
                 String blackUsername = gameService.getGame(cmd.getGameID()).blackUsername();

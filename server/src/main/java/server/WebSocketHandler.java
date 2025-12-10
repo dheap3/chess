@@ -110,10 +110,10 @@ public class WebSocketHandler implements Consumer<WsConfig> {
                 if (game.isInCheckmate(color)) {
                     game.endGame();
                     updateChessGame(game, gameService, cmd.getGameID());
-                    ChessGame.TeamColor checkmatee;
-                    if (color == ChessGame.TeamColor.WHITE) { checkmatee = ChessGame.TeamColor.BLACK;
-                    } else { checkmatee = ChessGame.TeamColor.WHITE; }
-                    String message = checkmatee + " has been checkmated!";
+//                    ChessGame.TeamColor checkmatee;
+//                    if (color == ChessGame.TeamColor.WHITE) { checkmatee = ChessGame.TeamColor.BLACK;
+//                    } else { checkmatee = ChessGame.TeamColor.WHITE; }
+                    String message = color + " has been checkmated!";
                     notifyEveryone(message, cmd.getGameID());
                 } else if (game.isInStalemate(color)) {
                     game.endGame();

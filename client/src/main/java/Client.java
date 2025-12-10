@@ -214,8 +214,8 @@ public class Client implements ServerObserver {
             ChessGame game = data.game();
             currentColor = color;
             printer = new BoardText(game.getBoard(), currentColor);
-
-            sleep(1500);
+            //sleep until the notify handler is done
+            sleep(250);
             System.out.print("[GAME " + gameName + "] ->> ");
             input = scanner.nextLine();
             var args = input.split(" ");
@@ -282,26 +282,26 @@ public class Client implements ServerObserver {
         }
         int row, col;
         if (Character.toLowerCase(move.charAt(0)) == 'a') {
-            row = 1;
+            col = 1;
         } else if (Character.toLowerCase(move.charAt(0)) == 'b') {
-            row = 2;
+            col = 2;
         } else if (Character.toLowerCase(move.charAt(0)) == 'c') {
-            row = 3;
+            col = 3;
         } else if (Character.toLowerCase(move.charAt(0)) == 'd') {
-            row = 4;
+            col = 4;
         } else if (Character.toLowerCase(move.charAt(0)) == 'e') {
-            row = 5;
+            col = 5;
         } else if (Character.toLowerCase(move.charAt(0)) == 'f') {
-            row = 6;
+            col = 6;
         } else if (Character.toLowerCase(move.charAt(0)) == 'g') {
-            row = 7;
+            col = 7;
         } else if (Character.toLowerCase(move.charAt(0)) == 'h') {
-            row = 8;
+            col = 8;
         } else {
             System.out.println("Invalid move");
             throw new IllegalArgumentException("Invalid move");
         }
-        col = Integer.parseInt(String.valueOf(move.charAt(1)));
+        row = Integer.parseInt(String.valueOf(move.charAt(1)));
 
         return new ChessPosition(row, col);
     }
@@ -443,7 +443,9 @@ public class Client implements ServerObserver {
                 ChessGame game = msg.getGame();
                 printer = new BoardText(game.getBoard(), currentColor);
                 printer.printBoard(game.getBoard());
-
+                String gameName = "JOINED";
+//                sleep(250);
+                System.out.print("[GAME " + gameName + "] ->> ");
             }
             case ERROR -> {
                 System.out.println(msg.getErrorMessage());

@@ -43,11 +43,13 @@ public class WebSocketHandler implements Consumer<WsConfig> {
 
         ws.onClose(ctx -> {
             gameSessions.values().forEach(list -> list.remove(ctx));
-//            System.out.println("close");
+            System.out.println("close");
         });
 
         ws.onError(ctx -> {
-            System.out.println("error");
+            ctx.error().printStackTrace();
+            System.out.println(ctx.error().getMessage());
+//            System.out.println("error");
         });
     }
 
@@ -86,7 +88,8 @@ public class WebSocketHandler implements Consumer<WsConfig> {
                 String whiteUsername = gameService.getGame(cmd.getGameID()).whiteUsername();
                 String blackUsername = gameService.getGame(cmd.getGameID()).blackUsername();
                 //need to check if observer can make a move
-                if (!game.validMoves(move.getStartPosition()).contains(move) ||//invalid move
+                if (game.validMoves(move.getStartPosition()) == null ||
+                        !game.validMoves(move.getStartPosition()).contains(move) ||//invalid move
                         (game.getTeamTurn() == ChessGame.TeamColor.WHITE && !rootUsername.equals(whiteUsername)) ||//black moves on white turn
                         (game.getTeamTurn() == ChessGame.TeamColor.BLACK && !rootUsername.equals(blackUsername))) {//white moves on black turn
                     sendError("Move not valid", ctx); break;

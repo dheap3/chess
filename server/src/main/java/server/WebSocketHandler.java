@@ -105,7 +105,7 @@ public class WebSocketHandler implements Consumer<WsConfig> {
 
                 //Game is updated to represent the move. Game is updated in the database.
                 game.makeMove(move);
-                updateGame(game, gameService, cmd.getGameID());
+                updateChessGame(game, gameService, cmd.getGameID());
                 //Server sends a LOAD_GAME message to all clients in the game (including
                 // the root client) with an updated game.
                 loadEveryonesGame(cmd.getGameID());
@@ -128,7 +128,7 @@ public class WebSocketHandler implements Consumer<WsConfig> {
                 ChessGame.TeamColor color = game.getTeamTurn();
                 if (game.isInCheckmate(color)) {
                     game.endGame();
-                    updateGame(game, gameService, cmd.getGameID());
+                    updateChessGame(game, gameService, cmd.getGameID());
                     ChessGame.TeamColor checkmatee;
                     if (color == ChessGame.TeamColor.WHITE) {
                         checkmatee = ChessGame.TeamColor.BLACK;
@@ -139,7 +139,7 @@ public class WebSocketHandler implements Consumer<WsConfig> {
                     notifyEveryone(message, cmd.getGameID());
                 } else if (game.isInStalemate(color)) {
                     game.endGame();
-                    updateGame(game, gameService, cmd.getGameID());
+                    updateChessGame(game, gameService, cmd.getGameID());
                     String message = "the game is a stalemate!";
                     notifyEveryone(message, cmd.getGameID());
                 } else if (game.isInCheck(color)) {
@@ -156,14 +156,14 @@ public class WebSocketHandler implements Consumer<WsConfig> {
 
             }
             case LEAVE -> {
+                ChessGame game = gameService.getGame(cmd.getGameID()).game();
                 //If a player is leaving, then the game is updated to remove the root client. Game is updated in the database.
+                //only remove if it's a player leaving TODO
+                leaveGameSession(cmd.getGameID(), ctx);
+                updateUser(null, game.getTeamTurn(), gameService, cmd.getGameID());
                 //Server sends a Notification message to all other clients in that game informing them that
                 // the root client left. This applies to both players and observers.
-                //update game TODO
-                System.out.println("Game removed root client and updated");
-                ServerMessage msg = new ServerMessage(ServerMessage.ServerMessageType.NOTIFICATION);
-                ctx.send(gson.toJson(msg));
-                System.out.println("NOTIFICATION sent back");
+                notifyEveryoneElse(game.getTeamTurn() + " left the game!", cmd.getGameID(), ctx);
             }
             case RESIGN -> {
                 ChessGame game = gameService.getGame(cmd.getGameID()).game();
@@ -182,13 +182,13 @@ public class WebSocketHandler implements Consumer<WsConfig> {
                 }
                 //Server marks the game as over (no more moves can be made). Game is updated in the database.
                 game.endGame();
-                updateGame(game, gameService, cmd.getGameID());
+                updateChessGame(game, gameService, cmd.getGameID());
                 //Server sends a Notification message to all clients in that game informing them that the
                 // root client resigned. This applies to both players and observers.
                 ChessGame.TeamColor color = game.getTeamTurn();
                 notifyEveryone(color + " resigned! Game is over.", cmd.getGameID());
                 //update game
-                updateGame(game, gameService, cmd.getGameID());
+                updateChessGame(game, gameService, cmd.getGameID());
             }
         }
     }
@@ -213,7 +213,7 @@ public class WebSocketHandler implements Consumer<WsConfig> {
         }
     }
 
-    private void updateGame(ChessGame updatedGame, GameService gameService, int gameID) {
+    private void updateChessGame(ChessGame updatedGame, GameService gameService, int gameID) {
         GameData oldGameData = gameService.getGame(gameID);
         GameData newGameData = new GameData(oldGameData.gameID(), oldGameData.whiteUsername(), oldGameData.blackUsername(), oldGameData.gameName(), updatedGame);
         gameService.gameDAO.updateGame(newGameData);
@@ -254,6 +254,30 @@ public class WebSocketHandler implements Consumer<WsConfig> {
                 msg.setMessage(message);
                 context.send(gson.toJson(msg));
 //                        System.out.println("NOTIFICATION sent back");
+            }
+        }
+    }
+
+    private void updateUser(String newUsername, ChessGame.TeamColor userColor, GameService gameService, int gameID) {
+        GameData oldGameData = gameService.getGame(gameID);
+        GameData newGameData;
+        if (userColor.equals(ChessGame.TeamColor.WHITE)) {
+            newGameData = new GameData(oldGameData.gameID(), newUsername, oldGameData.blackUsername(), oldGameData.gameName(), oldGameData.game());
+        } else {
+            newGameData = new GameData(oldGameData.gameID(), oldGameData.whiteUsername(), newUsername, oldGameData.gameName(), oldGameData.game());
+        }
+        gameService.gameDAO.updateGame(newGameData);
+
+    }
+
+    private void leaveGameSession(int gameID, WsMessageContext currentContext) {
+        for (WsContext context : gameSessions.get(gameID)) {
+            if (context.sessionId().equals(currentContext.sessionId())) {
+                gameSessions.get(gameID).remove(context);
+                if (gameSessions.get(gameID).isEmpty()) {
+                    gameSessions.remove(gameID);
+                }
+                break;
             }
         }
     }

@@ -93,6 +93,13 @@ public class WebSocketHandler implements Consumer<WsConfig> {
                 //Server verifies the validity of the move.
                 ChessMove move = cmd.getMove();
                 ChessGame game = gameService.getGame(cmd.getGameID()).game();
+                //checks if the game can be updated (if the state of the game isOver)
+                if (game.isOver()) {
+                    String message = "Game already over";
+                    sendError(message, ctx);
+                    break;
+                }
+                //Server verifies the validity of the move.
                 if (!game.validMoves(move.getStartPosition()).contains(move)) {
                     System.out.println("Move not valid");
                     break;

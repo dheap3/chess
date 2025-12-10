@@ -159,8 +159,13 @@ public class WebSocketHandler implements Consumer<WsConfig> {
                 System.out.println("NOTIFICATION sent back");
             }
         }
-//        breaks the handshake
-//        ctx.send("finished handling "+ cmd.getCommandType());
+    }
+
+    private void updateGame(ChessGame updatedGame, GameService gameService, int gameID) {
+        GameData oldGameData = gameService.getGame(gameID);
+        GameData newGameData = new GameData(oldGameData.gameID(), oldGameData.whiteUsername(), oldGameData.blackUsername(), oldGameData.gameName(), updatedGame);
+        gameService.gameDAO.updateGame(newGameData);
+
     }
 
     private ChessGame.TeamColor getUserColor(GameData gameData, String user) {

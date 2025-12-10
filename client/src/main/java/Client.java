@@ -280,6 +280,38 @@ public class Client implements ServerObserver {
         }
     }
 
+    private static ChessPosition parsePosition(String move) throws Exception {
+        //move should be 2 characters, letter and number
+        if (move.length() != 2) {
+            System.out.println("Invalid move");
+            throw new IllegalArgumentException("Invalid move");
+        }
+        int row, col;
+        if (Character.toLowerCase(move.charAt(0)) == 'a') {
+            row = 1;
+        } else if (Character.toLowerCase(move.charAt(0)) == 'b') {
+            row = 2;
+        } else if (Character.toLowerCase(move.charAt(0)) == 'c') {
+            row = 3;
+        } else if (Character.toLowerCase(move.charAt(0)) == 'd') {
+            row = 4;
+        } else if (Character.toLowerCase(move.charAt(0)) == 'e') {
+            row = 5;
+        } else if (Character.toLowerCase(move.charAt(0)) == 'f') {
+            row = 6;
+        } else if (Character.toLowerCase(move.charAt(0)) == 'g') {
+            row = 7;
+        } else if (Character.toLowerCase(move.charAt(0)) == 'h') {
+            row = 8;
+        } else {
+            System.out.println("Invalid move");
+            throw new IllegalArgumentException("Invalid move");
+        }
+        col = Integer.parseInt(String.valueOf(move.charAt(1)));
+
+        return new ChessPosition(row, col);
+    }
+
     static void printBlackBoard() {
         BoardText blackBoard = new BoardText(new ChessGame(), ChessGame.TeamColor.BLACK);
         blackBoard.printBoard();

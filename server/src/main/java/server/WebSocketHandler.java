@@ -74,7 +74,7 @@ public class WebSocketHandler implements Consumer<WsConfig> {
 
                 String user = cmd.getUser();
                 String type = cmd.getUserType();
-                notifyEveryoneElse(cmd, "User " + user + " connected (" + type + ")", ctx);
+                notifyEveryoneElse("User " + user + " connected (" + type + ")", cmd.getGameID(), ctx);
             }
             case MAKE_MOVE -> {
                 ChessMove move = cmd.getMove();
@@ -106,7 +106,7 @@ public class WebSocketHandler implements Consumer<WsConfig> {
                 } else {
                     moveString = move.toString();
                 }
-                notifyEveryoneElse(cmd, "User " + user + " made move " + moveString, ctx);
+                notifyEveryoneElse("User " + user + " made move " + moveString, cmd.getGameID(), ctx);
 
                 //If the move results in check, checkmate or stalemate the server sends a
                 // Notification message to all clients.
@@ -118,15 +118,15 @@ public class WebSocketHandler implements Consumer<WsConfig> {
                     game.endGame();
                     updateGame(game, gameService, cmd.getGameID());
                     String message = cmd.getUser() + " has been checkmated!";
-                    notifyEveryone(cmd, message);
+                    notifyEveryone(message, cmd.getGameID());
                 } else if (game.isInStalemate(color)) {
                     game.endGame();
                     updateGame(game, gameService, cmd.getGameID());
                     String message = "the game is a stalemate!";
-                    notifyEveryone(cmd, message);
+                    notifyEveryone(message, cmd.getGameID());
                 } else if (game.isInCheck(color)) {
                     String message = cmd.getUser() + " is in check!";
-                    notifyEveryone(cmd, message);
+                    notifyEveryone(message, cmd.getGameID());
                 }
 
 
@@ -153,6 +153,8 @@ public class WebSocketHandler implements Consumer<WsConfig> {
             }
         }
     }
+
+    ///helper functions for handling
 
     private void loadMyGame(int gameID, WsContext ctx) {
         ServerMessage msg = new ServerMessage(ServerMessage.ServerMessageType.LOAD_GAME);
@@ -197,8 +199,8 @@ public class WebSocketHandler implements Consumer<WsConfig> {
         context.send(gson.toJson(msg));
     }
 
-    void notifyEveryone(UserGameCommand cmd, String message) {
-        for (WsContext context : gameSessions.get(cmd.getGameID())) {//to everyone
+    void notifyEveryone(String message, int gameID) {
+        for (WsContext context : gameSessions.get(gameID)) {//to everyone
             ServerMessage msg = new ServerMessage(ServerMessage.ServerMessageType.NOTIFICATION);
             msg.setMessage(message);
             context.send(gson.toJson(msg));
@@ -206,8 +208,8 @@ public class WebSocketHandler implements Consumer<WsConfig> {
         }
     }
 
-    void notifyEveryoneElse(UserGameCommand cmd, String message, WsContext currentContext) {
-        for (WsContext context : gameSessions.get(cmd.getGameID())) {
+    void notifyEveryoneElse(String message, int gameID, WsContext currentContext) {
+        for (WsContext context : gameSessions.get(gameID)) {
             if (!context.sessionId().equals(currentContext.sessionId())) {//send it to other clients, not the root client
                 ServerMessage msg = new ServerMessage(ServerMessage.ServerMessageType.NOTIFICATION);
                 msg.setMessage(message);

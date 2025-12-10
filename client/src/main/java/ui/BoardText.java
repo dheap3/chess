@@ -2,10 +2,13 @@ package ui;
 
 import chess.ChessBoard;
 import chess.ChessGame;
+import chess.ChessPiece;
+import chess.ChessPosition;
 
 import java.io.PrintStream;
 import java.nio.charset.StandardCharsets;
 
+import static chess.ChessPiece.PieceType.*;
 import static java.lang.Math.abs;
 import static ui.EscapeSequences.*;
 
@@ -46,8 +49,10 @@ public class BoardText {
 
     public static final String SNOWMAN = " \u2603 ";
 
-    public BoardText(ChessGame game, ChessGame.TeamColor color) {
-        ChessBoard board = game.getBoard();
+    public static ChessBoard board;
+
+    public BoardText(ChessBoard board, ChessGame.TeamColor color) {
+        BoardText.board = board;
         if (color == ChessGame.TeamColor.BLACK) {
             blackPOV = true;
         } else {
@@ -59,8 +64,10 @@ public class BoardText {
         isPieceBlack = false;
     }
 
-    public void printBoard() {
+    public void printBoard(ChessBoard board) {
         var out = new PrintStream(System.out, true, StandardCharsets.UTF_8);
+        boardRow = 0;
+        BoardText.board = board;
         out.print(ERASE_SCREEN);
 
         printSquares(out);
@@ -128,55 +135,41 @@ public class BoardText {
             col = abs(col - 8) + 1;
         }
 
-        if ((row == 1) && (col == 1)) {
-            return WHITE_ROOK;
-        } else if ((row == 1) && (col == 2)) {
-            return WHITE_KNIGHT;
-        } else if ((row == 1) && (col == 3)) {
-            return WHITE_BISHOP;
-        } else if ((row == 1) && (col == 4)) {
-            return WHITE_QUEEN;
-        } else if ((row == 1) && (col == 5)) {
-            return WHITE_KING;
-        } else if ((row == 1) && (col == 6)) {
-            return WHITE_BISHOP;
-        } else if ((row == 1) && (col == 7)) {
-            return WHITE_KNIGHT;
-        } else if ((row == 1) && (col == 8)) {
-            return WHITE_ROOK;
-        } else if (row == 2) {
-            return WHITE_PAWN;
+        ChessPiece piece = board.getPiece(new ChessPosition(row, col));
+        if (piece != null) {
+            if (piece.getTeamColor() == ChessGame.TeamColor.WHITE) {
+                if ((piece.getPieceType() == ROOK)) {
+                    return WHITE_ROOK;
+                } else if (piece.getPieceType() == KNIGHT) {
+                    return WHITE_KNIGHT;
+                } else if (piece.getPieceType() == BISHOP) {
+                    return WHITE_BISHOP;
+                } else if (piece.getPieceType() == QUEEN) {
+                    return WHITE_QUEEN;
+                } else if (piece.getPieceType() == KING) {
+                    return WHITE_KING;
+                } else if (piece.getPieceType() == PAWN) {
+                    return WHITE_PAWN;
+                }
+            } else if (piece.getTeamColor() == ChessGame.TeamColor.BLACK) {
+                isPieceBlack = true;
+                if ((piece.getPieceType() == ROOK)) {
+                    return BLACK_ROOK;
+                } else if (piece.getPieceType() == KNIGHT) {
+                    return BLACK_KNIGHT;
+                } else if (piece.getPieceType() == BISHOP) {
+                    return BLACK_BISHOP;
+                } else if (piece.getPieceType() == QUEEN) {
+                    return BLACK_QUEEN;
+                } else if (piece.getPieceType() == KING) {
+                    return BLACK_KING;
+                } else if (piece.getPieceType() == PAWN) {
+                    return BLACK_PAWN;
+                }
+            } else {
+                return SNOWMAN;//shouldn't get here, but it's fun
+            }
         }
-
-        else if ((row == 8) && (col == 1)) {
-            isPieceBlack = true;
-            return BLACK_ROOK;
-        } else if ((row == 8) && (col == 2)) {
-            isPieceBlack = true;
-            return BLACK_KNIGHT;
-        } else if ((row == 8) && (col == 3)) {
-            isPieceBlack = true;
-            return BLACK_BISHOP;
-        } else if ((row == 8) && (col == 4)) {
-            isPieceBlack = true;
-            return BLACK_QUEEN;
-        } else if ((row == 8) && (col == 5)) {
-            isPieceBlack = true;
-            return BLACK_KING;
-        } else if ((row == 8) && (col == 6)) {
-            isPieceBlack = true;
-            return BLACK_BISHOP;
-        } else if ((row == 8) && (col == 7)) {
-            isPieceBlack = true;
-            return BLACK_KNIGHT;
-        } else if ((row == 8) && (col == 8)) {
-            isPieceBlack = true;
-            return BLACK_ROOK;
-        } else if (row == 7) {
-            isPieceBlack = true;
-            return BLACK_PAWN;
-        }
-
         return EMPTY;
     }
 

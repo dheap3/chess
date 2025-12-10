@@ -95,6 +95,7 @@ public class WebSocketHandler implements Consumer<WsConfig> {
                 String rootUsername = userService.authDAO.getAuth(rootAuth).username();
                 String whiteUsername = gameService.getGame(cmd.getGameID()).whiteUsername();
                 String blackUsername = gameService.getGame(cmd.getGameID()).blackUsername();
+                //need to check if observer can make a move TODO
                 if (!game.validMoves(move.getStartPosition()).contains(move) ||//invalid move
                         (game.getTeamTurn() == ChessGame.TeamColor.WHITE && !rootUsername.equals(whiteUsername)) ||//black moves on white turn
                         (game.getTeamTurn() == ChessGame.TeamColor.BLACK && !rootUsername.equals(blackUsername))) {//white moves on black turn
@@ -165,8 +166,21 @@ public class WebSocketHandler implements Consumer<WsConfig> {
                 System.out.println("NOTIFICATION sent back");
             }
             case RESIGN -> {
-                //Server marks the game as over (no more moves can be made). Game is updated in the database.
                 ChessGame game = gameService.getGame(cmd.getGameID()).game();
+                if (game.isOver()) {
+                    sendError("Game is already over. Can't resign.", ctx);
+                    break;
+                }
+                String rootAuth = cmd.getAuthToken();
+                String rootUsername = userService.authDAO.getAuth(rootAuth).username();
+                String whiteUsername = gameService.getGame(cmd.getGameID()).whiteUsername();
+                String blackUsername = gameService.getGame(cmd.getGameID()).blackUsername();
+                if (!rootUsername.equals(whiteUsername) && !rootUsername.equals(blackUsername)) {
+                    //then it must be an ovserver
+                    sendError("You are observing not playing. Be patient and watch. (Enter leave to leave the game)", ctx);
+                    break;
+                }
+                //Server marks the game as over (no more moves can be made). Game is updated in the database.
                 game.endGame();
                 updateGame(game, gameService, cmd.getGameID());
                 //Server sends a Notification message to all clients in that game informing them that the

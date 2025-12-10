@@ -50,7 +50,7 @@ public class WebSocketHandler implements Consumer<WsConfig> {
         });
     }
 
-    private void handle(WsMessageContext ctx, UserGameCommand cmd) {
+    private void handle(WsMessageContext ctx, UserGameCommand cmd) throws Exception{
         switch (cmd.getCommandType()) {
             case CONNECT -> {
                 int gameID = cmd.getGameID();
@@ -69,21 +69,23 @@ public class WebSocketHandler implements Consumer<WsConfig> {
                     break;
                 }
                 gameSessions.putIfAbsent(gameID, new ArrayList<>());
-                gameSessions.get(gameID).add(ctx);//add the session to the gameSessions
+                if (!gameSessions.get(gameID).contains(ctx)) {
+                    gameSessions.get(gameID).add(ctx);//add the session to the gameSessions
+                }
 
                 ServerMessage msg = new ServerMessage(ServerMessage.ServerMessageType.LOAD_GAME);
                 ChessGame game = gameService.getGame(cmd.getGameID()).game();
                 msg.setGame(game);
                 ctx.send(gson.toJson(msg));
-                System.out.println("LOAD_GAME sent back");
+//                System.out.println("LOAD_GAME sent back");
                 for (WsContext context : gameSessions.get(cmd.getGameID())) {
-                    if (context != ctx) {//send it to other clients, not the root client
+                    if (!context.sessionId().equals(ctx.sessionId())) {//send it to other clients, not the root client
                         msg = new ServerMessage(ServerMessage.ServerMessageType.NOTIFICATION);
                         String user = cmd.getUser();
                         String type = cmd.getUserType();
                         msg.setMessage("User " + user + " connected (" + type + ")");
                         context.send(gson.toJson(msg));
-                        System.out.println("NOTIFICATION sent back");
+//                        System.out.println("NOTIFICATION sent back");
                     }
                 }
             }
@@ -96,23 +98,34 @@ public class WebSocketHandler implements Consumer<WsConfig> {
                     break;
                 }
                 //Game is updated to represent the move. Game is updated in the database.
-//                game.makeMove(move);
+                game.makeMove(move);
                 //Server sends a LOAD_GAME message to all clients in the game (including
                 // the root client) with an updated game.
                 ServerMessage msg = new ServerMessage(ServerMessage.ServerMessageType.LOAD_GAME);
-                ctx.send(gson.toJson(msg));
-                System.out.println("LOAD_GAME sent back");
+                msg.setGame(game);
+                for (WsContext context : gameSessions.get(cmd.getGameID())) {//to everyone
+                    context.send(gson.toJson(msg));
+                    System.out.println("LOAD_GAME sent back");
+                }
                 //Server sends a Notification message to all other clients in that game informing them what move was made.
-                msg = new ServerMessage(ServerMessage.ServerMessageType.NOTIFICATION);
-                ctx.send(gson.toJson(msg));
-                System.out.println("NOTIFICATION sent back");
+                for (WsContext context : gameSessions.get(cmd.getGameID())) {
+                    if (!context.sessionId().equals(ctx.sessionId())) {//send it to other clients, not the root client
+                        msg = new ServerMessage(ServerMessage.ServerMessageType.NOTIFICATION);
+                        String user = cmd.getUser();
+                        String moveString;
+                        if (move.getPromotionPiece() != null) {
+                            moveString = move.getStartPosition() + " to " + move.getEndPosition();
+                        } else {
+                            moveString = move.toString();
+                        }
+                        msg.setMessage("User " + user + " made move " + moveString);
+                        context.send(gson.toJson(msg));
+                        System.out.println("NOTIFICATION sent back");
+                    }
+                }
                 //If the move results in check, checkmate or stalemate the server sends a
                 // Notification message to all clients.
-                if (false) {
-                    msg = new ServerMessage(ServerMessage.ServerMessageType.NOTIFICATION);
-                    ctx.send(gson.toJson(msg));
-                    System.out.println("NOTIFICATION sent back");
-                }
+
 
             }
             case LEAVE -> {

@@ -15,9 +15,15 @@ public class ChessPosition {
         this.col = col;
     }
 
-    @Override
     public String toString() {
-        return String.format("%d, %d", row, col);
+        // Convert column number (1–8) into a letter (a–h)
+        String[] files = {"a","b","c","d","e","f","g","h"};
+        String file = files[col - 1];
+
+        // Row is already the correct number
+        int rank = row;
+
+        return file + rank;
     }
 
     @Override

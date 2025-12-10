@@ -215,7 +215,7 @@ public class Client implements ServerObserver {
             currentColor = color;
             printer = new BoardText(game.getBoard(), currentColor);
             //sleep until the notify handler is done
-            sleep(250);
+            sleep(500);
             System.out.print("[GAME " + gameName + "] ->> ");
             input = scanner.nextLine();
             var args = input.split(" ");
@@ -443,15 +443,16 @@ public class Client implements ServerObserver {
                 ChessGame game = msg.getGame();
                 printer = new BoardText(game.getBoard(), currentColor);
                 printer.printBoard(game.getBoard());
-                String gameName = "JOINED";
-//                sleep(250);
-                System.out.print("[GAME " + gameName + "] ->> ");
             }
             case ERROR -> {
                 System.out.println(msg.getErrorMessage());
+                String gameName = "JOINED";
+                System.out.print("[GAME " + gameName + "] ->> ");
             }
             case NOTIFICATION -> {
                 System.out.println(msg.getMessage());
+                String gameName = "JOINED";
+                System.out.print("[GAME " + gameName + "] ->> ");
             }
         }
     }

@@ -69,7 +69,7 @@ public class BoardText {
         boardRow = 0;
         BoardText.board = board;
         out.print(ERASE_SCREEN);
-
+        out.print("\n");
         printSquares(out);
 
         resetColor(out);

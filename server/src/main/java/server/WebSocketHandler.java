@@ -70,7 +70,7 @@ public class WebSocketHandler implements Consumer<WsConfig> {
                 loadMyGame(cmd.getGameID(), ctx);
                 String user = cmd.getUser();
                 String type = cmd.getUserType();
-                notifyEveryoneElse("User " + user + " connected (" + type + ")", cmd.getGameID(), ctx);
+                notifyEveryoneElse(user + " connected (" + type + ")", cmd.getGameID(), ctx);
             }
             case MAKE_MOVE -> {
                 ChessMove move = cmd.getMove();
@@ -100,12 +100,12 @@ public class WebSocketHandler implements Consumer<WsConfig> {
 
                 String user = cmd.getUser();
                 String moveString;
-                if (move.getPromotionPiece() != null) {
+                if (move.getPromotionPiece() == null) {
                     moveString = move.getStartPosition() + " to " + move.getEndPosition();
                 } else {
                     moveString = move.toString();
                 }
-                notifyEveryoneElse("User " + user + " made move " + moveString, cmd.getGameID(), ctx);
+                notifyEveryoneElse(user + " made move " + moveString, cmd.getGameID(), ctx);
                 ChessGame.TeamColor color = game.getTeamTurn();//will affect the new user's turn, not the current user
                 if (game.isInCheckmate(color)) {
                     game.endGame();
@@ -184,14 +184,14 @@ public class WebSocketHandler implements Consumer<WsConfig> {
 
     void sendError(String errorMessage, WsContext context) {
         ServerMessage msg = new ServerMessage(ServerMessage.ServerMessageType.ERROR);
-        msg.setErrorMessage(errorMessage);
+        msg.setErrorMessage("\n" + errorMessage);
         context.send(gson.toJson(msg));
     }
 
     void notifyEveryone(String message, int gameID) {
         for (WsContext context : gameSessions.get(gameID)) {//to everyone
             ServerMessage msg = new ServerMessage(ServerMessage.ServerMessageType.NOTIFICATION);
-            msg.setMessage(message);
+            msg.setMessage("\n" + message);
             context.send(gson.toJson(msg));
 //            System.out.println("NOTIFICATION sent back");
         }
@@ -201,7 +201,7 @@ public class WebSocketHandler implements Consumer<WsConfig> {
         for (WsContext context : gameSessions.get(gameID)) {
             if (!context.sessionId().equals(currentContext.sessionId())) {//send it to other clients, not the root client
                 ServerMessage msg = new ServerMessage(ServerMessage.ServerMessageType.NOTIFICATION);
-                msg.setMessage(message);
+                msg.setMessage("\n" + message);
                 context.send(gson.toJson(msg));
 //                        System.out.println("NOTIFICATION sent back");
             }

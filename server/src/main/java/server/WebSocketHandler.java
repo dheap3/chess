@@ -86,7 +86,13 @@ public class WebSocketHandler implements Consumer<WsConfig> {
                     break;
                 }
                 //Server verifies the validity of the move.
-                if (!game.validMoves(move.getStartPosition()).contains(move)) {
+                String rootAuth = cmd.getAuthToken();
+                String rootUsername = userService.authDAO.getAuth(rootAuth).username();
+                String whiteUsername = gameService.getGame(cmd.getGameID()).whiteUsername();
+                String blackUsername = gameService.getGame(cmd.getGameID()).blackUsername();
+                if (!game.validMoves(move.getStartPosition()).contains(move) ||//invalid move
+                        (game.getTeamTurn() == ChessGame.TeamColor.WHITE && !rootUsername.equals(whiteUsername)) ||//black moves on white turn
+                        (game.getTeamTurn() == ChessGame.TeamColor.BLACK && !rootUsername.equals(blackUsername))) {//white moves on black turn
                     sendError("Move not valid", ctx);
                     break;
                 }

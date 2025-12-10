@@ -99,6 +99,9 @@ public class WebSocketHandler implements Consumer<WsConfig> {
                 }
                 //Game is updated to represent the move. Game is updated in the database.
                 game.makeMove(move);
+                GameData oldGameData = gameService.getGame(cmd.getGameID());
+                GameData newGameData = new GameData(oldGameData.gameID(), oldGameData.whiteUsername(), oldGameData.blackUsername(), oldGameData.gameName(), game);
+                gameService.gameDAO.updateGame(newGameData);
                 //Server sends a LOAD_GAME message to all clients in the game (including
                 // the root client) with an updated game.
                 ServerMessage msg = new ServerMessage(ServerMessage.ServerMessageType.LOAD_GAME);

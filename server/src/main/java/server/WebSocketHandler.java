@@ -179,6 +179,12 @@ public class WebSocketHandler implements Consumer<WsConfig> {
         return null;
     }
 
+    void sendError(String errorMessage, WsContext context) {
+        ServerMessage msg = new ServerMessage(ServerMessage.ServerMessageType.ERROR);
+        msg.setErrorMessage(errorMessage);
+        context.send(gson.toJson(msg));
+    }
+
     void notifyEveryone(UserGameCommand cmd, String message) {
         for (WsContext context : gameSessions.get(cmd.getGameID())) {//to everyone
             ServerMessage msg = new ServerMessage(ServerMessage.ServerMessageType.NOTIFICATION);

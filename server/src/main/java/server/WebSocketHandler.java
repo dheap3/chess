@@ -131,8 +131,15 @@ public class WebSocketHandler implements Consumer<WsConfig> {
             case LEAVE -> {
                 ChessGame game = gameService.getGame(cmd.getGameID()).game();
                 leaveGameSession(cmd.getGameID(), ctx);
-                updateUser(null, game.getTeamTurn(), gameService, cmd.getGameID());
-                notifyEveryoneElse(game.getTeamTurn() + " left the game!", cmd.getGameID(), ctx);
+                String color = cmd.getUserType().toLowerCase();
+                if (color.equals("black")) {
+                    ChessGame.TeamColor chessColor = ChessGame.TeamColor.BLACK;
+                    updateUser(null, chessColor, gameService, cmd.getGameID());
+                } else if (color.equals("white")) {
+                    ChessGame.TeamColor chessColor = ChessGame.TeamColor.WHITE;
+                    updateUser(null, chessColor, gameService, cmd.getGameID());
+                }
+                notifyEveryoneElse(color + " left the game!", cmd.getGameID(), ctx);
             }
             case RESIGN -> {
                 ChessGame game = gameService.getGame(cmd.getGameID()).game();

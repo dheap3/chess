@@ -204,6 +204,7 @@ public class Client implements ServerObserver {
         Scanner scanner = new Scanner(System.in);
         String input;
         boolean exit = false;
+        currentColor = color;
 
         System.out.println("Joined Successfully!");
         printGameOptions();
@@ -212,7 +213,6 @@ public class Client implements ServerObserver {
             String gameName = "JOINED";
             GameData data = serverFacade.listGames().getGames().get(gameID);
             ChessGame game = data.game();
-            currentColor = color;
             printer = new BoardText(game.getBoard(), currentColor);
             //sleep until the notify handler is done
             sleep(500);
@@ -224,8 +224,6 @@ public class Client implements ServerObserver {
                     printGameOptions();
                 }
                 case "leave" -> {
-                    //need to leave the game
-                    //if I leave I can rejoin as a different player
                     UserGameCommand command = new UserGameCommand(UserGameCommand.CommandType.LEAVE, authToken, gameID, user, currentColor.toString());
                     wsFacade.send(command);
                     currentColor = null;

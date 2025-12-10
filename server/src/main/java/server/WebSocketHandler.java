@@ -2,10 +2,9 @@ package server;
 
 import chess.ChessGame;
 import com.google.gson.Gson;
-import datamodel.GameData;
-import datamodel.ListGamesResponse;
 import io.javalin.websocket.*;
 import service.GameService;
+import service.UserService;
 import websocket.commands.UserGameCommand;
 import websocket.messages.ServerMessage;
 
@@ -17,7 +16,7 @@ import java.util.function.Consumer;
 public class WebSocketHandler implements Consumer<WsConfig> {
 
     private final Gson gson = new Gson();
-    private GameService gameService = null;   // add this
+    private GameService gameService = null;
     //create of list of contexts to save (new context for each client)
     Map<Integer, ArrayList<WsContext>> gameSessions = new HashMap<>();
 
@@ -69,6 +68,9 @@ public class WebSocketHandler implements Consumer<WsConfig> {
                 for (WsContext context : gameSessions.get(cmd.getGameID())) {
                     if (context != ctx) {//send it to other clients, not the root client
                         msg = new ServerMessage(ServerMessage.ServerMessageType.NOTIFICATION);
+                        String user = cmd.getUser();
+                        String type = cmd.getUserType();
+                        msg.setMessage("User " + user + " connected (" + type + ")");
                         json = gson.toJson(msg);
                         context.send(json);
                         System.out.println("NOTIFICATION sent back");

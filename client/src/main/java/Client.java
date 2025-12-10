@@ -23,6 +23,7 @@ public class Client implements ServerObserver {
     static ServerObserver observer;
     static public BoardText printer = null;
     static public ChessGame.TeamColor currentColor = null;
+    static public String user = null;
 
     public static void main(String[] args) {
         System.out.println("♕ Welcome to CS 240 Chess! ♕\nEnter one of the following options:");
@@ -56,6 +57,7 @@ public class Client implements ServerObserver {
                     try {
                         AuthData auth = serverFacade.login(args[1], args[2]);
                         authToken = auth.authToken();
+                        user = args[1];
                     } catch (Exception e) {
                         printError(e, "login");
                         break;
@@ -66,6 +68,7 @@ public class Client implements ServerObserver {
                     try {
                         AuthData auth = serverFacade.register(args[1], args[2], args[3]);
                         authToken = auth.authToken();
+                        user = args[1];
                     } catch (Exception e) {
                         printError(e, "register");
                         break;
@@ -119,6 +122,7 @@ public class Client implements ServerObserver {
                     break;
                 case "logout":
                     exit = true;
+                    user = null;
                     break;
                 case "create":
                     try {
@@ -174,7 +178,7 @@ public class Client implements ServerObserver {
                         //Open a WebSocket connection with the server
                         wsFacade = new WebSocketFacade(url, observer);
                         //Send a CONNECT WebSocket message to the server.
-                        UserGameCommand command = new UserGameCommand(UserGameCommand.CommandType.CONNECT, authToken, gameID);
+                        UserGameCommand command = new UserGameCommand(UserGameCommand.CommandType.CONNECT, authToken, gameID, user, currentColor.toString());
                         wsFacade.send(command);
                         gameUI(gameID, color);
                     } catch (Exception e) {
@@ -192,7 +196,7 @@ public class Client implements ServerObserver {
                         //Open a WebSocket connection with the server
                         wsFacade = new WebSocketFacade(url, observer);
                         //Send a CONNECT WebSocket message to the server.
-                        UserGameCommand command = new UserGameCommand(UserGameCommand.CommandType.CONNECT, authToken, gameID);
+                        UserGameCommand command = new UserGameCommand(UserGameCommand.CommandType.CONNECT, authToken, gameID, user, "observer");
                         wsFacade.send(command);
                         gameUI(gameID, color);
                         break;
@@ -230,7 +234,7 @@ public class Client implements ServerObserver {
                 case "leave" -> {
                     //need to leave the game
                     //if i leave i can rejoin as a different player
-                    UserGameCommand command = new UserGameCommand(UserGameCommand.CommandType.LEAVE, authToken, gameID);
+                    UserGameCommand command = new UserGameCommand(UserGameCommand.CommandType.LEAVE, authToken, gameID, user, currentColor.toString());
                     wsFacade.send(command);
                     currentColor = null;
                     exit = true;
@@ -246,7 +250,7 @@ public class Client implements ServerObserver {
                     }
                 }
                 case "move" -> {
-                    UserGameCommand command = new UserGameCommand(UserGameCommand.CommandType.MAKE_MOVE, authToken, gameID);
+                    UserGameCommand command = new UserGameCommand(UserGameCommand.CommandType.MAKE_MOVE, authToken, gameID, user, currentColor.toString());
                     wsFacade.send(command);
 //                    wsFacade.onText()
                     //need more code here?
@@ -256,7 +260,7 @@ public class Client implements ServerObserver {
                     System.out.println("Are you sure? y/n");
                     String answer = scanner.nextLine();
                     if (answer.toLowerCase().equals("y")) {
-                        UserGameCommand command = new UserGameCommand(UserGameCommand.CommandType.RESIGN, authToken, gameID);
+                        UserGameCommand command = new UserGameCommand(UserGameCommand.CommandType.RESIGN, authToken, gameID, user, currentColor.toString());
                         wsFacade.send(command);
                         System.out.println("You forfeit. Game Over!");
                         //end game

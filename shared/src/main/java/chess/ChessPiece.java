@@ -406,7 +406,7 @@ public class ChessPiece {
             default:
                 System.out.println("Unknown piece type: " + myPieceType);
         }
-        System.out.println(board.toString());
+//        System.out.println(board.toString());
         return moves;
     }
 

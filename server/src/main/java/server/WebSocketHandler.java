@@ -166,13 +166,15 @@ public class WebSocketHandler implements Consumer<WsConfig> {
             }
             case RESIGN -> {
                 //Server marks the game as over (no more moves can be made). Game is updated in the database.
+                ChessGame game = gameService.getGame(cmd.getGameID()).game();
+                game.endGame();
+                updateGame(game, gameService, cmd.getGameID());
                 //Server sends a Notification message to all clients in that game informing them that the
                 // root client resigned. This applies to both players and observers.
-                //update game TODO
-                System.out.println("Game marked as over and updated");
-                ServerMessage msg = new ServerMessage(ServerMessage.ServerMessageType.NOTIFICATION);
-                ctx.send(gson.toJson(msg));
-                System.out.println("NOTIFICATION sent back");
+                ChessGame.TeamColor color = game.getTeamTurn();
+                notifyEveryone(color + " resigned! Game is over.", cmd.getGameID());
+                //update game
+                updateGame(game, gameService, cmd.getGameID());
             }
         }
     }

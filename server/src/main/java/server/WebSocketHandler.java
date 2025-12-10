@@ -9,12 +9,17 @@ import service.GameService;
 import websocket.commands.UserGameCommand;
 import websocket.messages.ServerMessage;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.function.Consumer;
 
 public class WebSocketHandler implements Consumer<WsConfig> {
 
     private final Gson gson = new Gson();
     private GameService gameService = null;   // add this
+    //create of list of contexts to save (new context for each client)
+    Map<Integer, ArrayList<WsContext>> gameSessions = new HashMap<>();
 
     public WebSocketHandler(GameService gameService) {
         this.gameService = gameService;
@@ -34,6 +39,7 @@ public class WebSocketHandler implements Consumer<WsConfig> {
         });
 
         ws.onClose(ctx -> {
+            gameSessions.values().forEach(list -> list.remove(ctx));
 //            System.out.println("close");
         });
 
@@ -46,6 +52,10 @@ public class WebSocketHandler implements Consumer<WsConfig> {
         //this switch statement uses the nicer syntax, update other switches to match this one
         switch (cmd.getCommandType()) {
             case CONNECT -> {
+                //add the session to the gameSessions
+                int gameID = cmd.getGameID();
+                gameSessions.putIfAbsent(gameID, new ArrayList<>());
+                gameSessions.get(gameID).add(ctx);
                 //Server sends a LOAD_GAME message back to the root client.
                 //Server sends a Notification message to all other clients in that game informing them the root
                 // client connected to the game, either as a player (in which case their color must be specified)
@@ -56,11 +66,13 @@ public class WebSocketHandler implements Consumer<WsConfig> {
                 String json = gson.toJson(msg);
                 ctx.send(json);
                 System.out.println("LOAD_GAME sent back");
-                if (false) {//send it to other clients, not the root client
-                    msg = new ServerMessage(ServerMessage.ServerMessageType.NOTIFICATION);
-                    json = gson.toJson(msg);
-                    ctx.send(json);
-                    System.out.println("NOTIFICATION sent back");
+                for (WsContext context : gameSessions.get(cmd.getGameID())) {
+                    if (context != ctx) {//send it to other clients, not the root client
+                        msg = new ServerMessage(ServerMessage.ServerMessageType.NOTIFICATION);
+                        json = gson.toJson(msg);
+                        context.send(json);
+                        System.out.println("NOTIFICATION sent back");
+                    }
                 }
             }
             case MAKE_MOVE -> {

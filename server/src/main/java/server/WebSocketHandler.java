@@ -56,10 +56,8 @@ public class WebSocketHandler implements Consumer<WsConfig> {
             case CONNECT -> {
                 int gameID = cmd.getGameID();
                 String auth = cmd.getAuthToken();
-                //verify if the info received is in the database
                 if (gameService.getGame(gameID) == null) {
-                    sendError("Game not found", ctx); break;
-                }
+                    sendError("Game not found", ctx); break; }
                 if (userService.authDAO.getAuth(auth) == null) {
                     sendError("You are not authorized to access this game", ctx); break;
                 }

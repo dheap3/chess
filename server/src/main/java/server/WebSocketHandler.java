@@ -1,6 +1,7 @@
 package server;
 
 import chess.ChessGame;
+import chess.ChessMove;
 import com.google.gson.Gson;
 import io.javalin.websocket.*;
 import service.GameService;
@@ -87,8 +88,15 @@ public class WebSocketHandler implements Consumer<WsConfig> {
                 }
             }
             case MAKE_MOVE -> {
-                //Server verifies the validity of the move. TODO
+                //Server verifies the validity of the move.
+                ChessMove move = cmd.getMove();
+                ChessGame game = gameService.getGame(cmd.getGameID()).game();
+                if (!game.validMoves(move.getStartPosition()).contains(move)) {
+                    System.out.println("Move not valid");
+                    break;
+                }
                 //Game is updated to represent the move. Game is updated in the database.
+//                game.makeMove(move);
                 //Server sends a LOAD_GAME message to all clients in the game (including
                 // the root client) with an updated game.
                 ServerMessage msg = new ServerMessage(ServerMessage.ServerMessageType.LOAD_GAME);

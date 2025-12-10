@@ -6,6 +6,8 @@ import java.util.Scanner;
 import static java.lang.System.exit;
 import static java.lang.Thread.sleep;
 
+import chess.ChessMove;
+import chess.ChessPosition;
 import com.google.gson.Gson;
 import datamodel.AuthData;
 import datamodel.GameData;
@@ -97,7 +99,6 @@ public class Client implements ServerObserver {
         Scanner scanner = new Scanner(System.in);
         boolean exit = false;
         String line, input;
-        ChessGame.TeamColor color = null;
         Map<Integer, Integer> numGameID = null;
         System.out.println("You are logged in!");
         printPostOptions();
@@ -165,14 +166,14 @@ public class Client implements ServerObserver {
                         int num = Integer.parseInt(args[1]);
                         int gameID = numGameID.get(num);
                         if (args[2].equalsIgnoreCase("WHITE")) {
-                            color = ChessGame.TeamColor.WHITE;
+                            currentColor = ChessGame.TeamColor.WHITE;
                         } else if (args[2].equalsIgnoreCase("BLACK")) {
-                            color = ChessGame.TeamColor.BLACK;
+                            currentColor = ChessGame.TeamColor.BLACK;
                         } else {
                             System.out.println("Join failed. Please enter a valid game ID/COLOR");
                             break;
                         }
-                        serverFacade.joinGame(color, gameID);
+                        serverFacade.joinGame(currentColor, gameID);
                         String url = ServerFacade.serverUrl;
 //                        System.out.println(url);
                         //Open a WebSocket connection with the server
@@ -180,7 +181,7 @@ public class Client implements ServerObserver {
                         //Send a CONNECT WebSocket message to the server.
                         UserGameCommand command = new UserGameCommand(UserGameCommand.CommandType.CONNECT, authToken, gameID, user, currentColor.toString());
                         wsFacade.send(command);
-                        gameUI(gameID, color);
+                        gameUI(gameID, currentColor);
                     } catch (Exception e) {
                         printError(e, "join");
                         break;
@@ -190,7 +191,7 @@ public class Client implements ServerObserver {
                     try {
                         int num = Integer.parseInt(args[1]);
                         int gameID = numGameID.get(num);
-                        color = ChessGame.TeamColor.WHITE;//default color to observe is white
+                        currentColor = ChessGame.TeamColor.WHITE;//default color to observe is white
 
                         String url = ServerFacade.serverUrl;
                         //Open a WebSocket connection with the server
@@ -198,7 +199,7 @@ public class Client implements ServerObserver {
                         //Send a CONNECT WebSocket message to the server.
                         UserGameCommand command = new UserGameCommand(UserGameCommand.CommandType.CONNECT, authToken, gameID, user, "observer");
                         wsFacade.send(command);
-                        gameUI(gameID, color);
+                        gameUI(gameID, currentColor);
                         break;
                     } catch (Exception e) {
                         printError(e, "observe");
@@ -218,7 +219,7 @@ public class Client implements ServerObserver {
         GameData data = serverFacade.listGames().getGames().get(gameID);
         ChessGame game = data.game();
         currentColor = color;
-        printer = new BoardText(game, color);
+        printer = new BoardText(game, currentColor);
 
         System.out.println("Joined Successfully!");
         printGameOptions();
@@ -240,9 +241,9 @@ public class Client implements ServerObserver {
                     exit = true;
                 }
                 case "redraw" -> {
-                    if (color == ChessGame.TeamColor.BLACK) {
+                    if (currentColor == ChessGame.TeamColor.BLACK) {
                         printBlackBoard();
-                    } else if (color == ChessGame.TeamColor.WHITE) {
+                    } else if (currentColor == ChessGame.TeamColor.WHITE) {
                         printWhiteBoard();
                     } else {
                         System.out.println("color error");
@@ -250,9 +251,18 @@ public class Client implements ServerObserver {
                     }
                 }
                 case "move" -> {
+                    if ((args[1].length() != 2) || (args[2].length() != 2) ||//lenght of args
+                            !Character.isLetter(args[1].charAt(0)) || !Character.isDigit(args[1].charAt(1)) ||//starts with letter and ends with a number
+                            !Character.isLetter(args[2].charAt(0)) || !Character.isDigit(args[2].charAt(1))) {
+                        System.out.println("Please enter a valid move");
+                        break;
+                    }
+                    parsePosition(args[1]);
+                    ChessMove move = new ChessMove(parsePosition(args[1]), parsePosition(args[2]), null);
                     UserGameCommand command = new UserGameCommand(UserGameCommand.CommandType.MAKE_MOVE, authToken, gameID, user, currentColor.toString());
+                    command.setMove(move);
                     wsFacade.send(command);
-//                    wsFacade.onText()
+
                     //need more code here?
                     printGameOptions();
                 }
@@ -342,7 +352,7 @@ public class Client implements ServerObserver {
         System.out.print("help - display this help menu\n" +
                 "leave - leave the current game\n" +
                 "redraw - redraw the chess board\n" +
-                "move <MOVE> - make a move with notation <asdf>\n" +
+                "move <MOVE> - make a move with notation <START POSITION END POSITION>\n" +
                 "resign - forfeit the current game\n" +//doesn't leave the game
                 "moves <PIECE> - highlight the legal moves for PIECE\n");
     }

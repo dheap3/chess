@@ -87,7 +87,7 @@ public class WebSocketHandler implements Consumer<WsConfig> {
                 }
                 //Server verifies the validity of the move.
                 if (!game.validMoves(move.getStartPosition()).contains(move)) {
-                    System.out.println("Move not valid");
+                    sendError("Move not valid", ctx);
                     break;
                 }
 
@@ -117,7 +117,13 @@ public class WebSocketHandler implements Consumer<WsConfig> {
                 if (game.isInCheckmate(color)) {
                     game.endGame();
                     updateGame(game, gameService, cmd.getGameID());
-                    String message = cmd.getUser() + " has been checkmated!";
+                    ChessGame.TeamColor checkmatee;
+                    if (color == ChessGame.TeamColor.WHITE) {
+                        checkmatee = ChessGame.TeamColor.BLACK;
+                    } else {
+                        checkmatee = ChessGame.TeamColor.WHITE;
+                    }
+                    String message = checkmatee + " has been checkmated!";
                     notifyEveryone(message, cmd.getGameID());
                 } else if (game.isInStalemate(color)) {
                     game.endGame();
@@ -125,7 +131,13 @@ public class WebSocketHandler implements Consumer<WsConfig> {
                     String message = "the game is a stalemate!";
                     notifyEveryone(message, cmd.getGameID());
                 } else if (game.isInCheck(color)) {
-                    String message = cmd.getUser() + " is in check!";
+                    ChessGame.TeamColor checkee;
+                    if (color == ChessGame.TeamColor.WHITE) {
+                        checkee = ChessGame.TeamColor.BLACK;
+                    } else {
+                        checkee = ChessGame.TeamColor.WHITE;
+                    }
+                    String message = checkee + " is in check!";
                     notifyEveryone(message, cmd.getGameID());
                 }
 

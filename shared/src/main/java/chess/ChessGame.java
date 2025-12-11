@@ -61,6 +61,11 @@ public class ChessGame {
         ArrayList<ChessMove> invalidMoves = new ArrayList<>();
         //if it would leave the king in check, remove it
         for (ChessMove move : validMoves) {
+            //if the end square is our own piece mark as invalid
+            if ((board.getPiece(move.getEndPosition()) != null)
+            && (board.getPiece(move.getEndPosition()).getTeamColor() == board.getPiece(move.getStartPosition()).getTeamColor())) {
+                invalidMoves.add(move);
+            }
             //save the end square so we don't lose anything
             ChessPiece endSquare = board.getPiece(move.getEndPosition());
             //perform move

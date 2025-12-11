@@ -180,7 +180,10 @@ public class Client implements ServerObserver {
                         UserGameCommand command = new UserGameCommand(UserGameCommand.CommandType.CONNECT, authToken, gameID, user, currentColor.toString());
                         wsFacade.send(command);
                         gameUI(gameID, currentColor);
-                    } catch (Exception e) { printError(e, "join"); break; }
+                    } catch (Exception e) {
+                        printError(e, "join");
+                        break;
+                    }
                     break;
                 case "observe":
                     try {
@@ -215,7 +218,7 @@ public class Client implements ServerObserver {
             ChessGame game = data.game();
             printer = new BoardText(game.getBoard(), currentColor);
             //sleep until the notify handler is done
-            sleep(500);
+            sleep(1000);
             System.out.print("[GAME " + gameName + "] ->> ");
             input = scanner.nextLine();
             var args = input.split(" ");
@@ -261,8 +264,18 @@ public class Client implements ServerObserver {
                     }
                 }
                 case "moves" -> {
-                    //highlight the legal moves
-                    printer.printBoard(game.getBoard());
+                    //update all the game data every time
+                    gameName = "JOINED";
+                    data = serverFacade.listGames().getGames().get(gameID);
+                    game = data.game();
+                    printer = new BoardText(game.getBoard(), currentColor);
+                    if ((args[1].length() != 2) ||//length of args
+                            !Character.isLetter(args[1].charAt(0)) || !Character.isDigit(args[1].charAt(1))) {//starts with letter, ends with a num
+                        System.out.println("Please enter a valid move");
+                        break;
+                    }
+                    ChessPosition position = parsePosition(args[1]);
+                    printer.highlightMoves(game.getBoard(),game.validMoves(position), position);
                 }
                 default -> {
                     System.out.println("option not valid. please try again");

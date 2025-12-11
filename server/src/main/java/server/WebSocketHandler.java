@@ -53,7 +53,7 @@ public class WebSocketHandler implements Consumer<WsConfig> {
         });
     }
 
-    private void handle(WsMessageContext ctx, UserGameCommand cmd) throws Exception{
+    private void handle(WsMessageContext ctx, UserGameCommand cmd) throws Exception {
         switch (cmd.getCommandType()) {
             case CONNECT -> {
                 int gameID = cmd.getGameID();
@@ -94,7 +94,11 @@ public class WebSocketHandler implements Consumer<WsConfig> {
                         (game.getTeamTurn() == ChessGame.TeamColor.BLACK && !rootUsername.equals(blackUsername))) {//white moves on black turn
                     sendError("Move not valid", ctx); break;
                 }
-                game.makeMove(move);
+                try {
+                    game.makeMove(move);
+                } catch (Exception e) {
+                    sendError("Move not valid", ctx); break;
+                }
                 updateChessGame(game, gameService, cmd.getGameID());
                 loadEveryonesGame(cmd.getGameID());
 

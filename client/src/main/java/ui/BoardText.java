@@ -1,12 +1,10 @@
 package ui;
 
-import chess.ChessBoard;
-import chess.ChessGame;
-import chess.ChessPiece;
-import chess.ChessPosition;
+import chess.*;
 
 import java.io.PrintStream;
 import java.nio.charset.StandardCharsets;
+import java.util.Collection;
 
 import static chess.ChessPiece.PieceType.*;
 import static java.lang.Math.abs;
@@ -70,7 +68,18 @@ public class BoardText {
         BoardText.board = board;
         out.print(ERASE_SCREEN);
         out.print("\n");
-        printSquares(out);
+        printSquares(out, null, null);
+
+        resetColor(out);
+    }
+
+    public void highlightMoves(ChessBoard board, Collection<ChessMove> yellows, ChessPosition position) {
+        var out = new PrintStream(System.out, true, StandardCharsets.UTF_8);
+        boardRow = 0;
+        BoardText.board = board;
+        out.print(ERASE_SCREEN);
+        out.print("\n");
+        printSquares(out, yellows, position);
 
         resetColor(out);
     }
@@ -105,7 +114,7 @@ public class BoardText {
         resetColor(out);
     }
 
-    private static void printSquares(PrintStream out) {
+    private static void printSquares(PrintStream out, Collection<ChessMove> yellows, ChessPosition position) {
         printColNames(out);
         for (int boardRow = 0; boardRow < 8; boardRow++) {
             for (int boardCol = 0; boardCol < 10; boardCol++) {
@@ -116,13 +125,41 @@ public class BoardText {
                 } else {
                     setWhite(out);
                     String piece = calcPieceString(boardRow + 1, boardCol);
-                    printPiece(out, piece);
+                    if (yellows == null) {
+                        printPiece(out, piece, false);
+                    } else {//highlight
+                        int realRow = 8 - boardRow;
+                        int realCol = boardCol;
+
+                        // apply black POV flip
+                        if (blackPOV) {
+                            realRow = 9 - realRow;
+                            realCol = 9 - realCol;
+                        }
+
+                        ChessPosition end = new ChessPosition(realRow, realCol);
+                        if (movesContains(yellows, end)) {
+                            printPiece(out, piece, true);
+                        } else {
+                            printPiece(out, piece, false);
+                        }
+                    }
                     resetColor(out);
                 }
             }
             out.println();
         }
         printColNames(out);
+    }
+
+    private static boolean movesContains(Collection<ChessMove> squares, ChessPosition pos) {
+        //just checks start and end position, no promotion piece checking
+        for (ChessMove square : squares) {
+            if (square.getEndPosition().equals(pos)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     private static String calcPieceString(int row, int col) {
@@ -182,9 +219,11 @@ public class BoardText {
         out.print("\u001b[0m");
     }
 
-    private static void printPiece(PrintStream out, String piece) {
+    private static void printPiece(PrintStream out, String piece, boolean highlight) {
         timesPrintPieceCalled++;
-        if ((timesPrintPieceCalled + boardRow) % 2 == 0) {
+        if (highlight) {
+            out.print(SET_BG_COLOR_YELLOW);
+        } else if ((timesPrintPieceCalled + boardRow) % 2 == 0) {
             out.print(SET_BG_COLOR_LIGHT_GREY);
         } else {
             out.print(SET_BG_COLOR_DARK_GREEN);
